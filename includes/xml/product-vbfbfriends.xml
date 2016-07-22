@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<product productid="vbfbfriends" active="1">
+	<title>vBulletin Facebook Register Login</title>
+	<description />
+	<version>1.0</version>
+	<url />
+	<versioncheckurl />
+	<dependencies>
+		<dependency dependencytype="vbulletin" minversion="4.0.0 Alpha 1" maxversion="" />
+	</dependencies>
+	<codes>
+		<code version="1.0">
+			<installcode><![CDATA[require_once(DIR . '/includes/class_dbalter.php');
+$db_alter = new vB_Database_Alter_MySQL($db);
+
+
+if ($db_alter->fetch_table_info('user'))
+{
+	$db_alter->add_field(
+		array(
+			'name' => 'disablevbsocial',
+			'type' => 'int',
+			'attributes' => 'unsigned',
+			'default' => '0'
+		)
+	);
+}
+unset($db_alter);]]></installcode>
+			<uninstallcode><![CDATA[require_once(DIR . '/includes/class_dbalter.php');
+$db_alter = new vB_Database_Alter_MySQL($db);
+
+
+if ($db_alter->fetch_table_info('user'))
+{
+	$db_alter->drop_field('disablevbsocial');
+}
+unset($db_alter);]]></uninstallcode>
+		</code>
+	</codes>
+	<templates>
+		<template name="modifyprofileprivacy_facebook" templatetype="template" date="1310681665" username="freddie" version="1.0"><![CDATA[<form action="profile.php?do=doprofileprivacy_facebook" method="post" id="profileform" class="block">
+
+	<h2 class="blockhead">{vb:rawphrase facebook_privacy}</h2>
+	<div class="blockbody formcontrols settings_form_border">
+		<div class="section">
+			<div class="blockrow">
+				<p class="singledescription">
+					<label for="cb_disablevbsocial"><input type="checkbox" name="disablevbsocial" value="1" {vb:raw disablevbsocial_checked} id="cb_disablevbsocial" />
+					{vb:rawphrase opt_out_social_networking}</label>
+				</p>
+			</div>
+		</div>
+	</div>
+	
+	<div class="blockfoot actionbuttons settings_form_border">
+		<div class="group">
+			<input type="submit" class="button" value="{vb:rawphrase save}" accesskey="v" />
+			<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+			<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+			<input type="hidden" name="do" value="dofacebookprivacy" />
+		</div>
+	</div>
+
+</form>]]></template>
+		<template name="modifyprofileprivacy_facebook_link" templatetype="template" date="1310675494" username="freddie" version="1.0"><![CDATA[<li>
+	<ul class="blockrow">
+		<li class="{vb:raw navclass.facebook_privacy}"><a href="profile.php?{vb:raw session.sessionurl}do=facebookprivacy">{vb:rawphrase facebook_privacy}</a></li>
+		</ul>
+</li>]]></template>
+	</templates>
+	<stylevardfns>
+	</stylevardfns>
+	<stylevars>
+	</stylevars>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>Startup: Merge Templates into $globaltemplates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[if (in_array('USERCP_SHELL', $cache))
+{
+	$cache[] = 'modifyprofileprivacy_facebook_link';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Login: Cookie</title>
+			<hookname>global_bootstrap_init_complete</hookname>
+			<phpcode><![CDATA[if ($vbulletin->session->created AND $vbulletin->userinfo['userid'] AND $vbulletin->userinfo['fbuserid'] AND is_facebookenabled())
+{
+	if (!class_exists('vB_Facebook_RegisterConnectlogin'))
+	{
+		require_once(DIR . '/packages/facebook/registerconnectlogin.php');
+	}
+	vB_Facebook_RegisterConnectlogin::registerLogin($vbulletin);
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title><![CDATA[Login: Standard Form & Facebook]]></title>
+			<hookname>login_process</hookname>
+			<phpcode><![CDATA[if ($vbulletin->session->created AND $vbulletin->userinfo['userid'] AND $vbulletin->userinfo['fbuserid'] AND is_facebookenabled())
+{
+	if (!class_exists('vB_Facebook_RegisterConnectlogin'))
+	{
+		require_once(DIR . '/packages/facebook/registerconnectlogin.php');
+	}
+	vB_Facebook_RegisterConnectlogin::registerLogin($vbulletin);
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Profile: Modify Facebook Privacy Option</title>
+			<hookname>profile_start</hookname>
+			<phpcode><![CDATA[if ($_REQUEST['do'] == 'facebookprivacy' AND $vbulletin->userinfo['fbuserid'] AND is_facebookenabled())
+{
+	$navbits[''] = $vbphrase['facebook_privacy'];
+	
+	construct_usercp_nav('facebook_privacy');
+	
+	$disablevbsocial_checked = $vbulletin->userinfo['disablevbsocial'] ? "checked='checked'" : '';
+	$page_templater = vB_Template::create('modifyprofileprivacy_facebook');
+	$page_templater->register('disablevbsocial_checked', $disablevbsocial_checked);
+}
+
+if ($_POST['do'] == 'dofacebookprivacy' AND $vbulletin->userinfo['fbuserid'] AND is_facebookenabled())
+{
+	$vbulletin->input->clean_array_gpc('p', array(
+		'disablevbsocial' => TYPE_UINT,
+	));
+	
+	$userdata =& datamanager_init('User', $vbulletin, ERRTYPE_STANDARD);
+	$userdata->set_existing($vbulletin->userinfo);
+	$userdata->set('disablevbsocial', $vbulletin->GPC['disablevbsocial']);
+	$userdata->save();	
+	
+	$vbulletin->userinfo['disablevbsocial'] = $vbulletin->GPC['disablevbsocial'];
+	if (!class_exists('vB_Facebook_RegisterConnectlogin'))
+    	{
+        	require_once(DIR . '/packages/facebook/registerconnectlogin.php');
+	}
+    	vB_Facebook_RegisterConnectlogin::registerLogin($vbulletin, true); 	
+	
+	$vbulletin->url = "profile.php?"  . $vbulletin->session->vars['sessionurl'] . "do=facebookprivacy";
+	eval(print_standard_redirect('profile_privacy_saved'));	
+}
+if (($_REQUEST['do'] == 'facebookprivacy' OR $_POST['do'] == 'dofacebookprivacy') AND (!$vbulletin->userinfo['fbuserid'] OR !is_facebookenabled()))
+{
+	standard_error(fetch_error('no_facebook_permission')); 
+}
+]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title><![CDATA[User CP: Add "Facebook Privacy" link to User Settings sidebar]]></title>
+			<hookname>usercp_nav_complete</hookname>
+			<phpcode><![CDATA[if (is_facebookenabled())
+{
+	$templater = vB_Template::create('modifyprofileprivacy_facebook_link');
+	$templater->register('navclass', $navclass);
+	
+	// Try to ensure that the link appears as part of "My Profile" rather then ending up under someone else's tab
+	$template_hook['usercp_navbar_profile'] = $templater->render() . $template_hook['usercp_navbar_profile'];
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title><![CDATA[User CP: Add "Facebook Privacy" highlight class]]></title>
+			<hookname>usercp_nav_start</hookname>
+			<phpcode><![CDATA[$cells[] = 'facebook_privacy';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>User DM: Add field to $validfields</title>
+			<hookname>userdata_start</hookname>
+			<phpcode><![CDATA[$this->validfields['disablevbsocial'] = array(TYPE_UINT, REQ_NO);]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="Control Panel Help Text" fieldname="cphelptext">
+			<phrase name="options_options_facebookapp_id_text" date="1311978135" username="freddie" version="1.0"><![CDATA[Enter the IP(s) for your Application (see the Facebook App Publisher for Instructions)]]></phrase>
+			<phrase name="options_options_facebookapp_id_title" date="1311978135" username="freddie" version="1.0"><![CDATA[Facebook App IP]]></phrase>
+            <phrase name="options_options_facebookapp_id_text" date="1311978135" username="freddie" version="1.0"><![CDATA[Enter the Application ID for your Application (see the Facebook App Publisher for Instructions)]]></phrase>
+			<phrase name="options_options_facebookapp_id_title" date="1311978135" username="freddie" version="1.0"><![CDATA[Facebook App ID]]></phrase>
+			<phrase name="options_options_facebookapp_secret_text" date="1311978145" username="freddie" version="1.0"><![CDATA[Enter the Facebook Secret for your Application (see the Facebook App Publisher for Instructions)]]></phrase>
+			<phrase name="options_options_facebookapp_secret_title" date="1311978145" username="freddie" version="1.0"><![CDATA[Facebook App Secret Key]]></phrase>
+		</phrasetype>
+		<phrasetype name="Error Messages" fieldname="error">
+			<phrase name="no_facebook_permission" date="1339522619" username="freddie" version="1.0"><![CDATA[This account has not been connected to a Facebook account via Facebook connect button or Facebook Connect is disabled, please contact the administrator for more information.]]></phrase>
+		</phrasetype>
+		<phrasetype name="User Tools (global)" fieldname="user">
+			<phrase name="facebook_privacy" date="1310674691" username="freddie" version="1.0"><![CDATA[Facebook Privacy]]></phrase>
+			<phrase name="opt_out_social_networking" date="1310678166" username="freddie" version="1.0"><![CDATA[Opt Out of vBulletin Social Networking Services]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_facebookapp_ip_desc" date="1311978119" username="freddie" version="1.0"><![CDATA[Enter the IP(S) for your Application (see the Facebook App Publisher for Instructions)]]></phrase>
+			<phrase name="setting_facebookapp_ip_title" date="1311978119" username="freddie" version="1.0"><![CDATA[Facebook App IP]]></phrase>
+            <phrase name="setting_facebookapp_id_desc" date="1311978119" username="freddie" version="1.0"><![CDATA[Enter the Application ID for your Application (see the Facebook App Publisher for Instructions)]]></phrase>
+			<phrase name="setting_facebookapp_id_title" date="1311978119" username="freddie" version="1.0"><![CDATA[Facebook App ID]]></phrase>
+			<phrase name="setting_facebookapp_secret_desc" date="1311978119" username="freddie" version="1.0"><![CDATA[Enter the Facebook Secret for your Application (see the Facebook App Publisher for Instructions)]]></phrase>
+			<phrase name="setting_facebookapp_secret_title" date="1311978119" username="freddie" version="1.0"><![CDATA[Facebook App Secret Key]]></phrase>
+			<phrase name="settinggroup_facebookapp" date="1311978119" username="freddie" version="1.0"><![CDATA[Facebook App Options]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="facebookapp" displayorder="35">
+			<setting varname="facebookapp_id" displayorder="10">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="facebookapp_secret" displayorder="20">
+				<datatype>free</datatype>
+			</setting>
+            <setting varname="facebookapp_ip" displayorder="30">
+				<datatype>free</datatype>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+		<helpscript name="options">
+			<helptopic disp="1" act="options" opt="facebookapp_id" />
+			<helptopic disp="1" act="options" opt="facebookapp_secret" />
+            <helptopic disp="1" act="options" opt="facebookapp_ip" />
+		</helpscript>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+</product>

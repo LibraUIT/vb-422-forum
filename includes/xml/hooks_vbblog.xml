@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<hooks>
+
+	<hooktype type="general">
+		<hook>blog_rules</hook>
+		<hook>blog_fetch_list_query</hook>
+		<hook>blog_fetch_customblockinfo</hook>
+		<hook>blog_fetch_comment_perm</hook>
+		<hook>blog_fetch_entry_perm</hook>
+		<hook>blog_fetch_bloginfo</hook>
+		<hook>blog_fetch_bloginfo_query</hook>
+	</hooktype>
+
+	<hooktype type="ajax">
+		<hook>blog_ajax_complete</hook>
+		<hook>blog_ajax_start</hook>
+	</hooktype>
+
+	<hooktype type="entrybit">
+		<hook>blog_entry_factory</hook>
+		<hook>blog_entry_display_start</hook>
+		<hook>blog_entry_display_complete</hook>
+	</hooktype>
+
+	<hooktype type="commentbit">
+		<hook>blog_comment_display_start</hook>
+		<hook>blog_comment_display_complete</hook>
+	</hooktype>
+
+	<hooktype type="profile">
+		<hook>blog_editprofile_start</hook>
+		<hook>blog_editprofile_complete</hook>
+		<hook>blog_editoptions_start</hook>
+		<hook>blog_editoptions_complete</hook>
+	</hooktype>
+
+	<hooktype type="sidebar">
+		<hook>blog_sidebar_generic_start</hook>
+		<hook>blog_sidebar_generic_end</hook>
+		<hook>blog_sidebar_user_start</hook>
+		<hook>blog_sidebar_user_block</hook>
+		<hook>blog_sidebar_user_comments_loop</hook>
+		<hook>blog_sidebar_user_comments_query</hook>
+		<hook>blog_sidebar_user_entries_loop</hook>
+		<hook>blog_sidebar_user_entries_query</hook>
+		<hook>blog_sidebar_user_visitors_loop</hook>
+		<hook>blog_sidebar_user_visitors_query</hook>
+		<hook>blog_sidebar_user_complete</hook>
+	</hooktype>
+
+	<hooktype type="usercp">
+		<hook>blog_usercp_complete</hook>
+		<hook>blog_usercp_start</hook>
+	</hooktype>
+
+	<hooktype type="blog_deletionlogdata">
+		<hook>blog_deletionlogdata_start</hook>
+		<hook>blog_deletionlogdata_presave</hook>
+		<hook>blog_deletionlogdata_postsave</hook>
+		<hook>blog_deletionlogdata_delete</hook>
+	</hooktype>
+
+	<hooktype type="blog_rate">
+		<hook>blog_rate_start</hook>
+		<hook>blog_rate_update</hook>
+		<hook>blog_rate_add</hook>
+	</hooktype>
+
+	<hooktype type="blog_ratedata">
+		<hook>blog_ratedata_start</hook>
+		<hook>blog_ratedata_presave</hook>
+		<hook>blog_ratedata_postsave</hook>
+		<hook>blog_ratedata_delete</hook>
+	</hooktype>
+
+	<hooktype type="blog_categorydata">
+		<hook>blog_categorydata_start</hook>
+		<hook>blog_categorydata_presave</hook>
+		<hook>blog_categorydata_postsave</hook>
+		<hook>blog_categorydata_delete</hook>
+	</hooktype>
+
+	<hooktype type="blog_attachdata">
+		<hook>blog_attachdata_start</hook>
+		<hook>blog_attachdata_presave</hook>
+		<hook>blog_attachdata_postsave</hook>
+		<hook>blog_attachdata_delete</hook>
+	</hooktype>
+
+	<hooktype type="blog_userdata">
+		<hook>blog_userdata_start</hook>
+		<hook>blog_userdata_presave</hook>
+		<hook>blog_userdata_postsave</hook>
+		<hook>blog_userdata_delete</hook>
+	</hooktype>
+
+	<hooktype type="blog_trackbackdata">
+		<hook>blog_trackbackdata_start</hook>
+		<hook>blog_trackbackdata_presave</hook>
+		<hook>blog_trackbackdata_postsave</hook>
+		<hook>blog_trackbackdata_delete</hook>
+		<hook>blog_trackbackdata_presave_start</hook>
+	</hooktype>
+
+	<hooktype type="blog_data">
+		<hook>blog_data_start</hook>
+		<hook>blog_data_presave</hook>
+		<hook>blog_data_postsave</hook>
+		<hook>blog_data_delete</hook>
+		<hook>blog_fpdata_start</hook>
+		<hook>blog_fpdata_doset</hook>
+		<hook>blog_fpdata_presave</hook>
+		<hook>blog_fpdata_postsave</hook>
+		<hook>blog_fpdata_delete</hook>
+		<hook>blog_post_notification_start</hook>
+		<hook>blog_post_notification_message</hook>
+		<hook>blog_textdata_start</hook>
+		<hook>blog_textdata_presave</hook>
+		<hook>blog_textdata_postsave</hook>
+		<hook>blog_textdata_delete</hook>
+		<hook>blog_user_notification_start</hook>
+		<hook>blog_user_notification_message</hook>
+		<hook>blog_latest_blogs_entry</hook>
+		<hook>blog_latest_blogs_query</hook>
+		<hook>blog_latest_comments_entry</hook>
+		<hook>blog_latest_comments_query</hook>
+		<hook>blog_rated_blogs_entry</hook>
+		<hook>blog_rated_blogs_query</hook>
+	</hooktype>
+
+	<hooktype type="blog_view">
+		<hook>blog_start</hook>
+		<hook>blog_entry_start</hook>
+		<hook>blog_entry_comments_query</hook>
+		<hook>blog_entry_bookmarkbit</hook>
+		<hook>blog_entry_attachmentbit</hook>
+		<hook>blog_entry_complete</hook>
+		<hook>blog_list_entries_start</hook>
+		<hook>blog_list_entries_blog_query</hook>
+		<hook>blog_list_entries_attachmentbit</hook>
+		<hook>blog_list_entries_complete</hook>
+		<hook>blog_list_start</hook>
+		<hook>blog_list_blog_query</hook>
+		<hook>blog_list_complete</hook>
+		<hook>blog_intro_start</hook>
+		<hook>blog_intro_complete</hook>
+		<hook>blog_comments_start</hook>
+		<hook>blog_comments_comments_query</hook>
+		<hook>blog_comments_complete</hook>
+		<hook>blog_random_query</hook>
+		<hook>blog_viewip_complete</hook>
+		<hook>blog_complete</hook>
+	</hooktype>
+
+	<hooktype type="blog_subscription">
+		<hook>blog_postsub_add_complete</hook>
+		<hook>blog_postsub_add_start</hook>
+		<hook>blog_postsub_doadd</hook>
+		<hook>blog_postsub_remove</hook>
+		<hook>blog_postsub_view_complete</hook>
+		<hook>blog_postsub_view_sort</hook>
+		<hook>blog_postsub_view_start</hook>
+		<hook>blog_usersub_manage_delete</hook>
+		<hook>blog_usersub_manage_start</hook>
+		<hook>blog_usersub_manage_update</hook>
+		<hook>blog_usersub_start</hook>
+		<hook>blog_usersub_view_complete</hook>
+		<hook>blog_usersub_view_sort</hook>
+		<hook>blog_usersub_view_start</hook>
+	</hooktype>
+
+	<hooktype type="blog_inlinemod">
+		<hook>blog_inlinemod_clearcomment</hook>
+		<hook>blog_inlinemod_clearpcomment</hook>
+		<hook>blog_inlinemod_cleartrackback</hook>
+		<hook>blog_inlinemod_clearentry</hook>
+		<hook>blog_inlinemod_action_switch</hook>
+		<hook>blog_inlinemod_complete</hook>
+		<hook>blog_inlinemod_dodeletecomments</hook>
+		<hook>blog_inlinemod_dodeleteentries</hook>
+		<hook>blog_inlinemod_dodeletetrackbacks</hook>
+		<hook>blog_inlinemod_undeletecomments</hook>
+		<hook>blog_inlinemod_undeleteentries</hook>
+	</hooktype>
+
+	<hooktype type="blog_external">
+		<hook>blog_external_complete</hook>
+		<hook>blog_external_query</hook>
+		<hook>blog_external_start</hook>
+	</hooktype>
+
+	<hooktype type="blog_newattachment">
+		<hook>blog_newattachment_attach</hook>
+		<hook>blog_newattachment_complete</hook>
+		<hook>blog_newattachment_start</hook>
+	</hooktype>
+
+	<hooktype type="blog_post">
+		<hook>blog_callback_start</hook>
+		<hook>blog_post_comment_complete</hook>
+		<hook>blog_post_comment_start</hook>
+		<hook>blog_post_complete</hook>
+		<hook>blog_post_editcomment_complete</hook>
+		<hook>blog_post_editcomment_start</hook>
+		<hook>blog_post_editentry_complete</hook>
+		<hook>blog_post_editentry_start</hook>
+		<hook>blog_post_edittrackback_complete</hook>
+		<hook>blog_post_newentry_complete</hook>
+		<hook>blog_post_newentry_start</hook>
+		<hook>blog_post_start</hook>
+		<hook>blog_post_updatecomment_complete</hook>
+		<hook>blog_post_updatecomment_start</hook>
+		<hook>blog_post_updateentry_edit</hook>
+		<hook>blog_post_updateentry_new</hook>
+		<hook>blog_post_updateentry_start</hook>
+		<hook>blog_post_updateentry_complete</hook>
+	</hooktype>
+
+	<hooktype type="blog_report">
+		<hook>blog_report_start</hook>
+		<hook>blog_report_form_start</hook>
+		<hook>blog_report_send_process</hook>
+		<hook>blog_report_send_email</hook>
+		<hook>blog_report_send_complete</hook>
+		<hook>blog_report_complete</hook>
+	</hooktype>
+
+	<hooktype type="blog_sendmessage">
+		<hook>blog_dosendtofriend_start</hook>
+		<hook>blog_dosendtofriend_complete</hook>
+		<hook>blog_sendtofriend_start</hook>
+		<hook>blog_sendtofriend_complete</hook>
+	</hooktype>
+
+	<hooktype type="blog_tag">
+		<hook>blog_tag_domanage_delete</hook>
+		<hook>blog_tag_domanage_postdelete</hook>
+		<hook>blog_tag_managebit</hook>
+		<hook>blog_tag_manage_tagsremain</hook>
+		<hook>blog_tag_cloud_bit</hook>
+		<hook>blog_tag_fetchbit</hook>
+		<hook>blog_tag_fetchbit_complete</hook>
+	</hooktype>
+
+	<hooktype type="blog_customize_profile">
+		<hook>blog_docustomize_start</hook>
+		<hook>blog_docustomize_process</hook>
+		<hook>blog_customize_start</hook>
+		<hook>blog_customize_bit</hook>
+	</hooktype>
+
+</hooks>
+
+<!-- CVS: $RCSfile$ - $Revision: 56533 $ -->

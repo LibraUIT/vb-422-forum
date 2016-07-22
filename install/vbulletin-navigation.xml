@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<vbulletin productid="vbulletin" active="1">
+	<title>vB4 Navigation</title>
+	<description>Navigation Data</description>
+	<version>4.2.2</version>
+	<navigation>
+		<tab name="vbtab_whatsnew" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show />
+			<scripts>search.activity</scripts>
+			<displayorder>10</displayorder>
+			<url><![CDATA[activity.php{session.sessionurl_q}]]></url>
+			<default>1</default>
+		</tab>
+		<tab name="vbtab_forum" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show />
+			<scripts />
+			<displayorder>30</displayorder>
+			<url><![CDATA[forum.php{session.sessionurl_q}]]></url>
+		</tab>
+		<menu name="vbmenu_community" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>communitylink</show>
+			<parent>vbtab_forum</parent>
+			<displayorder>60</displayorder>
+		</menu>
+		<menu name="vbmenu_actions" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>canviewforums</show>
+			<parent>vbtab_forum</parent>
+			<displayorder>70</displayorder>
+		</menu>
+		<menu name="vbmenu_qlinks" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show />
+			<parent>vbtab_forum</parent>
+			<displayorder>80</displayorder>
+		</menu>
+		<link name="vbalink_mfr" date="1330920716" username="Admin" version="4.2.1 Alpha 1">
+			<active>1</active>
+			<show>canviewforums</show>
+			<parent>vbmenu_actions</parent>
+			<displayorder>10</displayorder>
+			<url><![CDATA[forumdisplay.php?{session.sessionurl}do=markread&amp;markreadhash={bbuserinfo.securitytoken}]]></url>
+		</link>
+		<link name="vbalink_settings" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>member</show>
+			<parent>vbmenu_actions</parent>
+			<displayorder>20</displayorder>
+			<url><![CDATA[profile.php?{session.sessionurl}do=editoptions]]></url>
+		</link>
+		<link name="vbalink_profile" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>member</show>
+			<parent>vbmenu_actions</parent>
+			<displayorder>30</displayorder>
+			<url><![CDATA[profile.php?{session.sessionurl}do=editprofile]]></url>
+		</link>
+		<link name="vbclink_groups" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>quick_links_groups</show>
+			<parent>vbmenu_community</parent>
+			<displayorder>10</displayorder>
+			<url><![CDATA[group.php{session.sessionurl_q}]]></url>
+		</link>
+		<link name="vbclink_albums" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>quick_links_albums</show>
+			<parent>vbmenu_community</parent>
+			<displayorder>20</displayorder>
+			<url><![CDATA[album.php{session.sessionurl_q}]]></url>
+		</link>
+		<link name="vbclink_contacts" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>member</show>
+			<parent>vbmenu_community</parent>
+			<displayorder>30</displayorder>
+			<url><![CDATA[profile.php?{session.sessionurl}do=buddylist]]></url>
+		</link>
+		<link name="vbclink_members" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>memberslist</show>
+			<parent>vbmenu_community</parent>
+			<displayorder>40</displayorder>
+			<url><![CDATA[memberlist.php{session.sessionurl_q}]]></url>
+		</link>
+		<link name="vbqlink_posts" date="1330920716" username="Admin" version="4.2.1 Alpha 1">
+			<active>1</active>
+			<show>searchbuttons</show>
+			<parent>vbmenu_qlinks</parent>
+			<displayorder>10</displayorder>
+			<url><![CDATA[search.php?{session.sessionurl}do=getdaily&amp;contenttype=vBForum_Post]]></url>
+		</link>
+		<link name="vbqlink_threads" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>member</show>
+			<parent>vbmenu_qlinks</parent>
+			<displayorder>20</displayorder>
+			<url><![CDATA[subscription.php{session.sessionurl_q}]]></url>
+		</link>
+		<link name="vbqlink_contacts" date="1330920716" username="Admin" version="4.2.1 Alpha 1">
+			<active>1</active>
+			<show>member</show>
+			<parent>vbmenu_qlinks</parent>
+			<displayorder>30</displayorder>
+			<url><![CDATA[javascript://window.open(getBaseUrl() + 'misc.php?{session.sessionurl}do=buddylist&amp;focus=1','buddylist','statusbar=no,menubar=no,toolbar=no,scrollbars=yes,resizable=yes,width=250,height=300'); return false;]]></url>
+		</link>
+		<link name="vbqlink_leaders" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>forumleaders</show>
+			<parent>vbmenu_qlinks</parent>
+			<displayorder>40</displayorder>
+			<url><![CDATA[showgroups.php{session.sessionurl_q}]]></url>
+		</link>
+		<link name="vbqlink_online" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>wollink</show>
+			<parent>vbmenu_qlinks</parent>
+			<displayorder>50</displayorder>
+			<url><![CDATA[online.php{session.sessionurl_q}]]></url>
+		</link>
+		<link name="vbflink_bbmenu" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>bbmenu</show>
+			<parent>vbtab_forum</parent>
+			<displayorder>10</displayorder>
+			<url><![CDATA[forum.php{session.sessionurl_q}]]></url>
+		</link>
+		<link name="vbflink_newposts" date="1330920716" username="Admin" version="4.2.1 Alpha 1">
+			<active>1</active>
+			<show>searchbuttons</show>
+			<parent>vbtab_forum</parent>
+			<displayorder>20</displayorder>
+			<url><![CDATA[search.php?{session.sessionurl}do=getnew&amp;contenttype=vBForum_Post]]></url>
+		</link>
+		<link name="vbflink_pms" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>pmmainlink</show>
+			<parent>vbtab_forum</parent>
+			<displayorder>30</displayorder>
+			<url><![CDATA[private.php{session.sessionurl_q}]]></url>
+		</link>
+		<link name="vbflink_faq" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show />
+			<parent>vbtab_forum</parent>
+			<displayorder>40</displayorder>
+			<url><![CDATA[faq.php{session.sessionurl_q}]]></url>
+		</link>
+		<link name="vbflink_calendar" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show>canviewcalendar</show>
+			<parent>vbtab_forum</parent>
+			<displayorder>50</displayorder>
+			<url><![CDATA[calendar.php{session.sessionurl_q}]]></url>
+		</link>
+		<link name="vbnew_activitystream" date="1330920716" username="Admin" version="4.2.0 Alpha 1">
+			<active>1</active>
+			<show />
+			<parent>vbtab_whatsnew</parent>
+			<displayorder>10</displayorder>
+			<url><![CDATA[activity.php{session.sessionurl_q}]]></url>
+		</link>
+		<link name="vbnew_newposts" date="1330920716" username="Admin" version="4.2.1 Alpha 1">
+			<active>1</active>
+			<show>searchbuttons</show>
+			<parent>vbtab_whatsnew</parent>
+			<displayorder>20</displayorder>
+			<url><![CDATA[search.php?{session.sessionurl}do=getnew&amp;contenttype=vBForum_Post]]></url>
+		</link>
+		<link name="vbnew_groupm" date="1330920716" username="Admin" version="4.2.1 Alpha 1">
+			<active>1</active>
+			<show>quick_links_groups</show>
+			<parent>vbtab_whatsnew</parent>
+			<displayorder>30</displayorder>
+			<url><![CDATA[search.php?{session.sessionurl}do=getnew&amp;contenttype=vBForum_SocialGroupMessage]]></url>
+		</link>
+		<link name="vbnew_events" date="1330920716" username="Admin" version="4.2.1 Alpha 1">
+			<active>1</active>
+			<show>canviewcalendar</show>
+			<parent>vbtab_whatsnew</parent>
+			<displayorder>40</displayorder>
+			<url><![CDATA[search.php?{session.sessionurl}do=getnew&amp;contenttype=vBForum_Event]]></url>
+		</link>
+		<link name="vbnew_mfr" date="1330920716" username="Admin" version="4.2.1 Alpha 1">
+			<active>1</active>
+			<show>canviewforums</show>
+			<parent>vbtab_whatsnew</parent>
+			<displayorder>90</displayorder>
+			<url><![CDATA[forumdisplay.php?{session.sessionurl}do=markread&amp;markreadhash={bbuserinfo.securitytoken}]]></url>
+		</link>
+	</navigation>
+</vbulletin>

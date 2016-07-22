@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<navgroups product="vbblog" master="true">
+
+	<navgroup phrase="vbulletin_blog" permissions="canblog" hr="true" displayorder="15">
+
+		<navoption displayorder="10">
+			<phrase>blog_categories</phrase>
+			<link>blog_admin.php?do=listcat</link>
+		</navoption>
+
+		<navoption displayorder="20">
+			<phrase>blog_category_permissions</phrase>
+			<link>blog_admin.php?do=listcp</link>
+		</navoption>
+
+		<navoption displayorder="30">
+			<phrase>blog_entries</phrase>
+			<link>blog_admin.php?do=list</link>
+		</navoption>
+
+		<navoption displayorder="40">
+			<phrase>blog_featured_entries</phrase>
+			<link>blog_admin.php?do=listfe</link>
+		</navoption>
+
+		<navoption displayorder="50">
+			<phrase>blog_moderators</phrase>
+			<link>blog_admin.php?do=moderators</link>
+		</navoption>
+
+		<navoption displayorder="70">
+			<phrase>blog_stats</phrase>
+			<link>blog_admin.php?do=stats</link>
+		</navoption>
+
+		<navoption displayorder="90">
+			<phrase>update_counters</phrase>
+			<link>blog_admin.php?do=counters</link>
+		</navoption>
+
+	</navgroup>
+
+</navgroups>

@@ -1,0 +1,3401 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<product productid="panjo" active="1">
+	<title>Panjo</title>
+	<description>Classifieds integration that increases engagement, grows membership, and generates a new stream of revenue.</description>
+	<version>4.2.2</version>
+	<url>http://panjo.com</url>
+	<versioncheckurl />
+	<dependencies>
+	</dependencies>
+	<codes>
+		<code version="*">
+			<installcode />
+			<uninstallcode><![CDATA[require_once DIR . '/includes/class_dbalter.php';
+
+$db_alter = new vB_Database_Alter_MySQL($vbulletin->db);
+
+if ($db_alter->fetch_table_info('user')) {
+	$db_alter->drop_field(array(
+		'panjo_selling'
+	));
+}
+
+if ($db_alter->fetch_table_info('usergroup')) {
+	$db_alter->drop_field(array(
+		'panjo_can_sell',
+		'panjo_transaction_fee',
+		'panjo_listing_fee'
+	));
+}
+
+if ($db_alter->fetch_table_info('thread')) {
+	$db_alter->drop_field(array(
+		'panjo_listing_id'
+	));
+}
+
+if ($db_alter->fetch_table_info('forum')) {
+	$db_alter->drop_field(array(
+		'panjo_redirect_newthread',
+		'panjo_newthread_text'
+	));
+}
+
+require_once DIR . '/includes/functions_databuild.php';
+build_forum_permissions();]]></uninstallcode>
+		</code>
+	</codes>
+	<templates>
+		<template name="panjo_frame" templatetype="template" date="1356975486" username="Administrator" version="4.2.2"><![CDATA[<vb:if condition="isset($_REQUEST['p']['login']) && $_REQUEST['p']['login']">
+	<vb:if condition="!isset($_REQUEST['p']['__min']) || !$_REQUEST['p']['__min']">
+		<script type="text/javascript" src="http://{vb:raw vboptions.panjo_host}/client/marketplace-login-min.js"></script>
+	<vb:else />
+		<script type="text/javascript" src="http://{vb:raw vboptions.panjo_host}/client/marketplace-login.js"></script>
+	</vb:if>
+<vb:else />
+	<iframe id="panjo" width="100%" src="{vb:raw frame}" frameborder="0" scrolling="no"></iframe>
+</vb:if>]]></template>
+		<template name="panjo_frame_headinclude" templatetype="template" date="1365535062" username="Administrator" version="4.2.2"><![CDATA[<base target="_top" />
+<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript">
+(function ($) {
+	$(window).load(function() {
+		window.parent.document.getElementById('panjo').height = ($(document).contents().find('.db-marketplace').height() + 5) + 'px';
+	});
+
+	<if condition="$_REQUEST[p][_action] == 'newlisting'">
+	$(document).ready(function() {
+		var btn = $('.db-requirelogin, a.db-requirelogin.nodecoration'),
+			action = btn.data('action'),
+			marketplace = $('.db-marketplace').data('marketplace'),
+			headerActions = btn.closest(".db-marketplace-header-actions"),
+			loginCallback = headerActions.attr("data-logincallback"),
+			url = loginCallback || 'panjo_login.php';
+
+		url += url.indexOf('?') > -1 ? '&' : '?';
+		url += 'p[login]=1&';
+
+		var win = window.open(url + 'm=' + marketplace + '&a=' + DealBird.Util.encodeUrl(action), 'PopupAction2');
+		win.focus();
+	});
+	</if>
+})(jQuery);
+</script>]]></template>
+		<template name="panjo_frame_headinclude_login" templatetype="template" date="1377811818" username="Administrator" version="4.2.2"><![CDATA[<div id="enthusify-auth-frame" data-userid="$userid" data-username="$username" data-email="$email" data-timestamp="$timeNow" data-authtoken="$authToken" data-marketplace="$vboptions[panjo_marketplace_id]" data-action="$action" data-usergroups="$userGroups"></div>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript">
+(function ($) {
+	var parentDiv = $('#enthusify-auth', window.parent.document),
+		frameDiv = $('#enthusify-auth-frame', document);
+
+	if (!parentDiv.length && frameDiv.length)
+	{
+		$('body', window.parent.document).prepend(frameDiv);
+		$('#enthusify-auth-frame', window.parent.document).attr('id', 'enthusify-auth');
+	}
+
+	var extraParams = {
+		do: 'fetchAuthToken',
+	};
+
+	setInterval(function(){
+		$.ajax({
+			type: 'POST',
+			url: 'classifieds.php',
+			data: (SESSIONURL ? SESSIONURL + '&' : '') + $.param(extraParams)
+		})
+		.done(function(data)
+		{
+			$.each(data, function(index, value)
+			{
+				$('#enthusify-auth', window.parent.document).attr('data-' + index, value);
+			});
+		});
+	}, 60000);
+})(jQuery);
+</script>]]></template>
+		<template name="panjo_frame_legacy" templatetype="template" date="1356975481" username="Administrator" version="4.2.2"><![CDATA[<if condition="isset($_REQUEST['p']['login']) && $_REQUEST['p']['login']">
+	<if condition="!isset($_REQUEST['p']['__min']) || !$_REQUEST['p']['__min']">
+		<script type="text/javascript" src="http://$vboptions[panjo_host]/client/marketplace-login-min.js"></script>
+	<else />
+		<script type="text/javascript" src="http://$vboptions[panjo_host]/client/marketplace-login.js"></script>
+	</if>
+<else />
+	<iframe id="panjo" width="100%" src="$frame" frameborder="0" scrolling="no"></iframe>
+</if>]]></template>
+		<template name="panjo_header" templatetype="template" date="1377811840" username="Administrator" version="4.2.2"><![CDATA[<div id="enthusify-auth{vb:var extraid}" data-userid="{vb:raw bbuserinfo.userid}" data-username="{vb:raw bbuserinfo.username}" data-email="{vb:raw bbuserinfo.email}" data-timestamp="{vb:raw timeNow}" data-authtoken="{vb:raw authToken}" data-marketplace="{vb:raw vboptions.panjo_marketplace_id}" data-action="{vb:raw action}" data-usergroups="{vb:raw userGroups}"></div>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript">
+(function ($) {
+	var extraParams = {
+		do: 'fetchAuthToken',
+	};
+
+	setInterval(function(){
+		$.ajax({
+			type: 'POST',
+			url: 'classifieds.php',
+			data: (SESSIONURL ? SESSIONURL + '&' : '') + $.param(extraParams)
+		})
+		.done(function(data)
+		{
+			$.each(data, function(index, value)
+			{
+				$('#enthusify-auth').attr('data-' + index, value);
+			});
+		});
+	}, 60000);
+})(jQuery);
+</script>]]></template>
+		<template name="panjo_header_legacy" templatetype="template" date="1377811764" username="Administrator" version="4.2.2"><![CDATA[<div id="enthusify-auth$extraid" data-userid="$bbuserinfo[userid]" data-username="$bbuserinfo[username]" data-email="$bbuserinfo[email]" data-timestamp="$timeNow" data-authtoken="$authToken" data-marketplace="$vboptions[panjo_marketplace_id]" data-action="$action" data-usergroups="$userGroups"></div>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript">
+(function ($) {
+	var extraParams = {
+		do: 'fetchAuthToken',
+	};
+
+	setInterval(function(){
+		$.ajax({
+			type: 'POST',
+			url: 'classifieds.php',
+			data: (SESSIONURL ? SESSIONURL + '&' : '') + $.param(extraParams)
+		})
+		.done(function(data)
+		{
+			$.each(data, function(index, value)
+			{
+				$('#enthusify-auth').attr('data-' + index, value);
+			});
+		});
+	}, 60000);
+})(jQuery);
+</script>]]></template>
+		<template name="panjo_login_headinclude" templatetype="template" date="0" username="" version="4.2.2"><![CDATA[<style type="text/css">
+.above_body, .below_body, #notices, #breadcrumb, #footer, #navpopup {
+	display: none !important;
+}
+
+.standard_error {
+	padding: 0 !important;
+}
+
+.vbform {
+	margin: 0 !important;
+}
+
+.body_wrapper {
+	margin-top: 2em !important;
+}
+</style>]]></template>
+		<template name="panjo_login_headinclude_legacy" templatetype="template" date="0" username="" version="4.2.2"><![CDATA[<style type="text/css">
+.above_body, .below_body, #notices, #breadcrumb, #footer, #navpopup {
+	display: none !important;
+}
+
+.standard_error {
+	padding: 0 !important;
+}
+</style>]]></template>
+		<template name="panjo_seller_profile_link" templatetype="template" date="1367620809" username="Administrator" version="4.2.2"><![CDATA[<dd>
+	<a href="{vb:raw vboptions.bburl}/{vb:raw vboptions.panjo_script}.php?p[vb_username]={vb:raw username_clean}&p[vb_userid]={vb:raw bbuserinfo.userid}">{vb:raw vboptions.panjo_seller_profile_link_text}</a>
+</dd>]]></template>
+		<template name="panjo_seller_profile_link_legacy" templatetype="template" date="1367620863" username="Administrator" version="4.2.2"><![CDATA[<div>
+	<a href="$vboptions[bburl]/$vboptions[panjo_script].php?p[vb_username]=$username_clean&p[vb_userid]=$bbuserinfo[userid]">$vboptions[panjo_seller_profile_link_text]</a>
+</div>]]></template>
+		<template name="panjo_STANDARD_ERROR_legacy" templatetype="template" date="1355856108" username="Administrator" version="4.2.2"><![CDATA[$stylevar[htmldoctype]
+<html xmlns="http://www.w3.org/1999/xhtml" dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+<if condition="$show['search_noindex']"><meta name="robots" content="noindex,follow" /></if>
+$headinclude
+	<title>$pagetitle</title>
+$headinsert
+</head>
+<body>
+$header
+
+<!-- $_navbar // the navbar shows a login option that will break the purpose of this form -->
+<br /><br /><br />
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="70%" align="center">
+<tr>
+	<td class="tcat">$vbphrase[vbulletin_message]</td>
+</tr>
+<tr>
+	<td class="panelsurround" align="center">
+	<div class="panel">
+		<div align="$stylevar[left]">
+
+		<if condition="$show['permission_error']">
+			<script type="text/javascript" src="clientscript/vbulletin_md5.js?v=$vboptions[simpleversion]"></script>
+			<form action="login.php?do=login" method="post" onsubmit="md5hash(vb_login_password, vb_login_md5password, vb_login_md5password_utf, $show[nopasswordempty])">
+			<input type="hidden" name="do" value="login" />
+			<input type="hidden" name="url" value="$scriptpath" />
+			<input type="hidden" name="vb_login_md5password" />
+			<input type="hidden" name="vb_login_md5password_utf" />
+			$postvars
+
+			<input type="hidden" name="s" value="$session[sessionhash]" />
+			<input type="hidden" name="securitytoken" value="$bbuserinfo[securitytoken]" />
+
+			<!-- permission error message - user not logged in -->
+
+
+			<div class="smallfont">$vbphrase[not_logged_no_permission]</div>
+
+			<ol>
+				<li class="smallfont">$vbphrase[not_logged_in_fill_in_form]</li>
+				<li class="smallfont">$vbphrase[may_not_have_sufficient_privileges]</li>
+				<li class="smallfont">$vbphrase[administrator_may_disabled_account]</li>
+			</ol>
+
+			<fieldset class="fieldset">
+				<legend>$vbphrase[log_in]</legend>
+				<table cellpadding="0" cellspacing="$stylevar[formspacer]" border="0" align="center">
+				<tr>
+					<td>$vbphrase[username]:<br /><input type="text" class="bginput" name="vb_login_username" size="50" accesskey="u" tabindex="1" /></td>
+				</tr>
+				<tr>
+					<td>$vbphrase[password]:<br /><input type="password" class="bginput" name="vb_login_password" size="50" tabindex="1" /></td>
+				</tr>
+				<tr>
+					<td>
+						<span style="float:$stylevar[right]"><a href="login.php?$session[sessionurl]do=lostpw">$vbphrase[forgotten_your_password]</a></span>
+						<label for="cb_cookieuser"><input type="checkbox" name="cookieuser" value="1" id="cb_cookieuser" tabindex="1" />$vbphrase[remember_me]</label>
+					</td>
+				</tr>
+				<tr>
+					<td align="$stylevar[right]">
+						<input type="submit" class="button" value="$vbphrase[log_in]" accesskey="s" tabindex="1" />
+						<input type="reset" class="button" value="$vbphrase[reset_fields]" accesskey="r" tabindex="1" />
+					</td>
+				</tr>
+				</table>
+			</fieldset>
+
+			<div class="smallfont"><phrase 1="register.php?$session[sessionurl]do=signup">$vbphrase[admin_required_register]</phrase></div>
+			</form>
+
+			<!-- / permission error message - user not logged in -->
+		<else />
+			<!-- main error message -->
+
+
+			<div style="margin: 10px">$errormessage</div>
+
+
+			<!-- / main error message -->
+		</if>
+
+		</div>
+	</div>
+	<!--
+	<div style="margin-top:$stylevar[cellpadding]px">
+		<input type="submit" class="button" value="$vbphrase[go_back]" accesskey="s" onclick="history.back(1); return false" />
+	</div>
+	-->
+	</td>
+</tr>
+</table>
+
+<if condition="!isset($_REQUEST['p']['__min']) || !$_REQUEST['p']['__min']">
+	<script type="text/javascript" src="http://$vboptions[panjo_host]/client/marketplace-login-min.js"></script>
+<else />
+	<script type="text/javascript" src="http://$vboptions[panjo_host]/client/marketplace-login.js"></script>
+</if>
+
+<br />
+
+<if condition="!$show['enableforumjump']">
+<!-- forum jump -->
+<table cellpadding="0" cellspacing="0" border="0" align="center">
+<tr>
+	<td>$forumjump</td>
+</tr>
+</table>
+<!-- / forum jump -->
+</if>
+
+<br />
+
+$footer
+
+</body>
+</html>]]></template>
+		<template name="panjo_STANDARD_ERROR_legacy_nowrapper" templatetype="template" date="1355856108" username="Administrator" version="4.2.2"><![CDATA[$stylevar[htmldoctype]
+<html xmlns="http://www.w3.org/1999/xhtml" dir="$stylevar[textdirection]" lang="$stylevar[languagecode]">
+<head>
+<if condition="$show['search_noindex']"><meta name="robots" content="noindex,follow" /></if>
+$headinclude
+	<title>$pagetitle</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+(function ($)
+{
+	$(window).load(function() {
+		window.parent.document.getElementById('panjo').height = ($(document).contents().find('.db-marketplace').height() + 5) + 'px';
+	});
+})(jQuery);
+</script>
+
+$headinsert
+</head>
+<body>
+
+<div class="db-marketplace">
+<br />
+<br />
+<br />
+
+<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="70%" align="center">
+<tr>
+	<td class="tcat">$vbphrase[vbulletin_message]</td>
+</tr>
+<tr>
+	<td class="panelsurround" align="center">
+	<div class="panel">
+		<div align="$stylevar[left]">
+
+		<if condition="$show['permission_error']">
+			<script type="text/javascript" src="clientscript/vbulletin_md5.js?v=$vboptions[simpleversion]"></script>
+			<form action="login.php?do=login" method="post" onsubmit="md5hash(vb_login_password, vb_login_md5password, vb_login_md5password_utf, $show[nopasswordempty])">
+			<input type="hidden" name="do" value="login" />
+			<input type="hidden" name="url" value="$scriptpath" />
+			<input type="hidden" name="vb_login_md5password" />
+			<input type="hidden" name="vb_login_md5password_utf" />
+			$postvars
+
+			<input type="hidden" name="s" value="$session[sessionhash]" />
+			<input type="hidden" name="securitytoken" value="$bbuserinfo[securitytoken]" />
+
+			<!-- permission error message - user not logged in -->
+
+
+			<div class="smallfont">$vbphrase[not_logged_no_permission]</div>
+
+			<ol>
+				<li class="smallfont">$vbphrase[not_logged_in_fill_in_form]</li>
+				<li class="smallfont">$vbphrase[may_not_have_sufficient_privileges]</li>
+				<li class="smallfont">$vbphrase[administrator_may_disabled_account]</li>
+			</ol>
+
+			<fieldset class="fieldset">
+				<legend>$vbphrase[log_in]</legend>
+				<table cellpadding="0" cellspacing="$stylevar[formspacer]" border="0" align="center">
+				<tr>
+					<td>$vbphrase[username]:<br /><input type="text" class="bginput" name="vb_login_username" size="50" accesskey="u" tabindex="1" /></td>
+				</tr>
+				<tr>
+					<td>$vbphrase[password]:<br /><input type="password" class="bginput" name="vb_login_password" size="50" tabindex="1" /></td>
+				</tr>
+				<tr>
+					<td>
+						<span style="float:$stylevar[right]"><a href="login.php?$session[sessionurl]do=lostpw" target="_blank">$vbphrase[forgotten_your_password]</a></span>
+						<label for="cb_cookieuser"><input type="checkbox" name="cookieuser" value="1" id="cb_cookieuser" tabindex="1" />$vbphrase[remember_me]</label>
+					</td>
+				</tr>
+				<tr>
+					<td align="$stylevar[right]">
+						<input type="submit" class="button" value="$vbphrase[log_in]" accesskey="s" tabindex="1" />
+						<input type="reset" class="button" value="$vbphrase[reset_fields]" accesskey="r" tabindex="1" />
+					</td>
+				</tr>
+				</table>
+			</fieldset>
+
+			<div class="smallfont"><phrase 1="$session[sessionurl]do=signup">$vbphrase[panjo_admin_required_register_nowrapper]</phrase></div>
+			</form>
+
+			<!-- / permission error message - user not logged in -->
+		<else />
+			<!-- main error message -->
+
+
+			<div style="margin: 10px">$errormessage</div>
+
+
+			<!-- / main error message -->
+		</if>
+
+		</div>
+	</div>
+	<!--
+	<div style="margin-top:$stylevar[cellpadding]px">
+		<input type="submit" class="button" value="$vbphrase[go_back]" accesskey="s" onclick="history.back(1); return false" />
+	</div>
+	-->
+	</td>
+</tr>
+</table>
+
+<if condition="!isset($_REQUEST['p']['__min']) || !$_REQUEST['p']['__min']">
+	<script type="text/javascript" src="http://$vboptions[panjo_host]/client/marketplace-login-min.js"></script>
+<else />
+	<script type="text/javascript" src="http://$vboptions[panjo_host]/client/marketplace-login.js"></script>
+</if>
+</div>
+
+</body>
+</html>]]></template>
+		<template name="panjo_STANDARD_ERROR_LOGIN" templatetype="template" date="1355856149" username="Administrator" version="4.2.2"><![CDATA[{vb:stylevar htmldoctype}
+<html xmlns="http://www.w3.org/1999/xhtml"<vb:if condition="$vboptions['enablefacebookconnect']"> xmlns:fb="http://www.facebook.com/2008/fbml"</vb:if> dir="{vb:stylevar textdirection}" lang="{vb:stylevar languagecode}" id="vbulletin_html">
+<head>
+	{vb:raw headinclude}
+	<vb:if condition="$show['search_noindex']"><meta name="robots" content="noindex,follow" /></vb:if>
+
+	<title>{vb:raw pagetitle}</title>
+	
+	<script type="text/javascript" src="clientscript/vbulletin_md5.js?v={vb:raw vboptions.simpleversion}"></script>
+
+	{vb:raw headinsert}
+{vb:raw headinclude_bottom}
+</head>
+<body>
+
+{vb:raw header}
+
+{vb:raw navbar}
+
+<div class="standard_error">
+	<form class="block vbform"  method="post" action="login.php?do=login" onsubmit="md5hash(vb_login_password, vb_login_md5password, vb_login_md5password_utf, {vb:raw show.nopasswordempty})">
+		<h2 class="blockhead">{vb:rawphrase vbulletin_message}</h2>
+
+		<input type="hidden" name="do" value="login" />
+		<input type="hidden" name="url" value="{vb:raw scriptpath}" />
+		<input type="hidden" name="vb_login_md5password" />
+		<input type="hidden" name="vb_login_md5password_utf" />
+		{vb:raw postvars}
+		<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+		<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+		<div class="blockbody formcontrols">
+			
+			<h3 class="blocksubhead">{vb:rawphrase not_logged_no_permission}</h3>
+			<div class="blockrow restore">{vb:raw errormessage}</div>
+			<vb:if condition="$show['register_message']">
+			<p class="blockrow">{vb:rawphrase admin_required_register, {vb:raw session.sessionurl}}</p>
+			</vb:if>
+			
+			<h3 class="blocksubhead">{vb:rawphrase log_in}</h3>		
+			<div class="blockrow">
+				<label for="vb_login_username">{vb:rawphrase username}:</label>
+				<input type="text" class="primary textbox" id="vb_login_username" name="vb_login_username" accesskey="u" tabindex="1" />
+			</div>
+			<div class="blockrow">			
+				<label for="vb_login_password">{vb:rawphrase password}:</label>
+				<input type="password" class="primary textbox" id="vb_login_password" name="vb_login_password" tabindex="1" />
+			</div>
+			<div class="blockrow singlecheck">
+				<label for="cb_cookieuser"><input type="checkbox" name="cookieuser" id="cb_cookieuser" value="1" tabindex="1" /> {vb:rawphrase remember_me}</label>
+			</div>
+			
+		</div>
+		<div class="blockfoot actionbuttons">
+			<div class="group">
+				<input type="submit" class="button" value="{vb:rawphrase log_in}" accesskey="s" tabindex="1" />
+				<input type="reset" class="button" value="{vb:rawphrase reset_fields}" accesskey="r" tabindex="1" />
+			</div>
+		</div>
+	</form>
+</div>
+
+<vb:if condition="!$show['enableforumjump']">{vb:raw forumjump}</vb:if>
+
+{vb:raw footer}
+
+<vb:if condition="!isset($_REQUEST['p']['__min']) || !$_REQUEST['p']['__min']">
+	<script type="text/javascript" src="http://{vb:raw vboptions.panjo_host}/client/marketplace-login-min.js"></script>
+<vb:else />
+	<script type="text/javascript" src="http://{vb:raw vboptions.panjo_host}/client/marketplace-login.js"></script>
+</vb:if>
+
+</body>
+</html>]]></template>
+		<template name="panjo_STANDARD_ERROR_LOGIN_nowrapper" templatetype="template" date="1355856149" username="Administrator" version="4.2.2"><![CDATA[{vb:stylevar htmldoctype}
+<html xmlns="http://www.w3.org/1999/xhtml"<vb:if condition="$vboptions['enablefacebookconnect']"> xmlns:fb="http://www.facebook.com/2008/fbml"</vb:if> dir="{vb:stylevar textdirection}" lang="{vb:stylevar languagecode}" id="vbulletin_html">
+<head>
+	{vb:raw headinclude}
+	<vb:if condition="$show['search_noindex']"><meta name="robots" content="noindex,follow" /></vb:if>
+
+	<title>{vb:raw pagetitle}</title>
+	
+	<script type="text/javascript" src="clientscript/vbulletin_md5.js?v={vb:raw vboptions.simpleversion}"></script>
+
+	{vb:raw headinsert}
+{vb:raw headinclude_bottom}
+</head>
+<body>
+
+<div class="db-marketplace">
+<br />
+<br />
+<br />
+
+<div class="standard_error">
+	<form class="block vbform"  method="post" action="login.php?do=login" onsubmit="md5hash(vb_login_password, vb_login_md5password, vb_login_md5password_utf, {vb:raw show.nopasswordempty})">
+		<h2 class="blockhead">{vb:rawphrase vbulletin_message}</h2>
+
+		<input type="hidden" name="do" value="login" />
+		<input type="hidden" name="url" value="{vb:raw scriptpath}" />
+		<input type="hidden" name="vb_login_md5password" />
+		<input type="hidden" name="vb_login_md5password_utf" />
+		{vb:raw postvars}
+		<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+		<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+		<div class="blockbody formcontrols">
+			
+			<h3 class="blocksubhead">{vb:rawphrase not_logged_no_permission}</h3>
+			<div class="blockrow restore">{vb:raw errormessage}</div>
+			<vb:if condition="$show['register_message']">
+			<p class="blockrow">{vb:rawphrase panjo_admin_required_register_nowrapper, {vb:raw session.sessionurl}}</p>
+			</vb:if>
+			
+			<h3 class="blocksubhead">{vb:rawphrase log_in}</h3>		
+			<div class="blockrow">
+				<label for="vb_login_username">{vb:rawphrase username}:</label>
+				<input type="text" class="primary textbox" id="vb_login_username" name="vb_login_username" accesskey="u" tabindex="1" />
+			</div>
+			<div class="blockrow">			
+				<label for="vb_login_password">{vb:rawphrase password}:</label>
+				<input type="password" class="primary textbox" id="vb_login_password" name="vb_login_password" tabindex="1" />
+			</div>
+			<div class="blockrow singlecheck">
+				<label for="cb_cookieuser"><input type="checkbox" name="cookieuser" id="cb_cookieuser" value="1" tabindex="1" /> {vb:rawphrase remember_me}</label>
+			</div>
+			
+		</div>
+		<div class="blockfoot actionbuttons">
+			<div class="group">
+				<input type="submit" class="button" value="{vb:rawphrase log_in}" accesskey="s" tabindex="1" />
+				<input type="reset" class="button" value="{vb:rawphrase reset_fields}" accesskey="r" tabindex="1" />
+			</div>
+		</div>
+	</form>
+</div>
+
+</div>
+
+<vb:if condition="!isset($_REQUEST['p']['__min']) || !$_REQUEST['p']['__min']">
+	<script type="text/javascript" src="http://{vb:raw vboptions.panjo_host}/client/marketplace-login-min.js"></script>
+<vb:else />
+	<script type="text/javascript" src="http://{vb:raw vboptions.panjo_host}/client/marketplace-login.js"></script>
+</vb:if>
+
+</body>
+</html>]]></template>
+	</templates>
+	<stylevardfns>
+	</stylevardfns>
+	<stylevars>
+	</stylevars>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>Admin Router</title>
+			<hookname>admin_global</hookname>
+			<phpcode><![CDATA[if (pathinfo($_SERVER['REQUEST_URI'], PATHINFO_FILENAME) == 'options') {
+	if (($action = $_COOKIE[COOKIE_PREFIX . 'panjo_action']) != false) {
+		vbsetcookie('panjo_action', null);
+
+		exec_header_redirect(sprintf('options.php?do=%s', $action), 302);
+	}
+
+	if (($navigation_controls = $_COOKIE[COOKIE_PREFIX . 'panjo_navigation_controls']) != false) {
+		vbsetcookie('panjo_navigation_controls', null);
+
+		if (!($navigation = $vbulletin->db->query_first(sprintf('SELECT `navid` FROM `%1$snavigation` WHERE `navtype` = "%2$s" AND `productid` = "%3$s"', TABLE_PREFIX, "tab", "panjo")))) {
+			print_no_permission();
+		}
+
+		switch ($_COOKIE[COOKIE_PREFIX . 'panjo_navigation_controls']) {
+			case 'addl':
+				$query = array('do' => 'add', 'type' => 'link', 'navid' => $navigation['navid']);
+				break;
+			case 'addm':
+				$query = array('do' => 'add', 'type' => 'menu', 'navid' => $navigation['navid']);
+				break;
+			default:
+				$query = array('do' => 'edit', 'navid' => $navigation['navid']);
+				break;
+		}
+
+		exec_header_redirect(sprintf('navigation.php?%s', http_build_query($query)), 302);
+	}
+}
+
+if ($_REQUEST['do'] == 'panjo_usergroup')
+{
+	$headings = array(
+		$vbphrase['usergroup'],
+		$vbphrase['panjo_options']
+	);
+
+	print_cp_header(strip_tags(construct_phrase($vbphrase['panjo_editing_permissions_x'], $vbphrase['usergroup'])));
+	print_form_header('index', 'panjo_updateusergroup');
+	print_column_style_code(array('width: 60%', 'width: 40%'));	
+	print_table_header(construct_phrase($vbphrase['panjo_editing_permissions_x'], $vbphrase['usergroup']));
+	print_description_row($vbphrase['panjo_overview'], false, 2, 'optiontitle');
+	print_label_row($vbphrase['panjo_can_sell_descr']);
+	print_label_row($vbphrase['panjo_transaction_fee_descr']);
+	print_label_row($vbphrase['panjo_listing_fee_descr']);
+	print_cells_row($headings, 0, 'thead');
+	foreach ($vbulletin->usergroupcache as $usergroupid => $usergroup)
+	{
+		$ug_bitfield = array();
+		foreach($vbulletin->bf_ugp AS $permissiongroup => $fields)
+		{
+			$ug_bitfield[$permissiongroup] = convert_bits_to_array($usergroup[$permissiongroup], $fields);
+		}
+		
+		// Table data
+		$cell = array();
+		$cell[] = $usergroup['title'];
+		$cell[] = '<center>
+			<input type="hidden" name="permissions[' . $usergroupid . '][panjo_can_sell]" value="0" />
+			<label><input type="checkbox" name="permissions[' . $usergroupid . '][panjo_can_sell]" value="1"' . ($usergroup['panjo_can_sell'] ? ' checked="checked"' : '') . ' /> ' . $vbphrase['panjo_can_sell'] . '</label>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			' . $vbphrase['panjo_transaction_fee'] . ' <input type="text" name="permissions[' . $usergroupid . '][panjo_transaction_fee]" size="4" value="' . doubleval($usergroup['panjo_transaction_fee']) . '" />%
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			' . $vbphrase['panjo_listing_fee'] . ' <input type="text" name="permissions[' . $usergroupid . '][panjo_listing_fee]" size="4" value="' . doubleval($usergroup['panjo_listing_fee']) . '" />$
+		</center>';
+		
+		// Print the data
+		print_cells_row($cell, 0, 0, -5, 'middle', 0, 1);
+	}
+	print_submit_row($vbphrase['save'], false, count($headings));
+
+	print_cp_footer();
+}
+
+if ($_REQUEST['do'] == 'panjo_updateusergroup')
+{
+	// Grab stuff
+	$vbulletin->input->clean_array_gpc('p', array(
+		'permissions' => TYPE_ARRAY,
+	));
+	
+	// create bitfield values
+	require_once(DIR . '/includes/functions_misc.php');
+	foreach ($vbulletin->GPC['permissions'] as $usergroupid => $permissions)
+	{
+		$permissions['panjo_transaction_fee'] 	= doubleval($permissions['panjo_transaction_fee']);
+		$permissions['panjo_listing_fee'] 		= doubleval($permissions['panjo_listing_fee']);
+
+		$permissions['panjo_transaction_fee'] 	= $permissions['panjo_transaction_fee'] > 0 ? $permissions['panjo_transaction_fee'] : 0.00;
+		$permissions['panjo_listing_fee'] 		= $permissions['panjo_listing_fee'] 	> 0 ? $permissions['panjo_listing_fee'] 	: 0.00;
+
+		// Update the usergroup
+		$db->query_write(fetch_query_sql($permissions, 'usergroup', "WHERE usergroupid=" . intval($usergroupid)));	
+	}
+	
+	require_once(DIR . '/includes/functions_databuild.php');
+	build_forum_permissions();
+
+	define('CP_REDIRECT', 'index.php?do=panjo_usergroup');
+	print_stop_message('saved_usergroup_x_successfully', '');
+}
+
+if (preg_match('/^panjo_marketplace_/i', $_REQUEST['do'])) {
+	Panjo::admin_route();
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Admin Navigation</title>
+			<hookname>admin_index_navigation</hookname>
+			<phpcode><![CDATA[$navigation[18][$vbphrase['panjo_marketplace']] = array(
+	'options' => array(
+		10 => array(
+			$vbphrase['panjo_marketplace_about'] => array(
+				'displayorder' => 10,
+				'link' => "http://{$vbphrase['panjo_marketplace_link_domain']}/ForumAdmin",
+				'text' => $vbphrase['panjo_marketplace_about']
+			),
+			$vbphrase['panjo_marketplace_enable'] => array(
+				'displayorder' => 20,
+				'link' => 'options.php?do=panjo_marketplace_enable',
+				'text' => $vbphrase['panjo_marketplace_enable']
+			),
+			$vbphrase['panjo_marketplace_links'] => array(
+				'displayorder' => 30,
+				'link' => 'options.php?do=panjo_marketplace_links',
+				'text' => $vbphrase['panjo_marketplace_links']
+			),
+			$vbphrase['usergroup_manager'] => array(
+				'displayorder' => 35,
+				'link' => 'index.php?do=panjo_usergroup',
+				'text' => $vbphrase['usergroup_manager']
+			),
+			$vbphrase['panjo_marketplace_category_manager'] => array(
+				'displayorder' => 40,
+				'link' => "http://{$vbphrase['panjo_marketplace_link_domain']}/ForumAdmin/EditCategories",
+				'text' => $vbphrase['panjo_marketplace_category_manager']
+			),
+			$vbphrase['panjo_marketplace_forum_manager'] => array(
+				'displayorder' => 50,
+				'link' => "http://{$vbphrase['panjo_marketplace_link_domain']}/ForumAdmin/ManageForums",
+				'text' => $vbphrase['panjo_marketplace_forum_manager']
+			),
+			$vbphrase['panjo_marketplace_stats'] => array(
+				'displayorder' => 60,
+				'link' => "http://{$vbphrase['panjo_marketplace_link_domain']}/ForumAdmin/kpireport",
+				'text' => $vbphrase['panjo_marketplace_stats']
+			),
+			$vbphrase['panjo_marketplace_settings'] => array(
+				'displayorder' => 70,
+				'link' => 'options.php?do=panjo_marketplace_settings',
+				'text' => $vbphrase['panjo_marketplace_settings']
+			)
+		)
+	),
+	'group' => array(
+		'permissions' => 'canadminsettings',
+		'text' => $vbphrase['panjo_marketplace']
+	)
+);]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Advanced Navigation Setting</title>
+			<hookname>admin_options_print</hookname>
+			<phpcode><![CDATA[if ($setting['optioncode'] == 'panjo_navigation_link_proxy') {
+	$query = 'SELECT `state`, `displayorder` FROM `%1$snavigation`
+		WHERE `navtype` = "%2$s" AND `productid` = "%3$s"';
+
+	$navigation = $vbulletin->db->query_first(sprintf($query, TABLE_PREFIX, "tab", "panjo"));
+
+	if (!$navigation) {
+		$navigation = array(
+			'active' => 0,
+			'displayorder' => 0
+		);
+	}
+
+	$options = array(
+		'edit' => $vbphrase['edit'],
+		'addl' => $vbphrase['add_new_link'],
+		'addm' => $vbphrase['add_new_menu']
+	);
+
+	require_once DIR . '/includes/functions_misc.php';
+
+	if (version_compare(FILE_VERSION, '4.2.0', '<=')) {
+		$active = NAV_ACTIVE;
+	} else {
+		$active = $vbulletin->bf_misc_navstate['active'];
+	}
+
+	print_checkbox_row($vbphrase['panjo_navigation_link_proxy_active'], 'panjo_navigation[active]', ($navigation['state'] & $active));
+	print_input_row($vbphrase['display_order'], 'panjo_navigation[displayorder]', $navigation['displayorder'], false, 3);
+	//print_select_row($vbphrase['controls'], 'panjo_navigation[controls]', array('' => '---') + $options);
+	print_description_row(fetch_phrase('setting_panjo_navigation_link_proxy_desc', 'vbsettings', '', false));
+
+	$handled = true;
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Process Settings</title>
+			<hookname>admin_options_processing</hookname>
+			<phpcode><![CDATA[if ($oldsetting['varname'] == 'panjo_marketplace_id' && trim($vbulletin->GPC['setting'][$oldsetting['varname']])) {
+	Panjo::activate_marketplace_id(array('marketplace_id' => $settings[$oldsetting['varname']]));
+}
+
+if (array_key_exists('panjo_action', $_REQUEST) && !empty($_REQUEST['panjo_action'])) {
+	vbsetcookie('panjo_action', $_REQUEST['panjo_action']);
+}
+
+if (version_compare(FILE_VERSION, '4.2.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+	if (array_key_exists('panjo_navigation', $_POST) && !defined('PANJO_NAVIGATION_PROCESS')) {
+		define('PANJO_NAVIGATION_PROCESS', true);
+
+		$_POST['panjo_navigation'] += array(
+			'active' => 0,
+			'displayorder' => 0,
+			'controls' => ''
+		);
+
+		if (($navigation = $vbulletin->db->query_first(sprintf('SELECT `navid` FROM `%1$snavigation` WHERE `navtype` = "%2$s" AND `productid` = "%3$s"', TABLE_PREFIX, "tab", "panjo"))) != false) {
+			$query = 'UPDATE `%1$snavigation` SET `state` = %2$s, `displayorder` = %3$d
+				WHERE `navid` = %4$d';
+
+			if (version_compare(FILE_VERSION, '4.2.0', '<=')) {
+				$active = NAV_ACTIVE;
+			} else {
+				$active = $vbulletin->bf_misc_navstate['active'];
+			}
+
+			if (version_compare(FILE_VERSION, '4.2.0', '<=')) {
+				$edited = NAV_EDITED;
+			} else {
+				$edited = $vbulletin->bf_misc_navstate['edited'];
+			}
+
+			$vbulletin->db->query_write(vsprintf($query, array(
+				TABLE_PREFIX,
+				"state & " . $edited . ' ' . ($_POST['panjo_navigation']['active'] ? '| ' : '& ~') . $active,
+				$_POST['panjo_navigation']['displayorder'],
+				$navigation['navid']
+			)));
+
+			if ($_POST['panjo_navigation']['controls']) {
+				vbsetcookie('panjo_navigation_controls', $_POST['panjo_navigation']['controls']);
+			}
+
+			if (version_compare(FILE_VERSION, '4.2.1', '>=')) {
+				require_once DIR . '/includes/adminfunctions_plugin.php';
+				build_navigation_datastore();
+			}
+		} else {
+			vbsetcookie('panjo_navigation_controls', 'panjo_navigation');
+		}
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="0" executionorder="5">
+			<title>Add Usergroup Options</title>
+			<hookname>admin_usergroup_edit</hookname>
+			<phpcode><![CDATA[print_table_header($vbphrase['panjo']);
+print_yes_no_row($vbphrase['panjo_can_sell_title'], 'usergroup[panjo_can_sell]', $usergroup['panjo_can_sell']);
+print_input_row($vbphrase['panjo_transaction_fee_title'], 'usergroup[panjo_transaction_fee]', ($fee = $usergroup['panjo_transaction_fee']) == 0.00 ? '0.00' : $fee);
+print_input_row($vbphrase['panjo_listing_fee_title'], 'usergroup[panjo_listing_fee]', ($fee = $usergroup['panjo_listing_fee']) == 0.00 ? '0.00' : $fee);
+print_table_break();]]></phpcode>
+		</plugin>
+		<plugin active="0" executionorder="5">
+			<title>Validate Transaction Fee</title>
+			<hookname>admin_usergroup_save</hookname>
+			<phpcode><![CDATA[$transactionFee = floatval($vbulletin->GPC['usergroup']['panjo_transaction_fee']);
+
+if ($transactionFee < 0.00 || $transactionFee > 100.00) {
+	$vbulletin->GPC['usergroup']['panjo_transaction_fee'] = 0.00;
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Cache Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[if (THIS_SCRIPT == 'panjo' OR THIS_SCRIPT == 'login') {
+	if (version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+		Panjo::cache_templates($cache);
+	} else {
+		Panjo::cache_templates($globaltemplates);
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="997">
+			<title>Override Forgot Password</title>
+			<hookname>error_generic</hookname>
+			<phpcode><![CDATA[if (THIS_SCRIPT == 'login' AND $_POST['do'] == 'login' AND strpos($_POST['url'], 'frame=1') !== false)
+{
+	$errormessage = str_replace('do=lostpw">', 'do=lostpw" target="_blank">', $errormessage);
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Import Selling Boolean</title>
+			<hookname>fetch_userinfo_query</hookname>
+			<phpcode><![CDATA[$hook_query_fields .= ', user.panjo_selling';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Hide or Overwrite New Thread Button</title>
+			<hookname>forumdisplay_complete</hookname>
+			<phpcode><![CDATA[if (($map = Panjo::getRedirectMap($foruminfo['forumid'])) != false) {
+	if ($map['label']) {
+		$vbphrase['post_new_thread'] = $map['label'];
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Import New Thread Text</title>
+			<hookname>forumdisplay_start</hookname>
+			<phpcode><![CDATA[if ($foruminfo['panjo_newthread_text']) {
+	$vbphrase['post_new_thread'] = strip_tags($foruminfo['panjo_newthread_text']);
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Setup</title>
+			<hookname>global_setup_complete</hookname>
+			<phpcode><![CDATA[if (version_compare(FILE_VERSION, '3.0.0', '>=') && version_compare(FILE_VERSION, '3.9.9', '<=')) {
+	Panjo::style_init();
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Setup</title>
+			<hookname>global_state_check</hookname>
+			<phpcode><![CDATA[if (version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+	Panjo::style_init();
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="10">
+			<title>Functions</title>
+			<hookname>init_startup</hookname>
+			<phpcode><![CDATA[error_reporting(($default_error_reporting = error_reporting()) & ~E_DEPRECATED);
+
+class Panjo {
+	public static function getRedirectMap($forum_id = null) {
+		global $vbulletin;
+
+		if (!$vbulletin->options['panjo_redirect_map'] || !($map = @json_decode($vbulletin->options['panjo_redirect_map'], true))) {
+			return false;
+		}
+
+		if (!$forum_id) {
+			return $map;
+		}
+
+		return array_key_exists($forum_id, $map) ? $map[$forum_id] : false;
+	}
+
+	public static function getSettings($params = array()) {
+		global $vbulletin;
+
+		$query = 'SELECT * FROM `%1$ssetting` AS `setting`
+			WHERE `setting`.`varname` IN (%2$s)
+				ORDER BY `setting`.`displayorder`';
+
+		$resources = $vbulletin->db->query_read(vsprintf($query, array(
+			TABLE_PREFIX,
+			implode(', ', array_map('json_encode', $params['names']))
+		)));
+
+		if (!$vbulletin->db->num_rows($resources)) {
+			return false;
+		}
+
+		while (($setting = $vbulletin->db->fetch_array($resources)) != false) {
+			$settings["{$setting['varname']}"] = $setting;
+		}
+
+		$vbulletin->db->free_result($resources);
+		return $settings;
+	}
+
+	public static function admin_route() {
+		global $vbulletin, $vbphrase, $settingphrase;
+
+		require_once DIR . '/includes/adminfunctions_options.php';
+
+		$settingphrase = array();
+
+		$phrases = $vbulletin->db->query_read("
+			SELECT varname, text
+			FROM " . TABLE_PREFIX . "phrase
+			WHERE fieldname = 'vbsettings' AND
+				languageid IN(-1, 0, " . LANGUAGEID . ")
+					AND product = 'panjo'
+			ORDER BY languageid ASC
+		");
+
+		while (($phrase = $vbulletin->db->fetch_array($phrases)) != false) {
+			$settingphrase["$phrase[varname]"] = str_replace('[panjo_marketplace_link_domain]', $vbphrase['panjo_marketplace_link_domain'], $phrase['text']);
+		}
+
+		print_cp_header($vbphrase['panjo_marketplace']);
+		print_form_header('options', 'dooptions');
+
+		if ($_REQUEST['do'] == 'panjo_marketplace_enable') {
+			$settings = self::getSettings(array(
+				'names' => array(
+					'panjo_marketplace_instructions',
+					'panjo_marketplace_id',
+				)
+			));
+		}
+
+		if ($_REQUEST['do'] == 'panjo_marketplace_links') {
+			$settings = self::getSettings(array(
+				'names' => array(
+					version_compare(FILE_VERSION, '4.1.12', '<') ? 'panjo_navigation_link' : 'panjo_navigation_link_proxy',
+					'panjo_seller_profile_link',
+					'panjo_seller_profile_link_text'
+				)
+			));
+		}
+
+		if ($_REQUEST['do'] == 'panjo_marketplace_settings') {
+			$settings = self::getSettings(array(
+				'names' => array(
+					'panjo_push'
+				)
+			));
+		}
+
+		print_table_header($vbphrase[$_REQUEST['do']]);
+
+		foreach ($settings as $setting) {
+			print_setting_row($setting, $settingphrase);
+		}
+
+		$extra = sprintf('<input type="hidden" name="panjo_action" value="%s" />', $_REQUEST['do']);
+
+		print_submit_row('', '_default_', 2, '', $extra);
+		print_cp_footer();
+	}
+
+	public static function generate_auth_params($type = 'client', $marketplace_id = '') {
+		global $vbulletin;
+
+		if ($type == 'client') {
+			return array(
+				'auth_token' => md5(implode('-', array(
+					$vbulletin->userinfo['userid'],
+					$vbulletin->userinfo['username'],
+					TIMENOW,
+					$vbulletin->options['panjo_private_key']
+				))),
+				'ts' => TIMENOW
+			);
+		}
+
+		if ($type == 'server') {
+			if (!$marketplace_id) {
+				$marketplace_id = $vbulletin->options['panjo_marketplace_id'];
+			}
+
+			return array(
+				'auth_token' => md5($marketplace_id . md5($vbulletin->options['panjo_private_key'] . TIMENOW)),
+				'ts' => TIMENOW
+			);
+		}
+
+		return false;
+	}
+
+	public static function getForumList() {
+		global $vbulletin;
+
+		if ($vbulletin->forumcache && is_array($vbulletin->forumcache)) {
+			foreach ($vbulletin->forumcache as $forum_id => $forum) {
+				$forums[] = array(
+					'id' => $forum_id,
+					'title' => html_entity_decode($forum['title']),
+					'displayorder' => $forum['displayorder'],
+					'parentid' => $forum['parentid']
+				);
+			}
+
+			if (!$forums) {
+				return false;
+			}
+
+			return $forums;
+		}
+
+		return false;
+	}
+
+	public static function activate_marketplace_id($params = array()) {
+		global $vbulletin, $vbphrase;
+
+		$defaults = array('marketplace_id' => null);
+		$params += $defaults;
+
+		self::wget(array(
+			'url' => "http://{$vbphrase['panjo_marketplace_link_domain']}/ForumAdmin/Activate",
+			'method' => 'POST',
+			'content' => self::generate_auth_params('server', $params['marketplace_id']) + array(
+				'marketplace_id' => $params['marketplace_id']
+			)
+		));
+	}
+
+	public static function style_init() {
+		global $vbulletin, $vbphrase, $show, $headinclude, $header;
+
+		if ($vbulletin->options['panjo_navigation_link']) {
+			if (version_compare(FILE_VERSION, '4.1.12', '<=') && class_exists('ExtendedNavigations')) {
+				ExtendedNavigations::update(array(
+					'name' => $vbphrase['panjo_classifieds'],
+					'url' => "{$vbulletin->options['bburl']}/{$vbulletin->options['panjo_script']}.php",
+					'script' => 'panjo',
+					'after' => version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')
+				));
+			}
+		}
+
+		if (THIS_SCRIPT == 'panjo') {
+			if (version_compare(FILE_VERSION, '3.0.0', '>=') && version_compare(FILE_VERSION, '3.9.9', '<=')) {
+				$vbphrase['admin_required_register'] = $vbphrase['panjo_admin_required_register_legacy'];
+			} else {
+				$vbphrase['admin_required_register'] = $vbphrase['panjo_admin_required_register'];
+			}
+
+			if ($show['member']) {
+				if (version_compare(FILE_VERSION, '3.0.0', '>=') && version_compare(FILE_VERSION, '3.9.9', '<=')) {
+					vB_Template::$convert['panjo_header'] = array('template' => 'panjo_header_legacy');
+				}
+
+				$vbulletin->input->clean_gpc('r', 'a', TYPE_STR);
+
+				$groups = array(
+					sprintf('%1$d|%2$s', $vbulletin->userinfo['usergroupid'], str_replace(
+						'|', '', $vbulletin->usergroupcache["{$vbulletin->userinfo['usergroupid']}"]['title']
+					))
+				);
+
+				if (($user = fetch_userinfo($vbulletin->userinfo['userid'])) != null) {
+					if (isset($user['membergroupids']) && !empty($user['membergroupids'])) {
+						$groups = array();
+
+						foreach (explode(',', $user['membergroupids']) as $secondaryGroupId) {
+							$groups[] = sprintf('%1$d|%2$s', $secondaryGroupId, str_replace(
+								'|', '', $vbulletin->usergroupcache["{$secondaryGroupId}"]['title']
+							));
+						}
+					}
+				}
+
+				$templater = vB_Template::create('panjo_header');
+				$templater->register_page_templates();
+
+				$templater->register('authToken', md5(implode('-', array(
+					$vbulletin->userinfo['userid'],
+					$vbulletin->userinfo['username'],
+					TIMENOW,
+					$vbulletin->options['panjo_private_key']
+				))));
+
+				$templater->register('action', $vbulletin->GPC['a']);
+				$templater->register('timeNow', TIMENOW);
+				$templater->register('userGroups', implode(', ', $groups));
+
+				if (version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+					global $ad_location;
+
+					$ad_location['global_below_navbar'] .= $templater->render();
+				} else {
+					$header .= $templater->render();
+				}
+			}
+
+			if (isset($_REQUEST['p']['login']) && $_REQUEST['p']['login']) {
+				if (version_compare(FILE_VERSION, '3.0.0', '>=') && version_compare(FILE_VERSION, '3.9.9', '<=')) {
+					vB_Template::$convert['panjo_login_headinclude'] = array('template' => 'panjo_login_headinclude_legacy');
+				}
+
+				$headinclude .= vB_Template::create('panjo_login_headinclude')->render();
+			}
+		}
+	}
+
+	public static function run() {
+		global $vbulletin, $vbphrase, $show;
+
+		header("Access-Control-Allow-Origin: https://{$vbulletin->options['panjo_host']}");
+		header("Access-Control-Allow-Origin: http://{$vbphrase['panjo_marketplace_link_domain']}");
+
+		if (isset($_REQUEST['do']) && $_REQUEST['do'] == 'fetchAuthToken') {
+			$params = self::generate_auth_params();
+
+			header('Content-type: application/json');
+			exit(json_encode(array('timestamp' => $params['ts'], 'authtoken' => $params['auth_token'])));
+		}
+
+		if (isset($_REQUEST['do']) && $_REQUEST['do'] == 'forums') {
+			if (!($forums = self::getForumList())) {
+				$forums = array(false, 'forums');
+			}
+
+			header('Content-type: application/json');
+			exit(json_encode($forums));
+		}
+
+		if ($_SERVER['HTTP_ACCEPT'] == 'application/json') {
+			header(sprintf('HTTP/1.1 %s', ($response = self::route()) ? '200 OK' : '400 Bad Request'));
+			header('Content-type: application/json');
+			exit(json_encode($response));
+		}
+
+		$vbulletin->input->clean_array_gpc('r', array(
+			'p' => TYPE_ARRAY,
+			'frame' => TYPE_BOOL
+		));
+
+		if (isset($_REQUEST['p']['login']) && $_REQUEST['p']['login'] == 1) {
+			if (!$show['member']) {
+				if (version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+					$vbulletin->templatecache['STANDARD_ERROR_LOGIN'] = $vbulletin->templatecache['panjo_STANDARD_ERROR_LOGIN'];
+				} else {
+					$vbulletin->templatecache['STANDARD_ERROR'] = $vbulletin->templatecache['panjo_STANDARD_ERROR_legacy'];
+				}
+
+				print_no_permission();
+			}
+
+			if (isset($_REQUEST['p']['_action']) && $_REQUEST['p']['_action'] == 'newlisting')
+			{
+				exec_header_redirect("classifieds.php?{$vbulletin->session->vars['sessionurl']}p[_action]=newlisting");
+			}
+		}
+
+		if (isset($_REQUEST['p']['mshow']) && in_array($_REQUEST['p']['mshow'], array('messages', 'buyer_activity', 'seller_activity', 'seller_activity', 'feedback'))) {
+
+			if (!$show['member']) {
+				if (version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+					$vbulletin->templatecache['STANDARD_ERROR_LOGIN'] = $vbulletin->templatecache['panjo_STANDARD_ERROR_LOGIN_nowrapper'];
+				} else {
+					$vbulletin->templatecache['STANDARD_ERROR'] = $vbulletin->templatecache['panjo_STANDARD_ERROR_legacy_nowrapper'];
+				}
+
+				print_no_permission();
+			}
+		}
+
+		if (!$vbulletin->GPC['frame']) {
+			$params = self::generate_auth_params();
+
+			$vbulletin->GPC['p'] = array_merge($vbulletin->GPC['p'], array(
+				'authtoken' => ($auth_token = isset($_COOKIE['panjo-token']) ? $_COOKIE['panjo-token'] : $params['auth_token']),
+				'timestamp' => $params['ts'],
+				'token' => $auth_token
+			));
+
+			$vbulletin->GPC['p']['authtoken'] = $_COOKIE['panjo-token'];
+
+			if (!$vbulletin->GPC['p']['authtoken']) {
+				$vbulletin->GPC['p']['authtoken'] = md5(implode('-', array(
+					$vbulletin->userinfo['userid'],
+					$vbulletin->userinfo['username'],
+					TIMENOW,
+					$vbulletin->options['panjo_private_key']
+				)));
+			}
+
+			// Add our stuff 
+			$vbulletin->GPC['p']['user_id'] = $vbulletin->userinfo['userid'];
+			$vbulletin->GPC['p']['username'] = $vbulletin->userinfo['username'];
+			$vbulletin->GPC['p']['vbemail'] = $vbulletin->userinfo['email'];
+
+			if ($_REQUEST['mshow']) {
+				$vbulletin->GPC['p']['mshow'] = $_REQUEST['mshow'];
+			}
+
+			if ($_REQUEST['id']) {
+				$vbulletin->GPC['p']['id'] = $_REQUEST['id'];
+			}
+
+			$query_data = array_filter(array('p' => $vbulletin->GPC['p']));
+
+			$navbits = array(
+				$vbulletin->options['panjo_script'] => $vbphrase['classfieds'],
+				'#' => $vbphrase['panjo_marketplace']
+			);
+
+			if (version_compare(FILE_VERSION, '3.0.0', '>=') && version_compare(FILE_VERSION, '3.9.9', '<=')) {
+				vB_Template::$convert['panjo_frame'] = array('template' => 'panjo_frame_legacy');
+			}
+
+			if (($parameters = @parse_url($vbulletin->options['bburl'])) !== false) {
+				$criteria = array(
+					!preg_match(sprintf('/^(%s)(\:\d+)?$/', preg_quote($parameters['host'])), $_SERVER['HTTP_HOST']),
+					$parameters['scheme'] == 'https' && (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off'),
+					(!$parameters['port'] && !in_array($_SERVER['SERVER_PORT'], array(80, 443))) || ($parameters['port'] && $parameters['port'] != $_SERVER['SERVER_PORT'])
+				);
+
+				if (in_array(true, $criteria)) {
+					exec_header_redirect(vsprintf('%s/%s.php?%s', array(
+						$vbulletin->options['bburl'],
+						$vbulletin->options['panjo_script'],
+						http_build_query($query_data)
+					)));
+				}
+			}
+
+			$frame = vB_Template::create('panjo_frame');
+			$frame->register('frame', vsprintf('%s/%s.php?%s', array(
+				$vbulletin->options['bburl'],
+				$vbulletin->options['panjo_script'],
+				http_build_query($query_data + array('frame' => '1'))
+			)));
+
+			$templater = vB_Template::create('page');
+			$templater->register_page_templates();
+			$templater->register('pagetitle', $vbphrase['panjo_marketplace']);
+			$templater->register('navbar', render_navbar_template(construct_navbits($navbits)));
+			$templater->register('body', $frame->render());
+
+			print_output($templater->render());
+		} else {
+			$vbulletin->GPC['p']['authtoken'] = $_COOKIE['panjo-token'];
+			$vbulletin->GPC['p']['login_script'] = "{$vbulletin->options['panjo_script']}.php?login=1";
+
+			if ($show['member']) {
+				$vbulletin->input->clean_gpc('r', 'a', TYPE_STR);
+
+				$groups = array(
+					sprintf('%1$d|%2$s', $vbulletin->userinfo['usergroupid'], str_replace(
+						'|', '', $vbulletin->usergroupcache["{$vbulletin->userinfo['usergroupid']}"]['title']
+					))
+				);
+
+				if (($user = fetch_userinfo($vbulletin->userinfo['userid'])) != null) {
+					if (isset($user['membergroupids']) && !empty($user['membergroupids'])) {
+						$groups = array();
+
+						foreach (explode(',', $user['membergroupids']) as $secondaryGroupId) {
+							$groups[] = sprintf('%1$d|%2$s', $secondaryGroupId, str_replace(
+								'|', '', $vbulletin->usergroupcache["{$secondaryGroupId}"]['title']
+							));
+						}
+					}
+				}
+			}			
+
+			$templater = vB_Template::create('page');
+			$templater->register_page_templates();
+			$templater->unregister('header');
+			$templater->unregister('footer');
+			$templater->unregister('headinclude');
+			$templater->register('headinclude', vB_Template::create('panjo_frame_headinclude')->render());
+			$templater->register('pagetitle', $vbphrase['panjo_marketplace']);
+			$templater->register('body', Panjo::wget(array(
+				'url' => sprintf('http://%s/%s', $vbulletin->options['panjo_host'], $vbulletin->options['panjo_marketplace_id'] . ($vbulletin->GPC['p']['mshow'] == 'listing' ? "/listings/{$vbulletin->GPC['p']['id']}" : '')),
+				'content' => array(
+					'p' => Panjo::getOptions() + array_filter($vbulletin->GPC['p'])
+				)
+			)));
+
+			print_output($templater->render());
+		}
+	}
+
+	protected static function route() {
+		global $vbulletin;
+
+		self::importJsonRequest();
+
+		if (($authenticate = self::authenticate()) !== true) {
+			return array(false, 'authentication', $authenticate);
+		}
+
+		switch ($_SERVER['QUERY_STRING']) {
+			case 'version':
+				return self::version();
+			case 'push':
+				return self::push();
+			case 'ping':
+				return self::ping();
+			case 'message':
+				return self::message();
+			case 'listing':
+				return self::listing();
+			case 'selling':
+				return self::selling();
+			case 'redirect_map':
+				return self::redirect_map();
+		}
+
+		if (isset($_REQUEST['relay']) && $_REQUEST['relay'] == 1) {
+			return self::listing();
+		}
+
+		if (isset($_REQUEST['message']) && $_REQUEST['message'] == 1) {
+			return self::message();
+		}
+
+		return null;
+	}
+
+	protected static function redirect_map() {
+		global $vbulletin;
+
+		$vbulletin->input->clean_array_gpc('p', array(
+			'forums' => TYPE_ARRAY
+		));
+
+		if (!$vbulletin->GPC['forums']) {
+			return array(false, 'no_forums');
+		}
+
+		$query = 'UPDATE `%1$ssetting` SET `value` = "%2$s"
+			WHERE `varname` = "%3$s"';
+
+		$vbulletin->db->query_write(vsprintf($query, array(
+			TABLE_PREFIX,
+			$vbulletin->db->escape_string(json_encode($vbulletin->GPC['forums'])),
+			'panjo_redirect_map'
+		)));
+
+		$vbulletin->options['panjo_redirect_map'] = json_encode($vbulletin->GPC['forums']);
+
+		require_once DIR . '/includes/adminfunctions.php';
+		build_options();
+
+		return true;
+	}
+
+	protected static function selling() {
+		global $vbulletin;
+
+		$vbulletin->input->clean_array_gpc('p', array(
+			'is' => TYPE_UINT,
+			'user_id' => TYPE_UINT
+		));
+
+		$query = 'SELECT `username` FROM `%1$suser` WHERE `userid` = %2$d';
+
+		if (!$vbulletin->db->query_first(sprintf($query, TABLE_PREFIX, $vbulletin->GPC['user_id']))) {
+			return array(false, 'user', 'not_found');
+		}
+
+		$query = 'UPDATE `%1$suser` SET `panjo_selling` = %2$d WHERE `userid` = %3$d';
+		$vbulletin->db->query_write(sprintf($query, TABLE_PREFIX, $vbulletin->GPC['is'], $vbulletin->GPC['user_id']));
+		return $vbulletin->db->affected_rows() > 0;
+	}
+
+	public static function version($product_id = 'panjo') {
+		global $vbulletin;
+
+		$query = 'SELECT `version` FROM `%1$sproduct` WHERE `productid` = "%2$s"';
+
+		if (!($product = $vbulletin->db->query_first(sprintf($query, TABLE_PREFIX, $product_id)))) {
+			return array(false, 'product', 'corruption');
+		}
+
+		return $product['version'];
+	}
+
+	protected static function push() {
+		return Automatic_Plugin_Updater::push();
+	}
+
+	protected static function ping() {
+		global $vbulletin;
+
+		$vbulletin->input->clean_array_gpc('p', array(
+			'subject' => TYPE_STR,
+			'message' => TYPE_STR
+		));
+
+		if (!$vbulletin->GPC['subject'] || !$vbulletin->GPC['message']) {
+			return array(false, 'subject_or_message_empty');
+		}
+
+		if (!vbmail($vbulletin->options['webmasteremail'], $vbulletin->GPC['subject'], $vbulletin->GPC['message'], true)) {
+			return array(false, 'delivery_failure');
+		}
+
+		return true;
+	}
+
+	public static function message() {
+		global $vbulletin;
+
+		$vbulletin->input->clean_array_gpc('p', array(
+			'title' => TYPE_STR,
+			'pm_message' => TYPE_STR,
+			'sender_userid' => TYPE_UINT,
+			'sender_username' => TYPE_STR,
+			'recipient_userid' => TYPE_UINT,
+			'recipient_username' => TYPE_STR
+		));
+
+		if (!($userinfo = fetch_userinfo($vbulletin->GPC['sender_userid']))) {
+			return array(false, 'invalid_sender_userid');
+		}
+
+		$vbulletin->options['pmthrottleperiod'] = 0;
+
+		if ((!$message = base64_decode($vbulletin->GPC['pm_message']))) {
+			$message = $vbulletin->GPC['pm_message'];
+		}
+
+		$pm = datamanager_init('PM', $vbulletin, ERRTYPE_SILENT);
+		$pm->set('dateline', TIMENOW);
+		$pm->set('fromuserid', $vbulletin->GPC['sender_userid']);
+		$pm->set('fromusername', $vbulletin->GPC['sender_username']);
+		$pm->set('title', $vbulletin->GPC['title']);
+		$pm->set('message', $message);
+		$pm->set_recipients($vbulletin->GPC['recipient_username'], $userinfo['permissions']);
+
+		if (!$pm->pre_save()) {
+			return array(false, 'pre_save_failure');
+		}
+
+		return $pm->save();
+	}
+
+	public static function listing() {
+		global $vbulletin;
+
+		$vbulletin->input->clean_array_gpc('p', array(
+			'title' => TYPE_STR,
+			'html' => TYPE_STR,
+			'user' => TYPE_UINT,
+			'forums' => TYPE_ARRAY,
+			'listing_id' => TYPE_STR,
+			'listing_update' => TYPE_BOOL
+		));
+
+		$errors = array(
+			in_array(true, array(			
+				!$vbulletin->GPC['title'],
+				!$vbulletin->GPC['html'],
+				!$vbulletin->GPC['user'],
+				!$vbulletin->GPC['listing_id'],
+				(!$vbulletin->GPC['forums'] && !$vbulletin->GPC['listing_update'])
+			)),
+			!($user = fetch_userinfo($vbulletin->GPC['user'])),
+			!($pagetext = base64_decode($vbulletin->GPC['html']))
+		);
+
+		if (in_array(true, $errors)) {
+			return array(false, $errors);
+		}
+
+		$vbulletin->options['floodchecktime'] = 0;
+		$vbulletin->options['postmaxchars'] = 0;
+		$vbulletin->options['titlemaxchars'] = 0;
+		$vbulletin->options['maximages'] = 0;
+
+		require_once DIR . '/includes/functions_databuild.php';
+
+		$save = array();
+
+		if (!empty($vbulletin->GPC['forums']) && is_array($vbulletin->GPC['forums'])) {
+			foreach ($vbulletin->GPC['forums'] as $forum) {
+				if (!in_array($forum, array_keys($vbulletin->forumcache))) {
+					continue;
+				}
+
+				$forums[] = $forum;
+			}
+
+			if (!isset($forums) || !is_array($forums)) {
+				return array(false, 'no_forums');
+			}
+
+			foreach ($forums as $forum_id) {
+				if (!in_array($forum_id, array_keys($vbulletin->forumcache))) {
+					continue;
+				}
+
+				$post = datamanager_init('Thread_FirstPost', $vbulletin, ERRTYPE_SILENT, 'threadpost');
+				$post->set('forumid', $forum_id);
+				$post->set('userid', $user['userid']);
+				$post->set('ipaddress', $_SERVER['REMOTE_ADDR']);
+				$post->set('showsignature', 0);
+				$post->set('allowsmilie', 0);
+				$post->set('visible', 1);
+				$post->set('title', $vbulletin->GPC['title']);
+				$post->set('pagetext', $pagetext);
+				$post->set_info('parseurl', true);
+
+				if (!$post->pre_save() || !($thread_id = $post->save())) {
+					continue;
+				}
+
+				$existing_thread = fetch_threadinfo($thread_id);
+
+				$thread = datamanager_init('Thread', $vbulletin, ERRTYPE_SILENT, 'threadpost');
+				$thread->set_existing($existing_thread);
+				$thread->set('panjo_listing_id', $vbulletin->GPC['listing_id']);
+
+				if (!$thread->pre_save() || !$thread->save()) {
+					continue;
+				}
+
+				build_forum_counters($forum_id);
+				$save[] = $thread_id;
+			}
+		}
+
+		if ($vbulletin->GPC['listing_update']) {
+					
+			$resource = $vbulletin->db->query_read_slave('SELECT `threadid` FROM `' . TABLE_PREFIX . 'thread`
+				WHERE `panjo_listing_id` = "' . $vbulletin->db->escape_string($vbulletin->GPC['listing_id']) . '"');
+
+			if ($vbulletin->db->num_rows($resource)) {
+				while (($t = $vbulletin->db->fetch_array($resource)) != false) {
+					$existing_thread = fetch_threadinfo($t['threadid']);
+					$existing_post = fetch_postinfo($existing_thread['firstpostid']);
+
+					$post = datamanager_init('Thread_FirstPost', $vbulletin, ERRTYPE_SILENT, 'threadpost');
+					$post->set_existing($existing_post);
+					$post->set('userid', $user['userid']);
+					$post->set('ipaddress', $_SERVER['REMOTE_ADDR']);
+					$post->set('title', $vbulletin->GPC['title']);
+					$post->set('pagetext', $pagetext);
+					$post->set('visible', 1);
+					$post->set_info('parseurl', true);
+
+					if (!$post->pre_save() || !$post->save()) {
+						continue;
+					}
+
+					build_forum_counters($existing_thread['forumid']);
+					$save[] = $t['threadid'];
+				}
+
+				$vbulletin->db->free_result($resource);
+			}
+		}
+
+		if (!$save) {
+			return array(false, 'no_writes');
+		}
+
+		$vbulletin->db->query_write(vsprintf('UPDATE %1$suser SET posts = (posts + %3$d) WHERE userid = %2$d', array(
+			TABLE_PREFIX,
+			$user['userid'],
+			count($save)
+		)));
+
+		return $save;
+	}
+
+	protected static function importJsonRequest() {
+		if (isset($_POST['json_request']) && !empty($_POST['json_request'])) {
+			if (($data = json_decode($_POST['json_request'], true)) !== false) {
+				foreach ($data as $key => $value) {
+					$_POST[$key] = $value;
+				}
+			}
+		}
+	}
+
+	protected static function authenticate() {
+		global $vbulletin;
+
+		if (!isset($vbulletin->config['Misc']['debug']) && !$vbulletin->config['Misc']['debug']) {
+			if (gethostbyname($_SERVER['REMOTE_ADDR']) != gethostbyname($vbulletin->options['panjo_host'])) {
+				return 'server_hostname';
+			}
+		}
+
+		$vbulletin->input->clean_array_gpc('p', array(
+			'auth_token' => TYPE_STR,
+			'ts' => TYPE_UNIXTIME
+		));
+
+		if (!$vbulletin->GPC['ts'] || $vbulletin->GPC['ts'] < date('-3 Minutes', TIMENOW)) {
+			return 'time_stamp';
+		}
+
+		if ($vbulletin->GPC['auth_token'] != md5($vbulletin->options['panjo_marketplace_id'] . md5($vbulletin->options['panjo_private_key'] . md5($vbulletin->GPC['ts'])))) {
+			return 'marketplace_id_or_auth_token';
+		}
+
+		return true;
+	}
+
+	public static function cache_templates(&$templates) {
+		$buffer = array(
+			'panjo_header',
+			'panjo_login_headinclude',
+			'panjo_STANDARD_ERROR',
+			'panjo_frame_headinclude',
+			'panjo_frame',
+			'panjo_seller_profile_link'
+		);
+
+		if (version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+			$templates[] = 'page';
+
+			$templates[] = 'panjo_STANDARD_ERROR_LOGIN';
+			$templates[] = 'panjo_STANDARD_ERROR_LOGIN_nowrapper';
+		} else {
+			$templates[] = 'SHELL_BLANK';
+
+			foreach ($buffer as &$template) {
+				$template .= '_legacy';
+			}
+
+			$templates[] = 'panjo_STANDARD_ERROR_legacy_nowrapper';
+		}
+
+		$templates = array_merge($templates, $buffer);
+	}
+
+	static function wget($params = array()) {
+		$defaults = array(
+			'method' => 'GET',
+			'timeout' => 15,
+			'content' => array(),
+			'headers' => array()
+		);
+
+		$params += $defaults;
+
+		if ($params['method'] == 'GET' && !empty($params['content'])) {
+			$params['url'] = implode('?', array($params['url'], http_build_query($params['content'])));
+		}
+
+		if (function_exists('curl_init')) {
+			$resource = curl_init();
+
+			curl_setopt($resource, CURLOPT_URL, $params['url']);
+			curl_setopt($resource, CURLOPT_TIMEOUT, $params['timeout']);
+			curl_setopt($resource, CURLOPT_USERAGENT, $params['user_agent']);
+			curl_setopt($resource, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($resource, CURLOPT_RETURNTRANSFER, true);
+
+			if ($params['headers']) {
+				curl_setopt($resource, CURLOPT_HTTPHEADER, $params['headers']);
+			}
+
+			if ($params['method'] == 'POST') {
+				curl_setopt($resource, CURLOPT_POST, true);
+				curl_setopt($resource, CURLOPT_POSTFIELDS, $params['content']);
+			}
+
+			$response = curl_exec($resource);
+			curl_close($resource);
+		} else if (ini_get('allow_url_fopen')) {
+			extract(array_intersect_key($params, $defaults));
+			$options = compact('method', 'content', 'timeout', 'user_agent');
+
+			if ($params['headers']) {
+				$options['header'] = implode("\r\n", $params['headers']);
+			}
+
+			$response = file_get_contents($params['url'], false, stream_context_create($options));
+		}
+
+		return $response;
+	}
+
+	public static function getOptions($user = null) {
+		global $vbulletin;
+
+		if (!$user) {
+			$user = $vbulletin->userinfo;
+		}
+
+		if (!($usergroupIds = fetch_membergroupids_array($user, false))) {
+			$usergroupIds = array($user['usergroupid']);
+		} else {
+			array_unshift($usergroupIds, $user['usergroupid']);
+		}
+
+		$options = array(
+			'can_sell' => false,
+			'transaction_fee' => 0.00,
+			'listing_fee' => 0.00
+		);
+
+		foreach ($usergroupIds as $usergroupId) {
+			$options['can_sell'] = $vbulletin->usergroupcache[$usergroupId]['panjo_can_sell'];
+			$options['transaction_fee'] = $vbulletin->usergroupcache[$usergroupId]['panjo_transaction_fee'];
+			$options['listing_fee'] = $vbulletin->usergroupcache[$usergroupId]['panjo_listing_fee'];
+
+			if ($options['can_sell']) {
+				break;
+			}
+		}
+
+		return $options;
+	}
+
+	public static function sellerProfileLink($user = null) {
+		global $vbulletin;
+
+		if (!$user) {
+			$user = $vbulletin->userinfo;
+		}
+
+		if (!$vbulletin->options['panjo_seller_profile_link'] || !$user['panjo_selling']) {
+			return null;
+		}
+
+		$options = self::getOptions($user);
+
+		if (!$options['can_sell']) {
+			return null;
+		}
+
+		if (version_compare(FILE_VERSION, '3.0.0', '>=') && version_compare(FILE_VERSION, '3.9.9', '<=')) {
+			vB_Template::$convert['panjo_seller_profile_link'] = array('template' => 'panjo_seller_profile_link_legacy');
+		}
+
+		$templater = vB_Template::create('panjo_seller_profile_link');
+		$templater->register('user', $user);
+		$templater->register('username_clean', urlencode($user['username']));
+		return $templater->render();
+	}
+}
+
+if (!class_exists('Enthusify')) {
+	class Enthusify extends Panjo {}
+}
+
+if ($vbulletin->options['panjo_host']) {
+	$vbulletin->options['redirect_whitelist'] .= PHP_EOL . "http://{$vbulletin->options['panjo_host']}";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>APU</title>
+			<hookname>init_startup</hookname>
+			<phpcode><![CDATA[class Automatic_Plugin_Updater {
+	public static function push() {
+		global $vbulletin, $vbphrase;
+
+		if (!$vbulletin->options['panjo_push']) {
+			return array(false, 'no_push');
+		}
+
+		require_once DIR . '/includes/class_hook.php';
+		require_once DIR . '/includes/adminfunctions.php';
+		require_once DIR . '/includes/adminfunctions_plugin.php';
+		require_once DIR . '/includes/adminfunctions_template.php';
+
+		set_time_limit(0);
+
+		$vbulletin->input->clean_array_gpc('p', array(
+			'xml' => TYPE_STR,
+			'message' => TYPE_STR
+		));
+
+		if (!$vbulletin->GPC['xml'] || !($xml = file_get_contents($vbulletin->GPC['xml']))) {
+			return array(false, 'empty_xml');
+		}
+
+		require_once DIR . '/includes/class_xml.php';
+
+		$parser = new vB_XML_Parser($xml);
+
+		if (!($document = $parser->parse())) {
+			return array(false, 'xml_parse_error');
+		}
+
+		$details = array(
+			'productid'       => substr(preg_replace('#[^a-z0-9_]#', '', strtolower($document['productid'])), 0, 25),
+			'title'           => $document['title'],
+			'description'     => $document['description'],
+			'version'         => $document['version'],
+			'active'          => $document['active'],
+			'url'             => $document['url'],
+			'versioncheckurl' => $document['versioncheckurl']
+		);
+
+		if (!$details['productid'] || strtolower($details['productid']) == 'vbulletin') {
+			return array(false, 'invalid_product_id');
+		}
+
+		require_once DIR . '/includes/class_bitfield_builder.php';
+
+		if (!($bitfields = vB_Bitfield_Builder::return_data())) {
+			$builder = vB_Bitfield_Builder::init();
+
+			if ($builder->errors) {
+				return array(false, $builder->errors);
+			}
+		}
+
+		if (!($mysql = $vbulletin->db->query_first('SELECT VERSION() AS version'))) {
+			return array(false, 'no_mysql_version');
+		}
+
+		$system_versions = array(
+			'php' => PHP_VERSION,
+			'vbulletin' => $vbulletin->options['templateversion'],
+			'products' => fetch_product_list(true),
+			'mysql' => $mysql['version']
+		);
+
+		if (is_array($document['dependencies']['dependency'])) {
+			$dependencies = $document['dependencies']['dependency'];
+
+			if (!isset($dependencies[0])) {
+				$dependencies = array($dependencies);
+			}
+
+			$dependency_errors = array();
+			$ignore_dependency_errors = array();
+
+			foreach ($dependencies AS $dependency) {
+				$this_dependency_met = true;
+
+				if ($dependency['minversion']) {
+					$compatible_phrase = construct_phrase(
+						$vbphrase['compatible_starting_with_x'],
+						htmlspecialchars_uni($dependency['minversion'])
+					);
+				} else {
+					$compatible_phrase = '';
+				}
+
+				if ($dependency['maxversion']) {
+					$incompatible_phrase = construct_phrase(
+						$vbphrase['incompatible_with_x_and_greater'],
+						htmlspecialchars_uni($dependency['maxversion'])
+					);
+				} else {
+					$incompatible_phrase = '';
+				}
+
+				if ($compatible_phrase OR $incompatible_phrase) {
+					$required_version_info = "($compatible_phrase";
+
+					if ($compatible_phrase AND $incompatible_phrase) {
+						$required_version_info .= ' / ';
+					}
+
+					$required_version_info .= "$incompatible_phrase)";
+				}
+
+				if ($dependency['dependencytype'] == 'product') {
+					$dependency_type_key = "product-{$dependency['parentproductid']}";
+					$parent_product_title = (!empty($dependency['producttitle']) ? $dependency['producttitle'] : $dependency['parentproductid']);
+					$parent_product = $system_versions['products'][$dependency['parentproductid']];
+
+					if (!$parent_product) {
+						$dependency_errors["$dependency_type_key"] = construct_phrase(
+							$vbphrase['product_x_must_be_installed'],
+							htmlspecialchars_uni($parent_product_title),
+							$required_version_info
+						);
+
+						continue;
+					} else if ($parent_product['active'] == 0) {
+						$dependency_errors["{$dependency_type_key}-inactive"] = construct_phrase(
+							$vbphrase['product_x_must_be_activated'],
+							htmlspecialchars_uni($parent_product_title)
+						);
+
+						$this_dependency_met = false;
+					}
+
+					$sys_version_str = $parent_product['version'];
+					$version_incompatible_phrase = 'product_incompatible_version_x_product_y';
+				} else {
+					$dependency_type_key = $dependency['dependencytype'];
+					$parent_product_title = '';
+					$sys_version_str = $system_versions["$dependency[dependencytype]"];
+					$version_incompatible_phrase = 'product_incompatible_version_x_' . $dependency['dependencytype'];
+				}
+
+				if ($sys_version_str == '') {
+					continue;
+				}
+
+				$sys_version = fetch_version_array($sys_version_str);
+
+				if ($dependency['minversion']) {
+					$dep_version = fetch_version_array($dependency['minversion']);
+
+					for ($i = 0; $i <= 5; $i++) {
+						if ($sys_version["$i"] < $dep_version["$i"]) {
+							$dependency_errors["$dependency_type_key"] = construct_phrase(
+								$vbphrase["$version_incompatible_phrase"],
+								htmlspecialchars_uni($sys_version_str),
+								$required_version_info,
+								$parent_product_title
+							);
+
+							$this_dependency_met = false;
+							break;
+						} else if ($sys_version["$i"] > $dep_version["$i"]) {
+							break;
+						}
+					}
+				}
+
+				if ($dependency['maxversion']) {
+					$dep_version = fetch_version_array($dependency['maxversion']);
+					$all_equal = true;
+
+					for ($i = 0; $i <= 5; $i++) {
+						if ($sys_version[$i] > $dep_version[$i]) {
+							$dependency_errors["$dependency_type_key"] = construct_phrase(
+								$vbphrase["$version_incompatible_phrase"],
+								htmlspecialchars_uni($sys_version_str),
+								$required_version_info,
+								$parent_product_title
+							);
+
+							$this_dependency_met = false;
+							break;
+						} else if ($sys_version[$i] < $dep_version[$i]) {
+							$all_equal = false;
+							break;
+						} else if ($sys_version[$i] != $dep_version[$i]) {
+							$all_equal = false;
+						}
+					}
+
+					if ($all_equal == true) {
+						$dependency_errors["$dependency_type_key"] = construct_phrase(
+							$vbphrase["$version_incompatible_phrase"],
+							htmlspecialchars_uni($sys_version_str),
+							$required_version_info,
+							$parent_product_title
+						);
+
+						$this_dependency_met = false;
+					}
+				}
+
+				if ($this_dependency_met) {
+					$ignore_dependency_errors["$dependency_type_key"] = true;
+				}
+			}
+
+			foreach ($ignore_dependency_errors AS $dependency_type_key => $devnull) {
+				unset($dependency_errors[$dependency_type_key]);
+			}
+
+			if ($dependency_errors) {
+				return array(false, 'dependencies_not_met', $dependency_errors);
+			}
+		}
+
+		$query = 'SELECT * FROM `%1$sproduct` WHERE `productid` = "%2$s"';
+
+		if (($existing_product = $vbulletin->db->query_first(sprintf($query, TABLE_PREFIX, $details['productid']))) != false) {
+			$active = $existing_product['active'];
+
+			$rebuild = array(
+				'templates' => true,
+				'plugins'   => true,
+				'phrases'   => true,
+				'options'   => true,
+				'cron'      => true
+			);
+
+			$installed_version = $existing_product['version'];
+		} else {
+			$active = ($details['active'] ? 1 : 0);
+
+			$rebuild = array(
+				'templates' => false,
+				'plugins'   => false,
+				'phrases'   => false,
+				'options'   => false,
+				'cron'      => false
+			);
+
+			$installed_version = null;
+		}
+
+		if (is_array($document['codes']['code'])) {
+			$codes = $document['codes']['code'];
+
+			if (!isset($codes[0])) {
+				$codes = array($codes);
+			}
+
+			foreach ($codes AS $code) {
+				if ($code['version'] == '*' OR $installed_version === null || is_newer_version($code['version'], $installed_version)) {
+					eval($code['installcode']);
+				}
+			}
+		}
+
+		delete_product($details['productid']);
+
+		if (is_array($codes)) {
+			foreach ($codes AS $code) {
+				$query = 'INSERT INTO `%1$sproductcode`
+					(productid, version, installcode, uninstallcode)
+						VALUES ("%2$s", "%3$s", "%4$s", "%5$s")';
+
+				$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+					TABLE_PREFIX,
+					$details['productid'],
+					$code['version'],
+					$code['installcode'],
+					$code['uninstallcode']
+				))));
+			}
+		}
+
+		if (is_array($dependencies)) {
+			foreach ($dependencies AS $dependency) {
+				$query = 'INSERT INTO `%1$sproductdependency`
+					(productid, dependencytype, parentproductid, minversion, maxversion)
+						VALUES ("%2$s", "%3$s", "%4$s", "%5$s", "%6$s")';
+
+				$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+					TABLE_PREFIX,
+					$details['productid'],
+					$dependency['dependencytype'],
+					$dependency['parentproductid'],
+					$dependency['minversion'],
+					$dependency['maxversion']
+				))));
+			}
+		}
+
+		$query = 'INSERT INTO `%1$sproduct`
+			(productid, title, description, version, active, url, versioncheckurl)
+				VALUES
+					("%2$s", "%3$s", "%4$s", "%5$s", %6$d, "%7$s", "%8$s")';
+
+		$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+			TABLE_PREFIX,
+			$details['productid'],
+			$details['title'],
+			$details['description'],
+			$details['version'],
+			intval($active),
+			$details['url'],
+			$details['versioncheckurl'],
+		))));
+
+		if (is_array($document['templates']['template'])) {
+			$querybits = array();
+			$querytemplates = 0;
+
+			$templates = $document['templates']['template'];
+
+			if (!isset($templates[0])) {
+				$templates = array($templates);
+			}
+
+			foreach ($templates AS $template) {
+				if ($template['templatetype'] != 'template') {
+					$_template = $template['value'];
+					$_template_un = '';
+				} else {
+					$_template = compile_template($template['value']);
+					$_template_un = $template['value'];
+				}
+
+				$params = array(
+					TABLE_PREFIX,
+					-1,
+					$template['templatetype'],
+					$template['name'],
+					$_template,
+					$_template_un,
+					$template['date'],
+					$template['username'],
+					$template['version'],
+					$details['productid']
+				);
+
+				$query = 'REPLACE INTO `%1$stemplate`
+					(styleid, templatetype, title, template, template_un, dateline, username, version, product)
+						VALUES (%2$d, "%3$s", "%4$s", "%5$s", "%6$s", %7$d, "%8$s", "%9$s", "%10$s")';
+
+				$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), $params)));
+			}
+
+			$rebuild['templates'] = true;
+		}
+
+		if (is_array($document['plugins']['plugin'])) {
+			$plugins = $document['plugins']['plugin'];
+
+			if (!isset($plugins[0])) {
+				$plugins = array($plugins);
+			}
+
+			foreach ($plugins AS $plugin) {
+				$plugin['product'] = $details['productid'];
+				unset($plugin['devkey']);
+
+				$vbulletin->db->query_write(fetch_query_sql($plugin, 'plugin'));
+			}
+		
+			$rebuild['plugins'] = true;
+		}
+
+		if (is_array($document['phrases']['phrasetype'])) {
+			require_once DIR . '/includes/adminfunctions_language.php';
+
+			$master_phrasetypes = array();
+			$master_phrasefields = array();
+
+			foreach(fetch_phrasetypes_array(false) as $phrasetype) {
+				$master_phrasefields["$phrasetype[fieldname]"] = true;
+			}
+
+			$phrasetypes = $document['phrases']['phrasetype'];
+
+			if (!isset($phrasetypes[0])) {
+				$phrasetypes = array($phrasetypes);
+			}
+
+			foreach ($phrasetypes AS $phrasetype) {
+				if (empty($phrasetype['phrase'])) {
+					continue;
+				}
+
+				if ($phrasetype['fieldname'] == '' OR !preg_match('#^[a-z0-9_]+$#i', $phrasetype['fieldname'])) {
+					continue;
+				}
+
+				$fieldname = $master_phrasefields[$phrasetype['fieldname']];
+
+				if (!$fieldname) {
+					$query = 'INSERT IGNORE INTO `%1$sphrasetype`
+						(fieldname, title, editrows, product)
+							VALUES ("%2$s", "%3$s", %4$d, "%5$s")';
+
+					$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+						TABLE_PREFIX,
+						$phrasetype['fieldname'],
+						$phrasetype['name'],
+						'3',
+						$details['productid']
+					))));
+
+					require_once DIR . '/includes/class_dbalter.php';
+
+					$db_alter = new vB_Database_Alter_MySQL($vbulletin->db);
+
+					if ($db_alter->fetch_table_info('language')) {
+						$db_alter->add_field(array(
+							'name' => "phrasegroup_{$phrasetype['fieldname']}",
+							'type' => 'mediumtext'
+						));
+					}
+				}
+
+				$phrases = $phrasetype['phrase'];
+
+				if (!isset($phrases[0])) {
+					$phrases = array($phrases);
+				}
+
+				foreach ($phrases AS $phrase) {
+					$query = 'REPLACE INTO `%1$sphrase`
+						(languageid, fieldname, varname, text, product, username, dateline, version)
+							VALUES
+								(%2$d, "%3$s", "%4$s", "%5$s", "%6$s", "%7$s", %8$d, "%9$s")';
+
+					$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+						TABLE_PREFIX,
+						-1,
+						$phrasetype['fieldname'],
+						$phrase['name'],
+						$phrase['value'],
+						$details['productid'],
+						$phrase['username'],
+						$phrase['date'],
+						$phrase['version']
+					))));
+				}
+			}
+		
+			$rebuild['phrases'] = true;
+		}
+
+		if (is_array($document['options']['settinggroup'])) {
+			$settinggroups = $document['options']['settinggroup'];
+
+			if (!isset($settinggroups[0])) {
+				$settinggroups = array($settinggroups);
+			}
+		
+			foreach ($settinggroups AS $group) {
+				if (empty($group['setting'])) {
+					continue;
+				}
+
+				$query = 'INSERT IGNORE INTO `%1$ssettinggroup`
+					(grouptitle, displayorder, volatile, product)
+						VALUES
+							("%2$s", %3$d, %4$d, "%5$s")';
+
+				$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+					TABLE_PREFIX,
+					$group['name'],
+					$group['displayorder'],
+					1,
+					$details['productid']
+				))));
+
+				$settings = $group['setting'];
+
+				if (!isset($settings[0])) {
+					$settings = array($settings);
+				}
+
+				$setting_bits = array();
+
+				foreach ($settings AS $setting) {
+					if (isset($vbulletin->options["$setting[varname]"])) {
+						$newvalue = $vbulletin->options["$setting[varname]"];
+					} else {
+						$newvalue = $setting['defaultvalue'];
+					}
+
+					$query = 'REPLACE INTO `%1$ssetting`
+						(varname, grouptitle, value, defaultvalue, datatype, optioncode, displayorder, advanced, volatile, validationcode, blacklist, product)
+							VALUES ("%2$s", "%3$s", "%4$s", "%5$s", "%6$s", "%7$s", %8$d, %9$d, %10$d, "%11$s", %12$d, "%13$s")';
+
+					$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+						TABLE_PREFIX,
+						$setting['varname'],
+						$group['name'],
+						trim($newvalue),
+						$setting['defaultvalue'],
+						$setting['datatype'],
+						$setting['optioncode'],
+						$setting['displayorder'],
+						$setting['advanced'],
+						1,
+						$setting['validationcode'],
+						$setting['blacklist'],
+						$details['productid']
+					))));
+				}
+			}
+		
+			$rebuild['options'] = true;			
+		}
+		
+		if (is_array($document['helptopics']['helpscript'])) {
+			$help_scripts = $document['helptopics']['helpscript'];
+
+			if (!isset($help_scripts[0])) {
+				$help_scripts = array($help_scripts);
+			}
+		
+			foreach ($help_scripts AS $help_script) {
+				if (!is_array($help_script['helptopic'][0])) {
+					$help_script['helptopic'] = array($help_script['helptopic']);
+				}
+
+				$help_sql = array();
+
+				foreach ($help_script['helptopic'] AS $topic) {
+					$query = 'REPLACE INTO `%1$sadminhelp`
+						(script, action, optionname, displayorder, volative, product)
+							VALUES ("%2$s", "%3$s", "%4$s", %5$d, %6$d, "%7$s")';
+
+					$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+						TABLE_PREFIX,
+						$help_script['name'],
+						$topic['act'],
+						$topic['opt'],
+						$topic['disp'],
+						1,
+						$details['productid']
+					))));
+				}
+			}
+		}
+
+		if (is_array($document['cronentries']['cron'])) {
+			require_once DIR . '/includes/functions_cron.php';
+
+			$cron_entries = $document['cronentries']['cron'];
+
+			if (!isset($cron_entries[0])) {
+				$cron_entries = array($cron_entries);
+			}
+
+			foreach ($cron_entries AS $cron) {
+				$cron['varname'] = preg_replace('#[^a-z0-9_]#i', '', $cron['varname']);
+
+				if (!$cron['varname']) {
+					continue;
+				}
+
+				$cron['active'] = ($cron['active'] ? 1 : 0);
+				$cron['loglevel'] = ($cron['loglevel'] ? 1 : 0);
+
+				$scheduling = $cron['scheduling'];
+				$scheduling['weekday'] = intval($scheduling['weekday']);
+				$scheduling['day'] = intval($scheduling['day']);
+				$scheduling['hour'] = intval($scheduling['hour']);
+				$scheduling['minute'] = explode(',', preg_replace('#[^0-9,-]#i', '', $scheduling['minute']));
+
+				if (count($scheduling['minute']) == 0) {
+					$scheduling['minute'] = array(0);
+				} else {
+					$scheduling['minute'] = array_map('intval', $scheduling['minute']);
+				}
+
+				$query = 'REPLACE INTO `%1$scron`
+					(weekday, day, hour, minute, filename, loglevel, active, varname, volatile, product)
+						VALUES
+							("%2$s", "3$s", "%4$s", "%5$s", "%6$s", %7$d, %8$d, "%9$s", %10$d, "%11$s")';
+
+				$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escaoe_string'), array(
+					TABLE_PREFIX,
+					$scheduling['weekday'],
+					$scheduling['day'],
+					$scheduling['hour'],
+					serialize($scheduling['minute']),
+					$cron['filename'],
+					$cron['loglevel'],
+					$cron['active'],
+					$cron['varname'],
+					1,
+					$details['productid']
+				))));
+
+				if (($cronid = $vbulletin->db->insert_id()) != false) {
+					build_cron_item($cronid);
+				}
+
+				$rebuild['cron'] = true;
+			}
+		}
+
+		if (is_array($document['faqentries']['faq'])) {
+			$faq_entries = $document['faqentries']['faq'];
+
+			if (!isset($faq_entries[0])) {
+				$faq_entries = array($faq_entries);
+			}
+
+			foreach ($faq_entries AS $faq) {
+				$query = 'REPLACE INTO `%1$sfaq`
+					(faqname, faqparent, displayorder, volatile, product)
+						VALUES ("%2$s", "%3$s", %4$d, %5$d, "%6$s")';
+
+				$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+					TABLE_PREFIX,
+					$faq['faqname'],
+					$faq['faqparent'],
+					$faq['displayorder'],
+					1,
+					$details['productid']
+				))));
+			}
+		}
+
+		if (version_compare(FILE_VERSION, '4.2.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+			import_navigation($document, $details);
+		}
+
+		if (!$vbulletin->options['enablehooks']) {
+			$query = 'UPDATE `%1$ssetting` SET `value` = %3$d
+				WHERE `varname` = "%2$s"';
+
+			$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+				TABLE_PREFIX,
+				'enablehooks',
+				1
+			))));
+
+			$rebuild['options'] = true;
+		}
+
+		if ($rebuild['plugins']) {
+			vBulletinHook::build_datastore($vbulletin->db);
+
+			if ($active) {
+				$query = 'SELECT * FROM `%1$sdatastore`
+					WHERE `title` IN ("pluginlist", "pluginlistadmin")';
+
+				$plugin_data = $vbulletin->db->query_read(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+					TABLE_PREFIX
+				))));
+
+				while (($plugin_info = $vbulletin->db->fetch_array($plugin_data)) != false) {
+					if ($plugin_info['title'] == 'pluginlist') {
+						$vbulletin->pluginlist = unserialize($plugin_info['data']);
+					} else if ($plugin_info['title'] == 'pluginlistadmin') {
+						$vbulletin->pluginlistadmin = unserialize($plugin_info['data']);
+					}
+				}
+
+				$vbulletin->db->free_result($plugin_data);
+
+				if (!empty($vbulletin->pluginlistadmin) AND is_array($vbulletin->pluginlistadmin)) {
+					$vbulletin->pluginlist = array_merge($vbulletin->pluginlist, $vbulletin->pluginlistadmin);
+					unset($vbulletin->pluginlistadmin);
+				}
+
+				if (version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+					vBulletinHook::set_pluginlist($vbulletin->pluginlist);
+				}
+
+				if (version_compare(FILE_VERSION, '3.0.0', '>=') && version_compare(FILE_VERSION, '3.9.9', '<=')) {
+					$hooks = vBulletinHook::init();
+					$hooks->set_pluginlist($vbulletin->pluginlist);
+				}
+			}
+		}
+
+		if ($rebuild['templates']) {
+			if (version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+				self::build_all_styles(0, 0, '', false, 'standard');
+				self::build_all_styles(0, 0, '', false, 'mobile');
+			}
+
+			if (version_compare(FILE_VERSION, '3.0.0', '>=') && version_compare(FILE_VERSION, '3.9.9', '<=')) {
+				self::build_all_styles();
+			}
+		}
+
+		if ($rebuild['phrases']) {
+			require_once DIR . '/includes/adminfunctions_language.php';
+			build_language();
+		}
+
+		if ($rebuild['options']) {
+			build_options();
+		}
+
+		if ($rebuild['cron']) {
+			require_once DIR . '/includes/functions_cron.php';
+			build_cron_next_run();
+		}
+
+		build_product_datastore();
+		vB_Bitfield_Builder::save($vbulletin->db);
+
+		if ($vbulletin->GPC['message']) {
+			$query = 'REPLACE INTO %1$sphrase
+				(languageid, fieldname, varname, text, product, username, dateline, version)
+					VALUES
+						(%2$d, "%3$s", "%4$s", "%5$s", "%6$s", "%7$s", %8$d, "%9$s")';
+
+			$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+				TABLE_PREFIX,
+				-1,
+				'error',
+				($phrase_key = implode('_', array(strtolower(__CLASS__), 'push', uniqid()))),
+				$vbulletin->GPC['message'],
+				$details['productid'],
+				'Administrator',
+				TIMENOW,
+				$details['version']
+			))));
+
+			$query = 'INSERT INTO `%1$sadminmessage`
+				(varname, dismissable, script, action, method, dateline, statususerid)
+					VALUES ("%2$s", %3$d, "%4$s", "%5$s", "%6$s", %7$d, %8$d)';
+
+			$vbulletin->db->query_write(vsprintf($query, array_map(array($vbulletin->db, 'escape_string'), array(
+				TABLE_PREFIX,
+				$phrase_key,
+				true,
+				'',
+				'',
+				'',
+				TIMENOW,
+				0
+			))));
+		}
+
+		return Panjo::version($details['productid']);
+	}
+
+	public static function build_all_styles() {
+		$renumber = 0;
+		$install = 0;
+		$goto = '';
+
+		$resetcache = false;
+		$mastertype = 'standard';
+		$builddatastore = true;
+
+		if (($args = func_get_args()) != false) {
+			$renumber = $args[0];
+
+			if (isset($args[1])) {
+				$install = $args[1];
+
+				if (isset($args[2])) {
+					$goto = $args[2];
+
+					if (isset($args[3])) {
+						$resetcache = $args[3];
+
+						if (isset($args[4])) {
+							$mastertype = $args[4];
+
+							if (isset($args[5])) {
+								$builddatastore = $args[5];
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+			global $vbulletin, $template_table_query, $template_table_fields, $vbphrase;
+
+			if ($mastertype == -1) {
+				$mastertype = 'standard';
+			} else if ($mastertype == -2) {
+				$mastertype = 'mobile';
+			}
+
+			if (!empty($goto)) {
+				$form_tags = true;
+			}
+
+			if ($install) {
+				$total = 0;
+
+				if ($mastertype == 'standard') {
+					$vbulletin->db->query_write("
+						UPDATE " . TABLE_PREFIX . "style
+						SET parentid = -1,
+						parentlist = CONCAT(styleid,',-1')
+						WHERE parentid = 0 AND type = 'standard'
+					");
+
+					$total += $vbulletin->db->affected_rows();
+				} else {
+					$mastertype = 'mobile';
+
+					$vbulletin->db->query_write("
+						UPDATE " . TABLE_PREFIX . "style
+						SET parentid = -2,
+						parentlist = CONCAT(styleid,',-2')
+						WHERE parentid = 0 AND type = 'mobile'
+					");
+
+					$total += $vbulletin->db->affected_rows();
+				}
+			}
+
+			if ($renumber) {
+				$vbulletin->db->query_write("DROP TABLE IF EXISTS " . TABLE_PREFIX . "template_temp");
+				$vbulletin->db->query_write($template_table_query);
+
+				$vbulletin->db->query_write("
+					INSERT INTO " . TABLE_PREFIX . "template_temp
+						($template_table_fields)
+							SELECT $template_table_fields FROM " . TABLE_PREFIX . "template ORDER BY styleid, templatetype, title
+				");
+			
+				$vbulletin->db->query_write("DROP TABLE " . TABLE_PREFIX . "template");
+				$vbulletin->db->query_write("ALTER TABLE " . TABLE_PREFIX . "template_temp RENAME " . TABLE_PREFIX . "template");
+			}
+
+			build_template_parentlists($mastertype);
+
+			$styleactions = array('docss' => 1, 'dostylevars' => 1, 'doreplacements' => 1);
+
+			if ($mastertype == 'standard') {
+				if (!self::build_style(-1, $vbphrase['master_style'], $styleactions, '', '', $resetcache)) {
+					return false;
+				}
+			} else {
+				if (!self::build_style(-2, $vbphrase['master_style'], $styleactions, '', '', $resetcache)) {
+					return false;
+				}
+			}
+
+			if ($builddatastore) {
+				build_style_datastore();
+			}
+
+			return true;
+		}
+
+		if (version_compare(FILE_VERSION, '3.0.0', '>=') && version_compare(FILE_VERSION, '3.9.9', '<=')) {
+			global $vbulletin, $template_table_query, $template_table_fields, $vbphrase;
+
+			if (!empty($goto)) {
+				$form_tags = true;
+			}
+
+			if ($install) {
+				$vbulletin->db->query_write("
+					UPDATE " . TABLE_PREFIX . "style
+					SET parentid = -1,
+					parentlist = CONCAT(styleid,',-1')
+					WHERE parentid = 0
+				");
+			}
+
+			if ($renumber) {
+				$vbulletin->db->query_write("DROP TABLE IF EXISTS " . TABLE_PREFIX . "template_temp");
+				$vbulletin->db->query_write($template_table_query);
+
+				$vbulletin->db->query_write("
+					INSERT INTO " . TABLE_PREFIX . "template_temp
+						($template_table_fields)
+							SELECT $template_table_fields FROM " . TABLE_PREFIX . "template ORDER BY styleid, templatetype, title
+				");
+
+				$vbulletin->db->query_write("DROP TABLE " . TABLE_PREFIX . "template");
+				$vbulletin->db->query_write("ALTER TABLE " . TABLE_PREFIX . "template_temp RENAME " . TABLE_PREFIX . "template");
+			}
+
+			build_template_parentlists();
+
+			$styleactions = array('docss' => 1, 'dostylevars' => 1, 'doreplacements' => 1, 'doposteditor' => 1);
+
+			if (defined('NO_POST_EDITOR_BUILD')) {
+				$styleactions['doposteditor'] = 0;
+			}
+
+			self::build_style(-1, $vbphrase['master_style'], $styleactions);
+			build_style_datastore();
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public static function build_style() {
+		$title = '';
+		$actions = array();
+		$parentlist = '';
+		$indent = '';
+
+		$resetcache = false;
+
+		if (($args = func_get_args()) != false) {
+			$styleid = $args[0];
+
+			if (isset($args[1])) {
+				$title = $args[1];
+
+				if (isset($args[2])) {
+					$actions = $args[2];
+
+					if (isset($args[3])) {
+						$parentlist = $args[3];
+
+						if (isset($args[4])) {
+							$ident = $args[4];
+
+							if (isset($args[5])) {
+								$resetcache = $args[5];
+							}
+						}
+					}
+				}
+			}
+		}
+	
+		if (version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+			global $vbulletin, $_queries, $vbphrase, $_query_special_templates;
+	
+			if (($actions['doreplacements'] OR $actions['docss'] OR $actions['dostylevars']) AND $vbulletin->options['storecssasfile']) {
+				$actions['docss'] = true;
+				$actions['doreplacements'] = true;
+			}
+	
+			if ($styleid != -1 AND $styleid != -2) {
+				$style = $vbulletin->db->query_first("
+					SELECT *
+					FROM " . TABLE_PREFIX . "style
+						WHERE styleid = {$styleid}
+				");
+	
+				$masterstyleid = ($style['type'] == 'standard' ? -1 : -2);
+				$QUERY = array(
+						'' => "dateline = " . TIMENOW
+				);
+	
+				if (!$parentlist) {
+					$parentlist = fetch_parentids($styleid);
+				}
+	
+				$templatelist = build_template_id_cache($styleid, 1, $parentlist);
+				$QUERY[] = "templatelist = '" . $vbulletin->db->escape_string($templatelist)  . "'";
+	
+				if ($actions['docss'] OR $actions['dostylevars'] OR $actions['doreplacements']) {
+					$template_cache = array();
+	
+					if (($templateids = implode(',' , unserialize($templatelist))) != false) {
+						$templates = $vbulletin->db->query_read("
+							SELECT title, template, templatetype
+							FROM " . TABLE_PREFIX . "template
+								WHERE templateid IN ($templateids)
+								AND (templatetype <> 'template' OR title IN('" . implode("', '", $_query_special_templates) . "'))
+						");
+
+						while (($template = $vbulletin->db->fetch_array($templates)) != false) {
+							$template_cache["$template[templatetype]"]["$template[title]"] = $template;
+						}
+
+						$vbulletin->db->free_result($templates);
+					}
+				}
+
+				if ($actions['dostylevars']) {
+					$stylevars = array();
+
+					if ($template_cache['stylevar']) {
+						foreach($template_cache['stylevar'] AS $template) {
+							$stylevars["$template[title]"] = $template['template'];
+						}
+
+						$QUERY[] = "stylevars = '" . $vbulletin->db->escape_string(serialize($stylevars)) . '\'';
+					}
+
+					static $master_stylevar_cache = array(
+						-1 => null,
+						-2 => null
+					);
+
+					static $resetcachedone = array(
+						-1 => false,
+						-2 => false
+					);
+
+					if ($resetcache AND !$resetcachedone[$masterstyleid]) {
+						$resetcachedone[$masterstyleid] = true;
+						$master_stylevar_cache[$masterstyleid] = null;
+					}
+
+					if ($master_stylevar_cache[$masterstyleid] === null) {
+						$master_stylevar_cache[$masterstyleid] = array();
+						$master_stylevars = $vbulletin->db->query_read("
+							SELECT stylevardfn.stylevarid, stylevardfn.datatype, stylevar.value
+								FROM " . TABLE_PREFIX . "stylevardfn AS stylevardfn
+							LEFT JOIN " . TABLE_PREFIX . "stylevar AS stylevar ON (stylevardfn.stylevarid = stylevar.stylevarid AND stylevar.styleid = {$masterstyleid})
+						");
+
+						while (($master_stylevar = $vbulletin->db->fetch_array($master_stylevars)) != false) {
+							$tmp = unserialize($master_stylevar['value']);
+
+							if (!is_array($tmp)) {
+								$tmp = array('value' => $tmp);
+							}
+
+							$master_stylevar_cache[$masterstyleid][$master_stylevar['stylevarid']] = $tmp;
+							$master_stylevar_cache[$masterstyleid][$master_stylevar['stylevarid']]['datatype'] = $master_stylevar['datatype'];
+						}
+					}
+	
+					$newstylevars = $master_stylevar_cache[$masterstyleid];
+
+					if (substr(trim($parentlist), 0, -3) != '') {
+						$new_stylevars = $vbulletin->db->query_read($sql = "
+							SELECT stylevarid, styleid, value, INSTR(',$parentlist,', CONCAT(',', styleid, ',') ) AS ordercontrol
+								FROM " . TABLE_PREFIX . "stylevar
+								WHERE
+									styleid IN (" . substr(trim($parentlist), 0, -3) . ")
+								ORDER BY
+									ordercontrol DESC
+						");
+
+						while (($new_stylevar = $vbulletin->db->fetch_array($new_stylevars)) != false) {
+							$newstylevars[$new_stylevar['stylevarid']] = unserialize($new_stylevar['value']);
+							$newstylevars[$new_stylevar['stylevarid']]['datatype'] = $master_stylevar_cache[$masterstyleid][$new_stylevar['stylevarid']]['datatype'];
+						}
+					}
+
+					if ($newstylevars) {
+						$QUERY[] = "newstylevars = '" . $vbulletin->db->escape_string(serialize($newstylevars)) . '\'';
+					}
+				}
+
+				if ($actions['doreplacements']) {
+					$replacements = array();
+
+					if (is_array($template_cache['replacement'])) {
+						foreach($template_cache['replacement'] AS $template) {
+							$replacementkey = '#' . preg_quote($template['title'], '#') . '#si';
+
+							$replacements["$replacementkey"] = $template['template'];
+						}
+
+						$QUERY[] = 'replacements = \'' . $vbulletin->db->escape_string(serialize($replacements)) . '\'';
+					} else {
+						$QUERY[] = 'replacements = \'\'';
+					}
+				}
+	
+				if ($actions['docss'] AND $template_cache['css']) {
+					$csscache = array();
+					$fetchstyles = $vbulletin->db->query_read("SELECT styleid, css FROM " . TABLE_PREFIX . "style");
+
+					while (($fetchstyle = $vbulletin->db->fetch_array($fetchstyles)) != false) {
+						$fetchstyle['css'] .= "\n";
+						$csscache["$fetchstyle[styleid]"] = $fetchstyle['css'];
+					}
+
+					$css = array();
+
+					foreach($template_cache['css'] AS $template) {
+						$css["$template[title]"] = unserialize($template['template']);
+					}
+
+					$csscolors = array();
+					$css = construct_css($css, $styleid, $title, $csscolors);
+
+					delete_css_file($styleid, $csscache["$styleid"]);
+
+					$adblock_is_evil = str_replace('ad', 'be', substr(md5(microtime()), 8, 8));
+					$cssfilename = 'clientscript/vbulletin_css/style-' . $adblock_is_evil . '-' . str_pad($styleid, 5, '0', STR_PAD_LEFT) . '.css';
+
+					if ($vbulletin->options['storecssasfile']) {
+						$css = process_replacement_vars($css, array('styleid' => $styleid, 'replacements' => serialize($replacements)));
+						$css = preg_replace('#(?<=[^a-z0-9-]|^)url\((\'|"|)(.*)\\1\)#iUe', "rewrite_css_file_url('\\2', '\\1')", $css);
+
+						if (write_css_file($cssfilename, $css)) {
+							$css = "@import url(\"$cssfilename\");";
+						}
+					}
+
+					$fullcsstext = "<style type=\"text/css\" id=\"vbulletin_css\">\r\n" .
+						"/**\r\n* vBulletin " . $vbulletin->options['templateversion'] . " CSS\r\n* Style: '$title'; Style ID: $styleid\r\n*/\r\n" .
+						"$css\r\n</style>\r\n" .
+						"<link rel=\"stylesheet\" type=\"text/css\" href=\"clientscript/vbulletin_important.css?v=" . $vbulletin->options['simpleversion'] . "\" />"
+					;
+
+					$QUERY[] = "css = '" . $vbulletin->db->escape_string($fullcsstext) . "'";
+					$QUERY[] = "csscolors = '" . $vbulletin->db->escape_string(serialize($csscolors)) . "'";
+				}
+
+				if (sizeof($QUERY)) {
+					$vbulletin->db->query_write("UPDATE " . TABLE_PREFIX . "style SET\n" . implode(",\n", $QUERY) . "\nWHERE styleid = $styleid");
+				}
+
+				if ($vbulletin->options['storecssasfile']) {
+					if (!write_style_css_directory($styleid, $parentlist, 'ltr')) {
+						return false;
+					} else if (!write_style_css_directory($styleid, $parentlist, 'rtl')) {
+						return false;
+					}
+				}
+			}
+
+			$childsets = $vbulletin->db->query_read("
+				SELECT
+					styleid, title, parentlist
+				FROM " . TABLE_PREFIX . "style
+					WHERE
+					parentid = $styleid
+			");
+
+			if ($vbulletin->db->num_rows($childsets)) {
+				while (($childset = $vbulletin->db->fetch_array($childsets)) != false) {
+					if (!self::build_style($childset['styleid'], $childset['title'], $actions, $childset['parentlist'], $indent . "\t", $resetcache)) {
+						return false;
+					}
+				}
+			}
+
+			return true;
+		}
+
+		if (version_compare(FILE_VERSION, '3.0.0', '>=') && version_compare(FILE_VERSION, '3.9.9', '<=')) {
+			global $vbulletin, $_queries, $vbphrase, $_query_special_templates;
+
+			if (($actions['doreplacements'] OR $actions['docss']) AND $vbulletin->options['storecssasfile']) {
+				$actions['docss'] = true;
+				$actions['doreplacements'] = true;
+			}
+
+			if ($styleid != -1) {
+				$QUERY = array();
+
+				$templatelist = build_template_id_cache($styleid, 1, $parentlist);
+				$QUERY[] = "templatelist = '" . $vbulletin->db->escape_string($templatelist)  . "'";
+
+				if ($actions['docss'] OR $actions['dostylevars'] OR $actions['doreplacements'] OR $actions['doposteditor'])	{
+					$template_cache = array();
+					$templateids = implode(',' , unserialize($templatelist));
+					$templates = $vbulletin->db->query_read("
+						SELECT title, template, templatetype
+						FROM " . TABLE_PREFIX . "template
+							WHERE templateid IN ($templateids)
+							AND (templatetype <> 'template' OR title IN('" . implode("', '", $_query_special_templates) . "'))
+					");
+
+					while (($template = $vbulletin->db->fetch_array($templates)) != false) {
+						$template_cache["$template[templatetype]"]["$template[title]"] = $template;
+					}
+
+					$vbulletin->db->free_result($templates);
+				}
+
+				if ($actions['dostylevars']) {
+					$stylevars = array();
+
+					foreach($template_cache['stylevar'] AS $template) {
+						$stylevars["$template[title]"] = $template['template'];
+					}
+
+					$QUERY[] = "stylevars = '" . $vbulletin->db->escape_string(serialize($stylevars)) . '\'';
+				}
+
+				if ($actions['doreplacements']) {
+					$replacements = array();
+
+					if (is_array($template_cache['replacement'])) {
+						foreach($template_cache['replacement'] AS $template) {
+							$replacementkey = '#' . preg_quote($template['title'], '#') . '#si';
+							$replacements["$replacementkey"] = $template['template'];
+						}
+
+						$QUERY[] = 'replacements = \'' . $vbulletin->db->escape_string(serialize($replacements)) . '\'';
+					} else {
+						$QUERY[] = 'replacements = \'\'';
+					}
+				}
+
+				if ($actions['docss']) {
+					if (!is_array($csscache)) {
+						$csscache = array();
+						$fetchstyles = $vbulletin->db->query_read("SELECT styleid, css FROM " . TABLE_PREFIX . "style");
+
+						while (($fetchstyle = $vbulletin->db->fetch_array($fetchstyles)) != false) {
+							$fetchstyle['css'] .= "\n";
+							$csscache["$fetchstyle[styleid]"] = $fetchstyle['css'];
+						}
+					}
+
+					$css = array();
+
+					foreach($template_cache['css'] AS $template) {
+						$css["$template[title]"] = unserialize($template['template']);
+					}
+
+					$csscolors = array();
+					$css = construct_css($css, $styleid, $title, $csscolors);
+
+					delete_css_file($styleid, $csscache["$styleid"]);
+
+					$adblock_is_evil = str_replace('ad', 'be', substr(md5(microtime()), 8, 8));
+					$cssfilename = 'clientscript/vbulletin_css/style-' . $adblock_is_evil . '-' . str_pad($styleid, 5, '0', STR_PAD_LEFT) . '.css';
+
+					if ($vbulletin->options['storecssasfile']) {
+						$css = process_replacement_vars($css, array('styleid' => $styleid, 'replacements' => serialize($replacements)));
+						$css = preg_replace('#(?<=[^a-z0-9-]|^)url\((\'|"|)(.*)\\1\)#iUe', "rewrite_css_file_url('\\2', '\\1')", $css);
+
+						if (write_css_file($cssfilename, $css)) {
+							$css = "@import url(\"$cssfilename\");";
+						}
+					}
+
+					$fullcsstext = "<style type=\"text/css\" id=\"vbulletin_css\">\r\n" .
+						"/**\r\n* vBulletin " . $vbulletin->options['templateversion'] . " CSS\r\n* Style: '$title'; Style ID: $styleid\r\n*/\r\n" .
+						"$css\r\n</style>\r\n" .
+						"<link rel=\"stylesheet\" type=\"text/css\" href=\"clientscript/vbulletin_important.css?v=" . $vbulletin->options['simpleversion'] . "\" />"
+					;
+
+					$QUERY[] = "css = '" . $vbulletin->db->escape_string($fullcsstext) . "'";
+					$QUERY[] = "csscolors = '" . $vbulletin->db->escape_string(serialize($csscolors)) . "'";
+				}
+
+				if ($actions['doposteditor']) {
+					$editorstyles = array();
+
+					foreach ($template_cache['template'] AS $template) {
+						if (substr($template['title'], 0, 13) == 'editor_styles') {
+							$title = 'pi' . substr($template['title'], 13);
+							$item = fetch_posteditor_styles($template['template']);
+							$editorstyles["$title"] = array($item['background'], $item['color'], $item['padding'], $item['border']);
+						}
+					}
+
+					$QUERY[] = 'editorstyles = \'' . $vbulletin->db->escape_string(serialize($editorstyles)) . '\'';
+				}
+
+				if (sizeof($QUERY)) {
+					$vbulletin->db->query_write("UPDATE " . TABLE_PREFIX . "style SET\n" . implode(",\n", $QUERY) . "\nWHERE styleid = $styleid");
+				}
+			}
+
+			$childsets = $vbulletin->db->query_read("
+				SELECT styleid, title, parentlist
+				FROM " . TABLE_PREFIX . "style
+				WHERE parentid = $styleid
+			");
+
+			if ($vbulletin->db->num_rows($childsets)) {
+				while (($childset = $vbulletin->db->fetch_array($childsets)) != false) {
+					self::build_style($childset['styleid'], $childset['title'], $actions, $childset['parentlist'], $indent . "\t");
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Redirect to Marketplace</title>
+			<hookname>newthread_start</hookname>
+			<phpcode><![CDATA[if (($map = Panjo::getRedirectMap($foruminfo['forumid'])) != false) {
+	$opts = Panjo::getOptions();
+
+	$query = http_build_query(array(
+		's' => $vbulletin->session->vars['dbsessionhash'],
+		'm' => $vbulletin->options['panjo_marketplace_id'],
+		'a' => "newlisting/{$opts['can_sell']}fr8{$opts['transaction_fee']}nl2",
+		'p' => array('login' => 1)
+	));
+
+	exec_header_redirect("{$vbulletin->options['bburl']}/{$vbulletin->options['panjo_script']}.php?{$query}", 302);
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Register Location</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if (($path = parse_url($userinfo['location'], PHP_URL_PATH)) != false) {
+	$replace = array(
+		parse_url($vbulletin->options['bburl'] , PHP_URL_PATH),
+		'/',
+		'.php'
+	);
+
+	if (($script = str_replace($replace, '', $path)) == 'classifieds') {
+		$userinfo['activity'] = 'panjo';
+		$userinfo['action'] = construct_phrase($vbphrase['panjo_marketplace_online'], $vbulletin->options['panjo_script']);
+		$handled = true;
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>vBulletin 4 Head Include</title>
+			<hookname>parse_templates</hookname>
+			<phpcode><![CDATA[if ((version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) && THIS_SCRIPT == 'panjo') {
+	if (isset($_REQUEST['p']['login']) && $_REQUEST['p']['login']) {
+		$template_hook['headinclude_javascript'] .= vB_Template::create('panjo_login_headinclude')->render();
+	}
+}
+
+if (THIS_SCRIPT == 'login' AND $_POST['do'] == 'login' AND strpos($_POST['url'], 'frame=1') !== false) {
+	if (version_compare(FILE_VERSION, '4.0.0', '>=') && version_compare(FILE_VERSION, '4.9.9', '<=')) {
+		$vbulletin->templatecache['STANDARD_ERROR_LOGIN'] = $vbulletin->templatecache['panjo_STANDARD_ERROR_LOGIN_nowrapper'];
+	} else {
+		$vbulletin->templatecache['STANDARD_ERROR'] = $vbulletin->templatecache['panjo_STANDARD_ERROR_legacy_nowrapper'];
+	}
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="997">
+			<title>Seller Profile Link</title>
+			<hookname>postbit_display_complete</hookname>
+			<phpcode><![CDATA[$template_hook['postbit_userinfo_right_after_posts'] .= Panjo::sellerProfileLink(fetch_userinfo($post['userid']));]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="997">
+			<title>Override Login Redirect</title>
+			<hookname>redirect_generic</hookname>
+			<phpcode><![CDATA[if (THIS_SCRIPT == 'login' AND $_POST['do'] == 'login' AND strpos($_POST['url'], 'frame=1') !== false)
+{
+	$templater = vB_Template::create('panjo_frame_headinclude_login');
+	$templater->register('authToken', md5(implode('-', array(
+		$vbulletin->userinfo['userid'],
+		$vbulletin->userinfo['username'],
+		TIMENOW,
+		$vbulletin->options['panjo_private_key']
+	))));
+
+	$userGroups = array(
+		sprintf('%1$d|%2$s', $vbulletin->userinfo['usergroupid'], str_replace(
+				'|', '', $vbulletin->usergroupcache["{$vbulletin->userinfo['usergroupid']}"]['title']
+		))
+	);
+
+	if (isset($vbulletin->userinfo['membergroupids']) && !empty($vbulletin->userinfo['membergroupids'])) {
+		$userGroups = array();
+
+		foreach (explode(',', $vbulletin->userinfo['membergroupids']) as $secondaryGroupId) {
+			$userGroups[] = sprintf('%1$d|%2$s', $secondaryGroupId, str_replace(
+				'|', '', $vbulletin->usergroupcache[$secondaryGroupId]['title']
+			));
+		}
+	}
+
+	$templater->register('action', 		$vbulletin->GPC['a']);
+	$templater->register('timeNow', 	TIMENOW);
+	$templater->register('userid', 		$vbulletin->userinfo['userid']);
+	$templater->register('username', 	$vbulletin->userinfo['username']);
+	$templater->register('email', 		$vbulletin->userinfo['email']);
+	$templater->register('userGroups', 	implode(', ', $userGroups));
+	$headinclude .= $templater->render();
+
+	$search = array(
+		'p[user_id]=undefined',
+		'p[username]=undefined',
+		'p[timestamp]=undefined',
+		'p[token]=undefined',
+		//'p[id]=undefined',
+	);
+
+	$replace = array(
+		'p[user_id]=' . $vbulletin->userinfo['userid'],
+		'p[username]=' . $vbulletin->userinfo['username'],
+		'p[timestamp]=' . TIMENOW,
+		'p[token]=' . md5(implode('-', array(
+			$vbulletin->userinfo['userid'],
+			$vbulletin->userinfo['username'],
+			TIMENOW,
+			$vbulletin->options['panjo_private_key']
+		))),
+		//'p[id]=undefined',
+	);
+
+	$formfile 	= str_replace($search, $replace, $formfile);
+	$js_url 	= str_replace($search, $replace, $js_url);
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="999">
+			<title>Group Templates</title>
+			<hookname>template_groups</hookname>
+			<phpcode><![CDATA[$only['panjo_'] = $vbphrase['panjo'];]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Import Valid Field</title>
+			<hookname>threaddata_start</hookname>
+			<phpcode><![CDATA[$this->validfields['panjo_listing_id'] = array(TYPE_STR, REQ_NO);]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="1">
+			<title>Spam Bypass</title>
+			<hookname>threadfpdata_presave</hookname>
+			<phpcode><![CDATA[if(!$this->registry->userinfo['userid']){
+$this->registry->userinfo['userid'] = $this->post['userid'];
+$this->registry->userinfo['username'] = $this->post['username'];
+
+if($this->registry->GPC['listing_id']){
+$this->info['is_automated'] = true;
+}
+
+}]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="Control Panel Global" fieldname="cpglobal">
+			<phrase name="panjo_can_sell" date="1376090212" username="Administrator" version="4.2.2"><![CDATA[Can Sell]]></phrase>
+			<phrase name="panjo_can_sell_descr" date="1376090212" username="Administrator" version="4.2.2"><![CDATA[Can Sell<dfn>If checked, users in that usergroup will be able to list items for sale.</dfn>]]></phrase>
+			<phrase name="panjo_can_sell_title" date="1351287083" username="Administrator" version="4.2.2"><![CDATA[Can Sell <dfn>Whether or not users in this group can sell items in the marketplace.</dfn>]]></phrase>
+			<phrase name="panjo_editing_permissions_x" date="1376090212" username="Administrator" version="4.2.2"><![CDATA[Editing Permissions: <span class="normal">{1}</span>]]></phrase>
+			<phrase name="panjo_listing_fee" date="1376090212" username="Administrator" version="4.2.2"><![CDATA[Listing Fee]]></phrase>
+			<phrase name="panjo_listing_fee_descr" date="1376090212" username="Administrator" version="4.2.2"><![CDATA[Listing Fee (Coming Soon)<dfn>How much do you want to charge ($) a member of this usergroup for listing an item for sale? Do NOT include the "$" symbol.</dfn>]]></phrase>
+			<phrase name="panjo_listing_fee_title" date="1365536317" username="Administrator" version="4.2.2"><![CDATA[Listing Fee (Coming Soon) <dfn>How much do you want to charge a member of this usergroup to list an item for sale? Do <strong>NOT</strong> include the "$" symbol.</dfn>]]></phrase>
+			<phrase name="panjo_marketplace" date="1376090212" username="Administrator" version="4.2.2"><![CDATA[Panjo Marketplace]]></phrase>
+			<phrase name="panjo_marketplace_about" date="1376596047" username="Administrator" version="4.2.2"><![CDATA[About / Create Marketplace]]></phrase>
+			<phrase name="panjo_marketplace_category_manager" date="1376596086" username="Administrator" version="4.2.2"><![CDATA[Category Manager]]></phrase>
+			<phrase name="panjo_marketplace_enable" date="1376090258" username="Administrator" version="4.2.2"><![CDATA[Turn Marketplace On]]></phrase>
+			<phrase name="panjo_marketplace_forum_manager" date="1376596108" username="Administrator" version="4.2.2"><![CDATA[Forum Manager]]></phrase>
+			<phrase name="panjo_marketplace_link_domain" date="1376606423" username="Administrator" version="4.2.2"><![CDATA[www.panjo.com]]></phrase>
+			<phrase name="panjo_marketplace_links" date="1376090270" username="Administrator" version="4.2.2"><![CDATA[Marketplace Links]]></phrase>
+			<phrase name="panjo_marketplace_settings" date="1376090295" username="Administrator" version="4.2.2"><![CDATA[Advanced Settings]]></phrase>
+			<phrase name="panjo_marketplace_stats" date="1379474581" username="Administrator" version="4.2.2"><![CDATA[Marketplace Stats]]></phrase>
+			<phrase name="panjo_navigation_link_proxy_active" date="1376609728" username="Administrator" version="4.2.2"><![CDATA[Display Navigation Link?]]></phrase>
+			<phrase name="panjo_newthread_text" date="1355787083" username="Administrator" version="4.2.2"><![CDATA[What would you like to rename the "Post New Thread" Button to? <dfn>Instead of "Post New Thread", the button will display this text.  Works in vBulletin 4 only.</dfn><dfn>Suggested Text: <em>Sell an Item</em></dfn>]]></phrase>
+			<phrase name="panjo_options" date="1376090295" username="Administrator" version="4.2.2"><![CDATA[Panjo Options]]></phrase>
+			<phrase name="panjo_overview" date="1376090295" username="Administrator" version="4.2.2"><![CDATA[Overview]]></phrase>
+			<phrase name="panjo_redirect_newthread_title" date="1370625020" username="Administrator" version="4.2.2"><![CDATA[Redirect the "Post New Thread" button to the marketplace? <dfn>Setting this to 'Yes' will send anyone that clicks the "Post New Thread" button at this forum to the Panjo Marketplace.</dfn>]]></phrase>
+			<phrase name="panjo_transaction_fee" date="1376090295" username="Administrator" version="4.2.2"><![CDATA[Transaction Fee]]></phrase>
+			<phrase name="panjo_transaction_fee_descr" date="1376090295" username="Administrator" version="4.2.2"><![CDATA[Transaction Fee<dfn>When a member of this usergroup sells an item, what percentage (%) of the transaction would you like to collect? Do NOT include the "%" symbol.</dfn>]]></phrase>
+			<phrase name="panjo_transaction_fee_title" date="1355359662" username="Administrator" version="4.2.2"><![CDATA[Transaction Fee <dfn>When a member of this usergroup sells an item,  what percentage of the transaction would you like to collect?  Do <strong>NOT</strong> include the "%" symbol.</dfn>]]></phrase>
+		</phrasetype>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="panjo" date="1370624969" username="Administrator" version="4.2.2"><![CDATA[Panjo]]></phrase>
+			<phrase name="panjo_admin_required_register" date="0" username="" version="4.2.2"><![CDATA[The administrator may have required you to <a href="register.php?{1}" rel="nofollow" onclick="window.opener.parent.location = 'register.php?{1}'; window.opener.parent.focus(); window.close(); return false;">register</a> before you can view this page.]]></phrase>
+			<phrase name="panjo_admin_required_register_legacy" date="0" username="" version="4.2.2"><![CDATA[The administrator may have required you to <a href="{1}" rel="nofollow" onclick="window.opener.parent.location.href = '{1}'; window.opener.parent.focus(); window.close(); return false;">register</a> before you can view this page.]]></phrase>
+			<phrase name="panjo_admin_required_register_nowrapper" date="0" username="" version="4.2.2"><![CDATA[The administrator may have required you to <a href="register.php?{1}" rel="nofollow" target="_blank">register</a> before you can view this page.]]></phrase>
+			<phrase name="panjo_classifieds" date="1376096944" username="Administrator" version="4.2.2"><![CDATA[Classifieds]]></phrase>
+			<phrase name="panjo_marketplace_online" date="1370624985" username="Administrator" version="4.2.2"><![CDATA[<a href="{1}.php" target="_blank">Panjo Plugin</a>]]></phrase>
+			<phrase name="vb_navigation_tab_tab_ntuz_642_text" date="1378350327" username="Administrator" version="4.2.2"><![CDATA[Classifieds]]></phrase>
+		</phrasetype>
+		<phrasetype name="Panjo" fieldname="panjo">
+			<phrase name="classifieds" date="0" username="" version="4.2.2"><![CDATA[Classifieds]]></phrase>
+			<phrase name="panjo_marketplace" date="1370624997" username="Administrator" version="4.2.2"><![CDATA[Panjo Marketplace]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_panjo_host_desc" date="1378761535" username="Administrator" version="4.2.2"><![CDATA[Select "Demo" if you'd like to try out the marketplace before releasing it to your community.<br />
+Select "Live" if you're ready to let your community buy and sell on the marketplace.]]></phrase>
+			<phrase name="setting_panjo_host_title" date="1378761535" username="Administrator" version="4.2.2"><![CDATA[What Version of Panjo Do You Want to Run?]]></phrase>
+			<phrase name="setting_panjo_marketplace_id_desc" date="1376375426" username="Administrator" version="4.2.2"><![CDATA[
+			Enter your Marketplace ID on the right and click "Save" to turn your marketplace on.
+			<br /> <br /> If you do not have a marketplace ID or do not remember yours, you can get it <a href="http://[panjo_marketplace_link_domain]/ForumAdmin">here</a>.
+			]]></phrase>
+			<phrase name="setting_panjo_marketplace_id_title" date="1376375426" username="Administrator" version="4.2.2"><![CDATA[Marketplace ID]]></phrase>
+			<phrase name="setting_panjo_marketplace_instructions_desc" date="1376375426" username="Administrator" version="4.2.2"><![CDATA[
+			<strong>Note:</strong> By clicking "Save" below, you accept the Panjo <a href="http://s3.amazonaws.com/panjoimages/Panjo_Partner_and_Software_Agreement.docx" target="_blank">Software License Agreement</a>. <br /> <br /> <strong>Important Note:</strong> Panjo's auto update feature is enabled by default, but you are free to disable the auto update in Panjo's <a href="options.php?do=panjo_marketplace_settings">Advanced Settings</a>. The auto update ensures you will always have the latest features. Panjo endeavors to ensure the stability of vBulletin and your marketplace. However, vBulletin cannot guarantee the long-term stability of its software if automatic updates are enabled. As with all plug-ins, Internet Brands cannot provide support for any issues which may arise from Panjo updates.
+			]]></phrase>
+			<phrase name="setting_panjo_marketplace_instructions_title" date="1376375426" username="Administrator" version="4.2.2"><![CDATA[Overview]]></phrase>
+			<phrase name="setting_panjo_navigation_link_desc" date="1378603851" username="Administrator" version="4.2.2"><![CDATA[Use this option to place a link to the marketplace in the Nav Bar.
+			<br />
+			<br />
+			<strong>Note:</strong> You may have to add the link manually if you have a customized Nav Bar.]]></phrase>
+			<phrase name="setting_panjo_navigation_link_proxy_desc" date="1376609839" username="Administrator" version="4.2.2"><![CDATA[Your new Nav Bar link says "Classifieds" by default.  To edit this, use the built in <a href="navigation.php">Navigation Manager</a>.]]></phrase>
+			<phrase name="setting_panjo_navigation_link_proxy_title" date="1376609839" username="Administrator" version="4.2.2"><![CDATA[Add A Link To The Marketplace In the NavBar]]></phrase>
+			<phrase name="setting_panjo_navigation_link_title" date="1378603851" username="Administrator" version="4.2.2"><![CDATA[Display Navigation Link?]]></phrase>
+			<phrase name="setting_panjo_private_key_desc" date="1367451091" username="Administrator" version="4.2.2"><![CDATA[Secret string of text used to generate authentication tokens.
+<br />
+<br />
+<em>You will be given this as part of your install package.</em>]]></phrase>
+			<phrase name="setting_panjo_private_key_title" date="1370624868" username="Administrator" version="4.2.2"><![CDATA[Panjo Private Key]]></phrase>
+			<phrase name="setting_panjo_push_desc" date="1376375188" username="Administrator" version="4.2.2"><![CDATA[Would you like Panjo to update automatically?]]></phrase>
+			<phrase name="setting_panjo_push_title" date="1376375188" username="Administrator" version="4.2.2"><![CDATA[Automatic Updates?]]></phrase>
+			<phrase name="setting_panjo_redirect_map_desc" date="1376379404" username="Administrator" version="4.2.2"><![CDATA[Leave this setting alone.]]></phrase>
+			<phrase name="setting_panjo_redirect_map_title" date="1376379404" username="Administrator" version="4.2.2"><![CDATA[Panjo: Redirect Map]]></phrase>
+			<phrase name="setting_panjo_script_desc" date="1378761374" username="Administrator" version="4.2.2"><![CDATA[This option allows you to set the script name of the page that acts as your classifieds portal.  By default this will be 'classifieds' (meaning <i>classifieds.php</i>) but you may want to call it whatever else you like for your own purposes.
+<br /><br />
+If you change this value you <b>must</b> manually rename the classifieds PHP script to match the new value.
+<br /><br />
+You <b>must also</b> inform Panjo of this change by <a href="mailto:info@panjo.com?subject=Marketplace+options:+changed+classifieds+name">emailing Panjo (info@panjo.com)</a> the new name.
+<br/><br/>
+<em>If the email link above doesn't work, try ctrl+click/cmd+click or "open in a new window/tab" from context menu (right-click/2-finger-click).</em>
+<br /><br />
+<strong>Note:</strong> Affects the navbar button in vBulletin 4.1.12 and earlier only; for more recent versions, use the <a href="navigation.php">Navigation Manager</a>.]]></phrase>
+			<phrase name="setting_panjo_script_title" date="1378761374" username="Administrator" version="4.2.2"><![CDATA[Script Name for Classifieds Portal]]></phrase>
+			<phrase name="setting_panjo_seller_profile_link_desc" date="1378604217" username="Administrator" version="4.2.2"><![CDATA[If a user is selling something in the marketplace, a link to the items he/she is selling will appear in the postbit.
+			<br/><br/>
+			<strong>Note:</strong> Click <a href="http://s3.amazonaws.com/panjoimages/postbit_example.png" target="_blank">here</a> for an example of what the postbit link looks like.]]></phrase>
+			<phrase name="setting_panjo_seller_profile_link_text_desc" date="1378604238" username="Administrator" version="4.2.2"><![CDATA[If the postbit link is enabled, what would you like the link text to say?]]></phrase>
+			<phrase name="setting_panjo_seller_profile_link_text_title" date="1378604238" username="Administrator" version="4.2.2"><![CDATA[Postbit Link Text]]></phrase>
+			<phrase name="setting_panjo_seller_profile_link_title" date="1378604217" username="Administrator" version="4.2.2"><![CDATA[Display Marketplace Link In Postbit?]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="version" displayorder="0">
+			<setting varname="panjo_marketplace_instructions" displayorder="1">
+				<optioncode><![CDATA[<img src=\"http://s3.amazonaws.com/panjoimages/3_of_3.png\"/>]]></optioncode>
+			</setting>
+			<setting varname="panjo_marketplace_id" displayorder="2">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="panjo_script" displayorder="6">
+				<datatype>free</datatype>
+				<validationcode><![CDATA[return !empty($data) && file_exists(DIR . "/{$data}.php") && is_file(DIR . "/{$data}.php");]]></validationcode>
+				<defaultvalue>classifieds</defaultvalue>
+			</setting>
+			<setting varname="panjo_host" displayorder="7">
+				<datatype>free</datatype>
+				<optioncode>radio:piped
+classifieds.panjo.com|Live
+democlassifieds.panjo.com|Demo</optioncode>
+				<defaultvalue>classifieds.panjo.com</defaultvalue>
+			</setting>
+			<setting varname="panjo_navigation_link" displayorder="10">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="panjo_navigation_link_proxy" displayorder="10">
+				<datatype>free</datatype>
+				<optioncode>panjo_navigation_link_proxy</optioncode>
+			</setting>
+			<setting varname="panjo_push" displayorder="10">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="panjo_seller_profile_link" displayorder="20">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="panjo_seller_profile_link_text" displayorder="30">
+				<datatype>free</datatype>
+				<validationcode>return !empty($data);</validationcode>
+				<defaultvalue>Items for Sale</defaultvalue>
+			</setting>
+			<setting varname="panjo_private_key" displayorder="40001">
+				<datatype>free</datatype>
+				<validationcode>return !empty($data);</validationcode>
+				<defaultvalue>36880223d4a04d9d957f593b3dd033e5</defaultvalue>
+			</setting>
+			<setting varname="panjo_redirect_map" displayorder="52050">
+				<datatype>free</datatype>
+				<optioncode>textarea</optioncode>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+	<navigation>
+		<tab name="tab_ntuz_642" date="1380150896" username="administrator" version="4.2.2">
+			<active>0</active>
+			<show />
+			<scripts>panjo</scripts>
+			<displayorder>30</displayorder>
+			<url>classifieds.php</url>
+			<menuid />
+			<newpage>0</newpage>
+		</tab>
+	</navigation>
+</product>

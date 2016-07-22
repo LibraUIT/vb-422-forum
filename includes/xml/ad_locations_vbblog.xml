@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ad_locations product="vbblog">
+	<locationgroup key="blogsidebar" displayorder="110">
+		<location key="start">
+			<cp_width>102</cp_width>
+			<cp_height>61</cp_height>
+			<cp_xpos>371</cp_xpos>
+			<cp_ypos>82</cp_ypos>
+		</location>
+		<location key="middle">
+			<cp_width>102</cp_width>
+			<cp_height>61</cp_height>
+			<cp_xpos>371</cp_xpos>
+			<cp_ypos>227</cp_ypos>
+		</location>
+		<location key="end">
+			<cp_width>102</cp_width>
+			<cp_height>61</cp_height>
+			<cp_xpos>371</cp_xpos>
+			<cp_ypos>449</cp_ypos>
+		</location>
+	</locationgroup>
+	<locationgroup key="blogshowentry" displayorder="120">
+		<location key="before">
+			<cp_width>190</cp_width>
+			<cp_height>23</cp_height>
+			<cp_xpos>98</cp_xpos>
+			<cp_ypos>101</cp_ypos>
+		</location>
+		<location key="after">
+			<cp_width>190</cp_width>
+			<cp_height>23</cp_height>
+			<cp_xpos>98</cp_xpos>
+			<cp_ypos>236</cp_ypos>
+		</location>
+	</locationgroup>
+	<locationgroup key="bloglist" displayorder="130">
+		<location key="first_entry">
+			<cp_width>268</cp_width>
+			<cp_height>32</cp_height>
+			<cp_xpos>63</cp_xpos>
+			<cp_ypos>268</cp_ypos>
+		</location>
+	</locationgroup>
+</ad_locations>

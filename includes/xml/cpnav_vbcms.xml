@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<navgroups product="vbcms" master="true">
+
+	<navgroup phrase="vbcms" permissions="canvbcms" hr="true" displayorder="15">
+
+			<navoption displayorder="10">
+				<phrase>content_manager</phrase>
+				<link>cms_content_admin.php?do=list</link>
+			</navoption>
+
+			<navoption displayorder="20">
+				<phrase>section_manager</phrase>
+				<link>cms_content_admin.php?do=section</link>
+			</navoption>
+
+			<navoption displayorder="30">
+				<phrase>category_manager</phrase>
+				<link>cms_content_admin.php?do=category</link>
+			</navoption>
+
+			<navoption displayorder="40">
+				<phrase>grid_manager</phrase>
+				<link>cms_admin.php?do=grid</link>
+			</navoption>
+
+			<navoption displayorder="50">
+				<phrase>download_upload_grids</phrase>
+				<link>cms_admin.php?do=grid_files</link>
+			</navoption>
+
+			<navoption displayorder="60">
+				<phrase>fix_nodetable</phrase>
+				<link>cms_content_admin.php?do=fix_nodes</link>
+			</navoption>
+
+			<!-- Clear Cache Moved To Maintenance Section -->
+
+			<navoption displayorder="80">
+				<phrase>layout_manager</phrase>
+				<link>cms_admin.php?do=layout</link>
+			</navoption>
+
+			<navoption displayorder="90">
+				<phrase>widgets</phrase>
+				<link>cms_admin.php?do=widget</link>
+			</navoption>
+			<navoption displayorder="100">
+				<phrase>permissions</phrase>
+				<link>cms_permissions.php</link>
+			</navoption>
+	</navgroup>
+
+</navgroups>

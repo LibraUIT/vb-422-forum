@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<bitfields product="vbblog">
+    <bitfielddefs>
+        <group name="ugp">
+            <group name="vbblog_general_permissions">
+                <bitfield name="blog_canmanageblogcomments"    group="vbblog_general_permissions" phrase="can_manage_blog_comments"          >2</bitfield>
+                <bitfield name="blog_cansendpingback"          group="vbblog_general_permissions" phrase="can_send_pingback"                 >4</bitfield>
+                <bitfield name="blog_canreceivepingback"       group="vbblog_general_permissions" phrase="can_receive_pingback"              >8</bitfield>
+                <bitfield name="blog_cansearch"                group="vbblog_general_permissions" phrase="can_search_blogs"                  >16</bitfield>
+                <bitfield name="blog_canviewown"               group="vbblog_general_permissions" phrase="can_view_own_blog"                 >32</bitfield>
+                <bitfield name="blog_canviewothers"            group="vbblog_general_permissions" phrase="can_view_others_blog"              >64</bitfield>
+                <bitfield name="blog_cancreatecategory"        group="vbblog_general_permissions" phrase="can_create_blog_categories"        >128</bitfield>
+                <bitfield name="blog_canviewcategory"          group="vbblog_general_permissions" phrase="can_view_admin_categories"         >256</bitfield>
+                <bitfield name="blog_canpostcategory"          group="vbblog_general_permissions" phrase="can_post_to_admin_categories"      >512</bitfield>
+                <bitfield name="blog_canhavegroupblog"         group="vbblog_general_permissions" phrase="can_have_group_blog"               >1024</bitfield>
+                <bitfield name="blog_canjoingroupblog"         group="vbblog_general_permissions" phrase="can_join_group_blog"               >2048</bitfield>
+                <bitfield name="vbblog_customblocks" intperm="true" group="vbblog_general_permissions" phrase="maximum_custom_blocks"        >0</bitfield>
+                <bitfield name="vbblog_custompages"  intperm="true" group="vbblog_general_permissions" phrase="maximum_custom_pages"         >0</bitfield>
+                <bitfield name="blog_cancustomizeblog"         group="vbblog_usercss_permissions" phrase="can_customize_blog"                >4096</bitfield>
+                <bitfield name="blog_caneditfontfamily"        group="vbblog_usercss_permissions" phrase="can_edit_font_family"              >8192</bitfield>
+                <bitfield name="blog_caneditfontsize"          group="vbblog_usercss_permissions" phrase="can_edit_font_size"                >16384</bitfield>
+                <bitfield name="blog_caneditcolors"            group="vbblog_usercss_permissions" phrase="can_edit_colors"                   >32768</bitfield>
+                <bitfield name="blog_caneditbgimage"           group="vbblog_usercss_permissions" phrase="can_edit_background_image"         >65536</bitfield>
+                <bitfield name="blog_caneditborders"           group="vbblog_usercss_permissions" phrase="can_edit_borders"                  >131072</bitfield>
+                <bitfield name="blog_canemail"                 group="vbblog_general_permissions" phrase="can_use_email_to_friend"           >262144</bitfield>
+            </group>
+						<group name="vbblog_entry_permissions">
+                <bitfield name="blog_canpost"                  group="vbblog_entry_permissions"   phrase="can_post_new_blog"                 >4</bitfield>
+                <bitfield name="blog_caneditentry"             group="vbblog_entry_permissions"   phrase="can_edit_own_blog"                 >8</bitfield>
+                <bitfield name="blog_candeleteentry"           group="vbblog_entry_permissions"   phrase="can_delete_own_blog"               >16</bitfield>
+                <bitfield name="blog_canremoveentry"           group="vbblog_entry_permissions"   phrase="can_remove_own_blog"               >16384</bitfield>
+                <bitfield name="blog_canpostattach"            group="vbblog_entry_permissions"   phrase="can_upload_attachments"            >32</bitfield>
+                <bitfield name="blog_cangetattach"             group="vbblog_entry_permissions"   phrase="can_view_attachments"              >64</bitfield>
+                <bitfield name="blog_cantagown"                group="vbblog_entry_permissions"   phrase="can_tag_own_entries"               >1</bitfield>
+                <bitfield name="blog_cantagothers"             group="vbblog_entry_permissions"   phrase="can_tag_others_entries"            >2</bitfield>
+                <bitfield name="blog_candeletetagown"          group="vbblog_entry_permissions"   phrase="can_delete_tags_on_own_entries"    >128</bitfield>
+                <bitfield name="blog_cancreatetag"             group="vbblog_entry_permissions"   phrase="can_create_tags"                   >256</bitfield>
+                <bitfield name="blog_followpostmoderation"     group="vbblog_entry_permissions"   phrase="follow_blog_moderation_setting"    >512</bitfield>
+                <bitfield name="blog_allowsmilies"             group="vbblog_entry_permissions"   phrase="allow_smilies"                     >1024</bitfield>
+                <bitfield name="blog_allowbbcode"              group="vbblog_entry_permissions"   phrase="allow_bbcode"                      >2048</bitfield>
+                <bitfield name="blog_allowimages"              group="vbblog_entry_permissions"   phrase="allow_img_code"                    >4096</bitfield>
+                <bitfield name="blog_allowvideos"              group="vbblog_entry_permissions"   phrase="allow_video_code"                  >32768</bitfield>
+                <bitfield name="blog_allowhtml"                group="vbblog_entry_permissions"   phrase="allow_html"                        >8192</bitfield>
+            </group>
+            <group name="vbblog_comment_permissions">
+                <bitfield name="blog_cancommentown"            group="vbblog_comment_permissions" phrase="can_post_own_comments"             >2</bitfield>
+                <bitfield name="blog_cancommentothers"         group="vbblog_comment_permissions" phrase="can_post_others_comments"          >4</bitfield>
+                <bitfield name="blog_caneditowncomment"        group="vbblog_comment_permissions" phrase="can_edit_own_comments"             >8</bitfield>
+                <bitfield name="blog_candeleteowncomment"      group="vbblog_comment_permissions" phrase="can_delete_own_comments"           >16</bitfield>
+                <bitfield name="blog_followcommentmoderation"  group="vbblog_comment_permissions" phrase="follow_comment_moderation_setting" >64</bitfield>
+                <bitfield name="blog_allowsmilies"             group="vbblog_comment_permissions" phrase="allow_smilies"                     >128</bitfield>
+                <bitfield name="blog_allowbbcode"              group="vbblog_comment_permissions" phrase="allow_bbcode"                      >256</bitfield>
+                <bitfield name="blog_allowimages"              group="vbblog_comment_permissions" phrase="allow_img_code"                    >512</bitfield>
+                <bitfield name="blog_allowvideos"              group="vbblog_comment_permissions" phrase="allow_video_code"                  >2048</bitfield>
+                <bitfield name="blog_allowhtml"                group="vbblog_comment_permissions" phrase="allow_html"                        >1024</bitfield>
+            </group>
+        </group>
+        <group name="misc">
+            <group name="vbbloggrouppermissions">
+              <bitfield name="caneditentry"       >1</bitfield>
+              <bitfield name="candeleteentry"     >2</bitfield>
+              <bitfield name="canremoveentry"     >4</bitfield>
+              <bitfield name="canmanagecomments"  >8</bitfield>
+              <bitfield name="canmanageotherentry">16</bitfield>
+              <bitfield name="moderateentries"    >32</bitfield>
+            </group>
+            <group name="vbblogmoderatorpermissions">
+                <bitfield name="caneditentries"             phrase="can_edit_blog_entries"         default="1">1</bitfield>
+                <bitfield name="candeleteentries"           phrase="can_delete_blog_entries"       default="1">2</bitfield>
+                <bitfield name="canremoveentries"           phrase="can_remove_blog_entries"       default="1">4</bitfield>
+                <bitfield name="canmoderateentries"         phrase="can_moderate_blog_entries"     default="1">8</bitfield>
+                <bitfield name="caneditcomments"            phrase="can_edit_blog_comments"        default="1">16</bitfield>
+                <bitfield name="candeletecomments"          phrase="can_delete_blog_comments"      default="1">32</bitfield>
+                <bitfield name="canremovecomments"          phrase="can_remove_blog_comments"      default="1">64</bitfield>
+                <bitfield name="canmoderatecomments"        phrase="can_moderate_blog_comments"    default="1">128</bitfield>
+                <bitfield name="canviewips"                 phrase="can_view_ip_addresses"         default="1">256</bitfield>
+                <bitfield name="caneditcustomblocks"        phrase="can_edit_blog_custom_blocks"   default="1">512</bitfield>
+                <bitfield name="caneditcategories"          phrase="can_edit_blog_categories"      default="1">1024</bitfield>
+            </group>
+            <group name="vbblogoptions">
+                <bitfield name="moderatecomments">1</bitfield>
+                <bitfield name="allowpingback"   >2</bitfield>
+                <bitfield name="allowcomments"   >4</bitfield>
+                <bitfield name="private"         >8</bitfield>
+                <bitfield name="membermoderate"  >16</bitfield>
+            </group>
+            <group name="vbbloguseroptions">
+                <bitfield name="moderatecomments">1</bitfield>
+                <bitfield name="allowpingback"   >2</bitfield>
+                <bitfield name="allowcomments"   >4</bitfield>
+            </group>
+            <group name="vbblogsocnetoptions">
+                <bitfield name="canviewmyblog"      >1</bitfield>
+                <bitfield name="cancommentmyblog"   >2</bitfield>
+            </group>
+            <group name="vbblogregoptions">
+                <bitfield name="allowcomments">1</bitfield>
+                <bitfield name="moderatecomments">2</bitfield>
+                <bitfield name="allowpingback">4</bitfield>
+                <bitfield name="subscribe_none_entry">8</bitfield>
+                <bitfield name="subscribe_nonotify_entry">16</bitfield>
+                <bitfield name="subscribe_instant_entry">32</bitfield>
+                <bitfield name="subscribe_none_comment">64</bitfield>
+                <bitfield name="subscribe_nonotify_comment">128</bitfield>
+                <bitfield name="subscribe_instant_comment">256</bitfield>
+                <bitfield name="viewblog_buddy">512</bitfield>
+                <bitfield name="commentblog_buddy">1024</bitfield>
+                <bitfield name="viewblog_ignore">2048</bitfield>
+                <bitfield name="commentblog_ignore">4096</bitfield>
+                <bitfield name="viewblog_member">8192</bitfield>
+                <bitfield name="commentblog_member">16384</bitfield>
+                <bitfield name="viewblog_guest">32768</bitfield>
+                <bitfield name="commentblog_guest">65536</bitfield>
+            </group>
+            <group name="vbblogblockoptions">
+                <bitfield name="block_search"  >1</bitfield>
+                <bitfield name="block_category">2</bitfield>
+                <bitfield name="block_comments">4</bitfield>
+                <bitfield name="block_entries" >8</bitfield>
+                <bitfield name="block_visitors">16</bitfield>
+                <bitfield name="block_tagcloud">32</bitfield>
+                <bitfield name="block_archive" >64</bitfield>
+            </group>
+        </group>
+    </bitfielddefs>
+</bitfields>

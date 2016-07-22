@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<product productid="postrelease" active="0">
+	<title>PostRelease</title>
+	<description>Official PostRelease plugin for vBulletin</description>
+	<version>4.2.2</version>
+	<url>http://www.postrelease.com</url>
+	<versioncheckurl />
+	<dependencies>
+		<dependency dependencytype="vbulletin" minversion="4.2.2" maxversion="4.3.0 Alpha 1" />
+	</dependencies>
+	<codes>
+		<code version="*">
+			<installcode><![CDATA[echo '<p>The PostRelease installation must be executed via the install system.</p>
+<p>To continue to the PostRelease installation, click <a href="../install/upgrade.php?version=postrelease&amp;only=1">here</a>.';
+die();]]></installcode>
+			<uninstallcode><![CDATA[$db->query_write("DROP TABLE IF EXISTS " . TABLE_PREFIX . "postrelease");]]></uninstallcode>
+		</code>
+	</codes>
+	<templates>
+		<template name="postrelease_vb4" templatetype="template" date="1299016090" username="vBulletin Solutions" version="4.2.0 Alpha 1"><![CDATA[
+		{vb:stylevar htmldoctype}
+<html xmlns="http://www.w3.org/1999/xhtml"<vb:if condition="$vboptions['enablefacebookconnect']"> xmlns:fb="http://www.facebook.com/2008/fbml"</vb:if> dir="{vb:stylevar textdirection}" lang="{vb:stylevar languagecode}" id="vbulletin_html">
+<head>
+	{vb:raw headinclude}
+	<meta name="description" content="{vb:raw thread.meta_description}" />
+
+	<title>{vb:raw prx_title}</title>
+	<link rel="canonical" href="{vb:raw thread_url}" />
+
+	<vb:if condition="$vboptions['storecssasfile']">
+		{vb:cssfile showthread-rollup.css}
+	<vb:else />
+		{vb:cssfile toolsmenu.css,postlist.css,showthread.css,postbit.css,options.css,attachment.css,poll.css,lightbox.css}
+	</vb:if>
+	<!--[if lt IE 8]>{vb:cssfile toolsmenu-ie.css,postlist-ie.css,showthread-ie.css,postbit-ie.css,poll-ie.css}<![endif]-->
+{vb:raw headinclude_bottom}
+</head>
+
+<body<vb:if condition="$onload"> onload="{vb:raw onload}"</vb:if>>
+
+{vb:raw header}{vb:raw prx_imp_pixel_url}
+{vb:raw navbar}
+
+<div id="pagetitle" class="pagetitle">
+    <h1>
+        {vb:rawphrase thread}: <span class="threadtitle">{vb:raw prx_title}</span>{vb:raw prx_tracking_pixel_url}
+    </h1>
+</div>
+
+<div id="postlist" class="postlist restrain">
+    <ol id="posts" class="posts" start="1">
+        {vb:raw postbits}
+    </ol>
+    <div class="separator"></div>
+</div>
+
+{vb:raw footer}
+</body>
+</html>]]></template>
+		<template name="postrelease_vb4_postbits" templatetype="template" date="1297286409" username="vBulletin Solutions" version="4.2.0 Alpha 1"><![CDATA[
+		<li class="postbit postbitim postcontainer">
+	<div class="postdetails_noavatar">
+		<div class="posthead">
+			<span class="postdate {vb:raw post.statusicon}">
+					<span class="date">{vb:raw post.postdate}<vb:if condition="!$show['detailedtime']">&nbsp;<span class="time">{vb:raw post.posttime}</span></vb:if></span>
+			</span>
+			<span class="nodecontrols">
+					#1
+			</span>
+		</div>
+		<div class="userinfo_noavatar">
+			<div class="contact">
+				<vb:if condition="$vboptions['avatarenabled']">
+				<a class="postuseravatarlink" href="{vb:raw prx_author_url}">
+						<img src="{vb:raw prx_author_img}">
+				</a>
+				</vb:if>
+				<div class="username_container">
+						<a class="username online popupctrl" href="{vb:raw prx_author_url}"><strong>{vb:raw prx_author}</strong></a>
+						<span class="usertitle">Sponsored Post</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="postbody">
+		<div class="postrow">
+		<h2 class="posttitle icon">
+			{vb:raw prx_title}
+		</h2>
+		<div class="content">
+			<div>
+				<blockquote class="postcontent restore">
+					{vb:raw prx_body}
+				</blockquote>
+			</div>
+		</div>
+		</div>
+	</div>
+	<div class="postfoot">
+			<div class="textcontrols floatcontainer">
+				<span class="postcontrols">
+					&nbsp;
+				</span>
+			</div>
+	</div>	
+	<hr />
+</li>]]></template>
+		<template name="postrelease_vb4_postbits_legacy" templatetype="template" date="1299016782" username="vBulletin Solutions" version="4.2.0 Alpha 1"><![CDATA[
+		<li class="postbitlegacy postbitim postcontainer" id="post_end_ad">
+	<div class="posthead">
+			<span class="postdate {vb:raw post.statusicon}">
+					<span class="date">{vb:raw post.postdate}<vb:if condition="!$show['detailedtime']">&nbsp;<span class="time">{vb:raw post.posttime}</span></vb:if></span>
+			</span>
+			<span class="nodecontrols">
+					#1
+			</span>
+	</div>
+	<div class="postdetails">
+		<div class="userinfo">
+			<div class="username_container">
+				<a class="username offline" href="{vb:raw prx_author_url}" ><strong>{vb:raw prx_author}</strong></a><br />
+			</div>
+			<span class="usertitle">Sponsored Post</span>
+			<vb:if condition="$vboptions['avatarenabled']">
+			<a class="postuseravatar" href="{vb:raw prx_author_url}">
+				<img src="{vb:raw prx_author_img}">
+			</a>
+			</vb:if>
+		</div>
+		<div class="postbody">
+			<div class="postrow">
+				<h2 class="title icon">
+					{vb:raw prx_title}
+				</h2>
+
+				<div class="content">
+					<div id="post_message_{vb:raw post.postid}">
+						<blockquote class="postcontent restore ">
+							{vb:raw prx_body}
+						</blockquote>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="postfoot">
+			<div class="textcontrols floatcontainer">
+				<span class="postcontrols">
+					&nbsp;
+				</span>
+			</div>
+		</div>
+	<hr />
+</li>]]></template>
+	</templates>
+	<templates_mobile> 
+		<template name="postrelease_vb4_mobile" templatetype="template" date="1299016090" username="vBulletin Solutions" version="4.2.0 Alpha 1"><![CDATA[
+<html xmlns="http://www.w3.org/1999/xhtml"<vb:if condition="$vboptions['enablefacebookconnect']"> xmlns:fb="http://www.facebook.com/2008/fbml"</vb:if> dir="{vb:stylevar textdirection}" lang="{vb:stylevar languagecode}" id="vbulletin_html">
+<head>
+	{vb:raw headinclude}
+	<title>{vb:raw vboptions.bbtitle}</title>
+	{vb:raw headinclude_bottom}
+</head>
+<body>
+
+{vb:raw header}
+{vb:raw prx_imp_pixel_url}
+{vb:raw navbar}
+
+<div id="pagetitle" class="pagetitle ui-bar-b">
+    <h1 class="pagetitle">{vb:raw prx_title}{vb:raw prx_tracking_pixel_url}</h1>
+</div>
+<div data-role="content">
+<div id="postlist" class="postlist restrain">
+    <ol id="posts" class="posts" start="1">
+        {vb:raw postbits}
+    </ol>
+    <div class="separator"></div>
+</div>
+</div>
+{vb:raw footer}
+</body>
+</html>		
+		]]></template>
+		<template name="postrelease_vb4_postbits_mobile" templatetype="template" date="1297286409" username="vBulletin Solutions" version="4.2.0 Alpha 1"><![CDATA[
+<li class="postbit postbitim postcontainer" id="post_pr">
+	<div class="posthead ui-bar-c">
+		<a class="postuseravatarlink ui-link" href="{vb:raw prx_author_url}">
+			<p>
+				<img src="{vb:raw prx_author_img}">
+			</p>
+		</a>
+		<span class="xsaid"><a href="{vb:raw prx_author_url}" class="ui-link">{vb:raw prx_author}</a> said:</span>
+        <span class="postdate old">
+                    <span class="date">Sponsored Post</span>
+        </span>
+	</div>
+	<div class="postbody">
+		<div class="postrow">
+			<h2 class="posttitle icon">
+				{vb:raw prx_title}
+			</h2>
+			<div class="content">
+				<div id="post_message_pr">
+					<blockquote class="postcontent restore">
+							{vb:raw prx_body}
+					</blockquote>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="postfoot">
+		<span class="postcontrols"></span>
+	</div>
+</li>
+]]></template>
+	</templates_mobile> 
+	<stylevardfns>
+	</stylevardfns>
+	<stylevars>
+	</stylevars>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>Cache</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[require(DIR . '/packages/postrelease/hooks/cache_templates.php');]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Thread List Page</title>
+			<hookname>forumdisplay_complete</hookname>
+			<phpcode><![CDATA[require(DIR . '/packages/postrelease/hooks/forumdisplay_complete.php');]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Template Page</title>
+			<hookname>misc_start</hookname>
+			<phpcode><![CDATA[require(DIR . '/packages/postrelease/hooks/misc_start.php');]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="Control Panel Home Pages" fieldname="cphome">
+			<phrase name="postrelease_global_options" date="1297298784" username="vBulletin Solutions" version="4.2.0 Alpha 1"><![CDATA[PostRelease]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_postrelease_enable_desc" date="1297298784" username="vBulletin Solutions" version="4.2.0 Alpha 1"><![CDATA[Would you like the to enable the PostRelease?]]></phrase>
+			<phrase name="setting_postrelease_enable_title" date="1297298784" username="vBulletin Solutions" version="4.2.0 Alpha 1"><![CDATA[Active]]></phrase>
+			<phrase name="settinggroup_postrelease_group" date="1297298606" username="vBulletin Solutions" version="4.2.0 Alpha 1"><![CDATA[PostRelease]]></phrase>
+			<phrase name="setting_postrelease_optout_desc" date="1303940968" username="vBulletin Solutions" version="4.2.0 Alpha 1"><![CDATA[Optional: you can choose to exclude certain usergroups from seeing PostRelease sponsored content by entering the usergroups ID. <br />Use commas if entering multiple usergroups. Example: 3,4,5]]></phrase>
+			<phrase name="setting_postrelease_optout_title" date="1303940968" username="vBulletin Solutions" version="4.2.0 Alpha 1"><![CDATA[Usergroup Blacklist]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="postrelease_group" displayorder="1590">
+			<setting varname="postrelease_enable" displayorder="10">
+				<datatype>free</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="postrelease_optout" displayorder="20">
+				<datatype>free</datatype>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+	<navigation>
+	</navigation>
+</product>

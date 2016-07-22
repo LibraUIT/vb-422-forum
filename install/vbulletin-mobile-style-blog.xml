@@ -1,0 +1,1533 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<style name="MOBILE MASTER STYLE" vbversion="4.2.2" product="vbblog" type="mobilemaster">
+	<templategroup name="Blog">
+		<template name="blog_blogpost_quote" templatetype="template" date="1330000000" username="vBulletin Solutions" version="4.1.12"><![CDATA[[QUOTE={vb:raw originalposter}]{vb:raw pagetext}[/QUOTE]
+]]></template>
+		<template name="BLOG" templatetype="template" date="1296552202" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[{vb:stylevar htmldoctype}
+<html xmlns="http://www.w3.org/1999/xhtml"<vb:if condition="$vboptions['enablefacebookconnect']"> xmlns:fb="http://www.facebook.com/2008/fbml"</vb:if> dir="{vb:stylevar textdirection}" lang="{vb:stylevar languagecode}" id="vbulletin_html">
+<head>
+	{vb:raw headinclude}
+	<title>{vb:raw vboptions.bbtitle}</title>
+	{vb:raw headinclude_bottom}
+</head>
+<body>
+
+{vb:raw header}
+
+{vb:raw navbar}
+
+<vb:if condition="$show['blogcp']">
+	<vb:comment>Blog CP</vb:comment>
+<vb:elseif condition="$show['hidesidebar']" />
+	<vb:comment>Blog Home</vb:comment>
+	<div class="sidebar_container">{vb:raw sidebar}</div>
+	{vb:raw content}
+<vb:else />
+	<vb:comment>Blog Pages</vb:comment>
+	<div class="sidebar_container">{vb:raw sidebar}</div>
+	{vb:raw content}
+</vb:if>
+
+{vb:raw footer}
+
+</body>
+</html>]]></template>
+		<template name="blog_comment" templatetype="template" date="1301932518" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<li class="postbit postbitim postcontainer vm<vb:if condition="$show['inlinemod']"> ui-li-checkboxradio</vb:if>" id="comment_{vb:raw response.blogtextid}">
+	<div class="posthead ui-bar-c">
+		<a class="postuseravatarlink" href="{vb:link member, {vb:raw response}}">
+			<p>
+			<vb:if condition="$show['avatar']">
+				<img src="{vb:raw response.avatarurl}" alt="{vb:rawphrase xs_avatar, {vb:raw response.username}}" />
+			<vb:else />
+				<img src="{vb:stylevar imgdir_misc}/unknown.gif" />
+			</vb:if>
+			</p>
+		</a>
+		<vb:if condition="$show['inlinemod']">
+			<input type="checkbox" name="commentlist[{vb:raw response.blogtextid}]" id="comment_imod_checkbox_{vb:raw response.blogtextid}" class="inlinemod" value="{vb:raw response.checkbox_value}" title="{vb:rawphrase select_this_item_for_inline_moderation}" tabindex="1" />
+			<label for="comment_imod_checkbox_{vb:raw response.blogtextid}"></label>
+		</vb:if>
+		<span class="xsaid">{vb:rawphrase x_said, {vb:link member, {vb:raw response}}, {vb:rawphrase {vb:raw response['onlinestatusphrase']}, {vb:raw response.username}}, {vb:raw response.username}}:</span>
+        <span class="postdate">
+            <span class="date">{vb:raw response.date}<vb:if condition="!$show['detailedtime']">&nbsp;<span class="time">{vb:raw response.time}</span></vb:if></span>
+        </span>
+	</div>
+	
+	<div class="postbody">
+		<div class="postrow">
+			<div class="content">
+				<div id="blog_comment_{vb:raw response.blogtextid}">
+					<blockquote class="postcontent restore">
+						{vb:raw response.message}
+						<vb:if condition="$show['commentedited']">
+							<p>
+								{vb:rawphrase updated_date_at_time_by_user, {vb:raw response.edit_date}, {vb:raw response.edit_time}, {vb:link member, {vb:raw response}, '', edit_userid, edit_username}, {vb:raw response.edit_username}}
+								<vb:if condition="$response['edit_reason']"><span class="shade">({vb:raw response.edit_reason})</span></vb:if>
+							</p>
+						</vb:if>
+					</blockquote>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="postfoot">
+		<vb:if condition="$show['reportlink']">
+			<span class="userprof_postbititem">
+				[<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_report.php?{vb:raw session.sessionurl}bt={vb:raw response.blogtextid}" rel="external">{vb:rawphrase report_comment}</a>]
+			</span>
+		</vb:if>
+		<vb:if condition="$response['blogipaddress']">
+			<span class="userprof_postbititem">
+				[<a href="{vb:link entry, {vb:raw response}, {vb:raw pageinfo_ip}, blogid, blogtitle}">{vb:rawphrase ip}</a>]
+			</span>
+		</vb:if>
+		<vb:if condition="$show['edit']">
+			<span class="userprof_postbititem">
+				[<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?{vb:raw session.sessionurl}do=editcomment&amp;bt={vb:raw response.blogtextid}" id="comment_edit_{vb:raw response.blogtextid}">{vb:rawphrase edit_comment}</a>]
+			</span>
+		</vb:if>
+		<vb:if condition="$show['quotecomment']">
+			<span class="userprof_postbititem">
+				[<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?{vb:raw session.sessionurl}do=comment&amp;bt={vb:raw response.blogtextid}">{vb:rawphrase reply}</a>]
+			</span>
+		</vb:if>
+		<vb:if condition="$show['moderation']">
+			<span class="userprof_postbititem">
+				<img class="inlineimg" src="{vb:stylevar imgdir_misc}/moderated.png" alt="{vb:rawphrase moderated_comment}"/>
+			</span>
+		</vb:if>
+		
+	</div>
+</li>]]></template>
+		<template name="blog_comment_deleted" templatetype="template" date="1300972293" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<li class="postbit postbitim postcontainer vm<vb:if condition="$show['inlinemod']"> ui-li-checkboxradio</vb:if>" id="comment_{vb:raw response.blogtextid}">
+	<div class="posthead ui-bar-c">
+		<a class="postuseravatarlink" href="{vb:link member, {vb:raw response}}">
+			<p>
+			<vb:if condition="$show['avatar']">
+				<img src="{vb:raw response.avatarurl}" alt="{vb:rawphrase xs_avatar, {vb:raw response.username}}" />
+			<vb:else />
+				<img src="{vb:stylevar imgdir_misc}/unknown.gif" />
+			</vb:if>
+			</p>
+		</a>
+		<vb:if condition="$show['inlinemod']">
+			<input type="checkbox" name="commentlist[{vb:raw response.blogtextid}]" id="comment_imod_checkbox_{vb:raw response.blogtextid}" class="inlinemod" value="{vb:raw response.checkbox_value}" title="{vb:rawphrase select_this_item_for_inline_moderation}" tabindex="1" />
+			<label for="comment_imod_checkbox_{vb:raw response.blogtextid}"></label>
+		</vb:if>
+		<span class="xsaid">{vb:rawphrase x_said, {vb:link member, {vb:raw response}}, {vb:rawphrase {vb:raw response['onlinestatusphrase']}, {vb:raw response.username}}, {vb:raw response.username}}:</span>
+        <span class="postdate">
+            <span class="date">{vb:raw response.date}<vb:if condition="!$show['detailedtime']">&nbsp;<span class="time">{vb:raw response.time}</span></vb:if></span>
+        </span>
+	</div>
+	
+	<div class="postbody">
+		<div class="postrow">
+			<div class="content">
+				<div id="blog_comment_{vb:raw response.blogtextid}">
+					<blockquote class="postcontent restore">
+						<p><a href="{vb:link entry, {vb:raw response}, {vb:raw pageinfo}, blogid, blogtitle}#comment{vb:raw response.blogtextid}" id="view_comment{vb:raw response.blogtextid}">{vb:rawphrase view_comment}</a> <img class="hidden" id="comment_progress_{vb:raw response.blogtextid}" src="{vb:stylevar imgdir_misc}/progress.gif" alt="{vb:rawphrase loading_content_please_wait}" /></p>
+						<p class="shade">{vb:rawphrase this_comment_has_been_deleted_by_user, {vb:link member, {vb:raw response}, null, del_userid, del_username}, {vb:raw response.del_username}}</p>
+					</blockquote>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="postfoot">
+		<vb:if condition="$show['reportlink']">
+			<span class="userprof_postbititem">
+				[<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_report.php?{vb:raw session.sessionurl}bt={vb:raw response.blogtextid}" rel="external">{vb:rawphrase report_comment}</a>]
+			</span>
+		</vb:if>
+		<vb:if condition="$response['blogipaddress']">
+			<span class="userprof_postbititem">
+				[<a href="{vb:link entry, {vb:raw response}, {vb:raw pageinfo_ip}, blogid, blogtitle}">{vb:rawphrase ip}</a>]
+			</span>
+		</vb:if>
+		<vb:if condition="$show['edit']">
+			<span class="userprof_postbititem">
+				[<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?{vb:raw session.sessionurl}do=editcomment&amp;bt={vb:raw response.blogtextid}" id="comment_edit_{vb:raw response.blogtextid}">{vb:rawphrase edit_comment}</a>]
+			</span>
+		</vb:if>
+	</div>
+</li>]]></template>
+		<template name="blog_comment_editor" templatetype="template" date="1313682664" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<div id="pagetitle" class="pagetitle ui-bar-b">
+	<h1 class="pagetitle">{vb:rawphrase post_a_comment}</h1>
+	<p class="description">{vb:rawphrase blog_entry}: <a href="{vb:link entry, {vb:raw bloginfo}}" title="{vb:raw bloginfo.title}">{vb:raw bloginfo.title_trimmed}</a></p>
+</div>
+
+<div data-role="content">
+	<form action="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?do=comment" method="post" data-ajax="false">
+		{vb:raw postpreview}
+
+		<vb:if condition="$vbulletin->userinfo['userid'] == 0 OR $human_verify">
+			{vb:raw usernamecode}
+			{vb:raw imagereg}
+			{vb:raw human_verify}
+		</vb:if>
+		
+		<div data-role="fieldcontain">
+			<label for="title">{vb:rawphrase title}:</label>
+			<input type="text" class="primary full textbox" name="title" id="title" value="{vb:raw title}" maxlength="{vb:raw options.titlemaxchars}" tabindex="1" />
+		</div>
+
+		{vb:raw messagearea}
+			
+		<button type="submit" name="sbutton" data-theme="a">{vb:rawphrase post_now}</button>
+
+		<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+		<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+		<input type="hidden" name="do" value="postcomment" />
+		<input type="hidden" name="b" value="{vb:raw bloginfo.blogid}" />
+		<input type="hidden" name="bt" value="{vb:raw blogtextinfo.blogtextid}" />
+		<input type="hidden" name="posthash" value="{vb:raw posthash}" />
+		<input type="hidden" name="loggedinuser" value="{vb:raw bbuserinfo.userid}" />
+	</form>
+</div>]]></template>
+		<template name="blog_comment_ignore" templatetype="template" date="1300972315" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<li class="postbit postbitim postcontainer vm<vb:if condition="$show['inlinemod']"> ui-li-checkboxradio</vb:if>" id="comment_{vb:raw response.blogtextid}">
+	<div class="posthead ui-bar-c">
+		<a class="postuseravatarlink" href="{vb:link member, {vb:raw response}}">
+			<p>
+			<vb:if condition="$show['avatar']">
+				<img src="{vb:raw response.avatarurl}" alt="{vb:rawphrase xs_avatar, {vb:raw response.username}}" />
+			<vb:else />
+				<img src="{vb:stylevar imgdir_misc}/unknown.gif" />
+			</vb:if>
+			</p>
+		</a>
+		<vb:if condition="$show['inlinemod']">
+			<input type="checkbox" name="commentlist[{vb:raw response.blogtextid}]" id="comment_imod_checkbox_{vb:raw response.blogtextid}" class="inlinemod" value="{vb:raw response.checkbox_value}" title="{vb:rawphrase select_this_item_for_inline_moderation}" tabindex="1" />
+			<label for="comment_imod_checkbox_{vb:raw response.blogtextid}"></label>
+		</vb:if>
+		<span class="xsaid">{vb:rawphrase x_said, {vb:link member, {vb:raw response}}, {vb:rawphrase {vb:raw response['onlinestatusphrase']}, {vb:raw response.username}}, {vb:raw response.username}}:</span>
+        <span class="postdate">
+            <span class="date">{vb:raw response.date}<vb:if condition="!$show['detailedtime']">&nbsp;<span class="time">{vb:raw response.time}</span></vb:if></span>
+        </span>
+	</div>
+	
+	<div class="postbody">
+		<div class="postrow">
+			<div class="content">
+				<div id="blog_comment_{vb:raw response.blogtextid}">
+					<blockquote class="postcontent restore">
+							<p><a href="{vb:link entry, {vb:raw response}, {vb:raw pageinfo}, blogid, blogtitle}#comment{vb:raw response.blogtextid}" id="view_comment{vb:raw response.blogtextid}">{vb:rawphrase view_comment}</a> <img id="comment_progress_{vb:raw response.blogtextid}" src="{vb:stylevar imgdir_misc}/progress.gif" alt="{vb:rawphrase loading_content_please_wait}" style="display:none;" /></p>
+							<p class="shade">{vb:rawphrase comment_is_hidden_x_y, {vb:raw response.username}, {vb:raw session.sessionurl}}</p>
+					</blockquote>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="postfoot">
+		<vb:if condition="$show['reportlink']">
+			<span class="userprof_postbititem">
+				[<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_report.php?{vb:raw session.sessionurl}bt={vb:raw response.blogtextid}" rel="external">{vb:rawphrase report_comment}</a>]
+			</span>
+		</vb:if>
+		<vb:if condition="$response['blogipaddress']">
+			<span class="userprof_postbititem">
+				[<a href="{vb:link entry, {vb:raw response}, {vb:raw pageinfo_ip}, blogid, blogtitle}">{vb:rawphrase ip}</a>]
+			</span>
+		</vb:if>
+		<vb:if condition="$show['edit']">
+			<span class="userprof_postbititem">
+				[<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?{vb:raw session.sessionurl}do=editcomment&amp;bt={vb:raw response.blogtextid}" id="comment_edit_{vb:raw response.blogtextid}">{vb:rawphrase edit_comment}</a>]
+			</span>
+		</vb:if>
+	</div>
+</li>]]></template>
+		<template name="blog_css" templatetype="template" date="1331142454" username="vBulletin Solutions" version="4.1.12 Alpha 1" />
+		<template name="blog_entry" templatetype="template" date="1312294160" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<li class="postbit postbitim postcontainer<vb:if condition="$blog['state'] == 'draft'"> draft</vb:if>" id="entry_{vb:raw blog.blogid}">
+	<div class="posthead ui-bar-c">
+		<a class="postuseravatarlink" href="{vb:link member, {vb:raw blog}}">
+			<p>
+			<vb:if condition="$show['profilepic']">
+				<img src="{vb:raw blog.profilepicurl}" width="{vb:stylevar vbblog_bloglist_avatar_width}" alt="{vb:rawphrase xs_profilepic, {vb:raw blog.postedby_username}}" />
+			<vb:elseif condition="$show['avatar']" />
+				<img src="{vb:raw blog.avatarurl}" width="{vb:stylevar vbblog_bloglist_avatar_width}" alt="{vb:rawphrase xs_avatar, {vb:raw blog.postedby_username}}" />
+			<vb:else />
+				<img src="{vb:stylevar imgdir_misc}/unknown.gif" width="{vb:stylevar vbblog_bloglist_avatar_width}" alt="" />
+			</vb:if>
+			</p>
+		</a>
+		<h3 class="entrytitle"><vb:if condition="$blog['state'] == 'draft'">{vb:rawphrase draft}: </vb:if><a href="{vb:link entry, {vb:raw blog}}" rel="external">{vb:raw blog.title}</a></h3>
+        <span class="postdate">
+        	{vb:rawphrase posted_date_at_time_memberaction, {vb:raw memberaction_dropdown}, {vb:raw blog.date}, {vb:raw blog.time}} (<a href="{vb:link blog, {vb:raw blog}, '', userid, blogtitle}">{vb:raw blog.blogtitle}</a>)
+        </span>
+	</div>
+	
+	<div class="postbody">
+		<div class="postrow">
+			<div class="content">
+				<div id="post_message_{vb:raw post.postid}">
+					<blockquote class="postcontent restore">
+						<vb:if condition="$show['ignoreduser']">
+							{vb:rawphrase entry_is_hidden_x_y, {vb:raw blog.username}, {vb:raw session.sessionurl}}
+						<vb:else />
+							{vb:raw blog.message}
+						</vb:if>
+					</blockquote>
+				</div>
+			</div>
+		
+			<blockquote class="postcontent blogmeta">
+				<vb:if condition="$show['entryedited']">
+				<p class="lastedited">
+					{vb:rawphrase updated_date_at_time_by_user, {vb:raw blog.edit_date}, {vb:raw blog.edit_time}, {vb:link member, {vb:raw blog}, '', edit_userid, edit_username}, {vb:raw blog.edit_username}}
+					<vb:if condition="$blog['edit_reason']"><span class="shade">({vb:raw blog.edit_reason})</span></vb:if>
+				</p>
+				</vb:if>
+
+				<vb:if condition="$show['tags'] AND !$show['notags']">
+				<p>{vb:rawphrase tags}: {vb:raw blog.tag_list}</p>
+				</vb:if>
+			
+				<vb:if condition="$blog[categorybits]">
+				<p>{vb:rawphrase categories}: {vb:raw blog.categorybits}</p>
+				</vb:if>
+			</blockquote>
+
+			<vb:if condition="$show['attachments']">
+				<!-- attachments -->
+				<div class="blogattachments">
+					<img src="{vb:stylevar imgdir_misc}/paperclip.png" class="inlineimg" /> 
+					<vb:if condition="$show['thumbnailattachment']">
+						<fieldset class="blogcontent">
+							<legend>{vb:rawphrase attached_thumbnails}</legend>
+							{vb:raw blog.thumbnailattachments}
+						</fieldset>
+					</vb:if>
+					<vb:if condition="$show['imageattachment']">
+						<fieldset class="blogcontent">
+							<legend>{vb:rawphrase attached_images}</legend>
+							{vb:raw blog.imageattachments}
+						</fieldset>
+					</vb:if>
+					<vb:if condition="$show['imageattachmentlink']">
+						<fieldset class="blogcontent">
+							<legend>{vb:rawphrase attached_images}</legend>
+							<ul>
+							{vb:raw blog.imageattachmentlinks}
+							</ul>
+							</fieldset>
+					</vb:if>
+					<vb:if condition="$show['otherattachment']">
+						<fieldset class="fieldset">
+							<legend>{vb:rawphrase attached_files}</legend>
+							<ul>
+							{vb:raw blog.otherattachments}
+							</ul>
+						</fieldset>
+					</vb:if>
+				</div>
+				<!-- / attachments -->
+			</vb:if>
+		</div>
+	</div>
+	
+	<div class="blogfoot">
+		<div class="blog_comments_count">
+			<vb:if condition="$show['gotonewcomment'] AND $blog['comments_visible'] != '0'">
+				<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog.php?{vb:raw session.sessionurl}b={vb:raw blog.blogid}&amp;goto=newpost"><img class="inlineimg" src="{vb:stylevar imgdir_button}/firstnew-comment.png" alt="{vb:rawphrase go_to_first_new_comment}" /></a>
+			<vb:else />
+				<img border="0" alt="{vb:rawphrase comments}" src="{vb:stylevar imgdir_misc}/comment.png" title="{vb:rawphrase comments}"/>
+			</vb:if>
+			
+			<a href="{vb:link entry, {vb:raw blog}}&amp;comments" class="comments">{vb:raw blog.comments_visible} <vb:if condition="$blog['comments_visible'] == '1'">{vb:rawphrase comment}<vb:else />{vb:rawphrase comments}</vb:if></a>
+			
+			<vb:if condition="$show['comment_moderation']">
+				<img class="inlineimg" src="{vb:stylevar imgdir_misc}/moderated_small.png" alt="{vb:rawphrase moderated_comments} {vb:raw blog.hidden}" />
+			</vb:if>
+			<vb:if condition="$show['edit']">
+				<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?{vb:raw session.sessionurl}do=editblog&amp;b={vb:raw blog.blogid}" class="edit_blog"><img src="{vb:stylevar imgdir_cms}/edit_small.png" alt="{vb:rawphrase edit_blog_entry}" class="inlineimg" id="entry_edit_{vb:raw blog.blogid}" />{vb:rawphrase edit}</a>
+			</vb:if>
+		</div>
+		
+		<vb:if condition="$show['readmore']">
+			<div class="continuereading"><a href="{vb:link entry, {vb:raw blog}}">{vb:rawphrase continue_reading}</a><img alt="{vb:rawphrase continue_reading}" src="{vb:stylevar imgdir_cms}/read_more-{vb:stylevar right}.png" title="{vb:rawphrase continue_reading}"/></div>
+		</vb:if>
+	</div>
+</li>]]></template>
+		<template name="blog_entry_category" templatetype="template" date="1331142462" username="vBulletin Solutions" version="4.1.12 Alpha 1"><![CDATA[{vb:stylevar dirmark}
+<vb:if condition="$show['cattitleonly']">
+	{vb:raw category.title}
+<vb:else />
+	<vb:if condition="$category['userid']">
+		<a href="{vb:link blog, {vb:raw category}, {vb:raw pageinfo}, 'userid', 'blogtitle'}">{vb:raw category.title}</a>
+	<vb:else />
+		<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog.php?{vb:raw session.sessionurl}blogcategoryid={vb:raw category.blogcategoryid}">{vb:raw category.title}</a>
+	</vb:if>
+</vb:if>]]></template>
+		<template name="blog_entry_deleted" templatetype="template" date="1309186142" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<li class="postbit postbitim postcontainer" id="entry_{vb:raw blog.blogid}">
+	<div class="posthead ui-bar-c">
+		<a class="postuseravatarlink" href="{vb:link member, {vb:raw blog}}">
+			<p>
+			<vb:if condition="$show['profilepic']">
+				<img src="{vb:raw blog.profilepicurl}" width="{vb:stylevar vbblog_bloglist_avatar_width}" alt="{vb:rawphrase xs_profilepic, {vb:raw blog.postedby_username}}" />
+			<vb:elseif condition="$show['avatar']" />
+				<img src="{vb:raw blog.avatarurl}" width="{vb:stylevar vbblog_bloglist_avatar_width}" alt="{vb:rawphrase xs_avatar, {vb:raw blog.postedby_username}}" />
+			<vb:else />
+				<img src="{vb:stylevar imgdir_misc}/unknown.gif" width="{vb:stylevar vbblog_bloglist_avatar_width}" alt="" />
+			</vb:if>
+			</p>
+		</a>
+		<h3 class="entrytitle"><a href="{vb:link entry, {vb:raw blog}}">{vb:raw blog.title}</a></h3>
+        <span class="postdate">
+        	{vb:rawphrase posted_date_at_time_memberaction, {vb:raw memberaction_dropdown}, {vb:raw blog.date}, {vb:raw blog.time}} <vb:if condition="$blog['blogtitle'] != $blog['username']">({vb:raw blog.blogtitle})</vb:if>
+        </span>
+	</div>
+	
+	<div class="postbody">
+		<div class="postrow">
+			<div class="content">
+				<div id="post_message_{vb:raw post.postid}">
+					<blockquote class="postcontent restore">
+						{vb:rawphrase this_blog_entry_has_been_deleted_by_user, {vb:link member, {vb:raw blog}, null, 'del_userid', 'del_username'}, {vb:raw blog.del_username}}
+						<vb:if condition="$blog['del_reason']">
+							<div title="{vb:rawphrase reason_for_blog_entry_deletion {vb:raw blog.del_username}}">
+								<em>{vb:raw blog.del_reason}</em>
+							</div>
+						</vb:if>
+						<a href="{vb:link entry, {vb:raw blog}}"> {vb:rawphrase view_entry}</a>
+					</blockquote>
+				</div>
+			</div>
+		
+			<blockquote class="postcontent blogmeta">
+				<vb:if condition="$show['entryedited']">
+				<p class="lastedited">
+					{vb:rawphrase updated_date_at_time_by_user, {vb:raw blog.edit_date}, {vb:raw blog.edit_time}, {vb:link member, {vb:raw blog}, '', edit_userid, edit_username}, {vb:raw blog.edit_username}}
+					<vb:if condition="$blog['edit_reason']"><span class="shade">({vb:raw blog.edit_reason})</span></vb:if>
+				</p>
+				</vb:if>
+
+				<vb:if condition="$show['tags'] AND !$show['notags']">
+				<p>{vb:rawphrase tags}: {vb:raw blog.tag_list}</p>
+				</vb:if>
+			
+				<vb:if condition="$blog[categorybits]">
+				<p>{vb:rawphrase categories}: {vb:raw blog.categorybits}</p>
+				</vb:if>
+			</blockquote>
+
+			<vb:if condition="$show['attachments']">
+				<!-- attachments -->
+				<div class="blogattachments">
+					<img src="{vb:stylevar imgdir_misc}/paperclip.png" class="inlineimg" /> 
+					<vb:if condition="$show['thumbnailattachment']">
+						<fieldset class="blogcontent">
+							<legend>{vb:rawphrase attached_thumbnails}</legend>
+							{vb:raw blog.thumbnailattachments}
+						</fieldset>
+					</vb:if>
+					<vb:if condition="$show['imageattachment']">
+						<fieldset class="blogcontent">
+							<legend>{vb:rawphrase attached_images}</legend>
+							{vb:raw blog.imageattachments}
+						</fieldset>
+					</vb:if>
+					<vb:if condition="$show['imageattachmentlink']">
+						<fieldset class="blogcontent">
+							<legend>{vb:rawphrase attached_images}</legend>
+							<ul>
+							{vb:raw blog.imageattachmentlinks}
+							</ul>
+							</fieldset>
+					</vb:if>
+					<vb:if condition="$show['otherattachment']">
+						<fieldset class="fieldset">
+							<legend>{vb:rawphrase attached_files}</legend>
+							<ul>
+							{vb:raw blog.otherattachments}
+							</ul>
+						</fieldset>
+					</vb:if>
+				</div>
+				<!-- / attachments -->
+			</vb:if>
+		</div>
+	</div>
+	
+	<div class="blogfoot">
+		<div class="blog_comments_count">
+			<vb:if condition="$show['gotonewcomment'] AND $blog['comments_visible'] != '0'">
+				<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog.php?{vb:raw session.sessionurl}b={vb:raw blog.blogid}&amp;goto=newpost"><img class="inlineimg" src="{vb:stylevar imgdir_button}/firstnew-comment.png" alt="{vb:rawphrase go_to_first_new_comment}" /></a>
+			<vb:else />
+				<img border="0" alt="{vb:rawphrase comments}" src="{vb:stylevar imgdir_misc}/comment.png" title="{vb:rawphrase comments}"/>
+			</vb:if>
+			
+			<a href="{vb:link entry, {vb:raw blog}}&amp;comments" class="comments">{vb:raw blog.comments_visible} <vb:if condition="$blog['comments_visible'] == '1'">{vb:rawphrase comment}<vb:else />{vb:rawphrase comments}</vb:if></a>
+			
+			<vb:if condition="$show['comment_moderation']">
+				<img class="inlineimg" src="{vb:stylevar imgdir_misc}/moderated_small.png" alt="{vb:rawphrase moderated_comments} {vb:raw blog.hidden}" />
+			</vb:if>
+			<vb:if condition="$show['edit']">
+				<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?{vb:raw session.sessionurl}do=editblog&amp;b={vb:raw blog.blogid}" class="edit_blog"><img src="{vb:stylevar imgdir_cms}/edit_small.png" alt="{vb:rawphrase edit_blog_entry}" class="inlineimg" id="entry_edit_{vb:raw blog.blogid}" />{vb:rawphrase edit}</a>
+			</vb:if>
+		</div>
+		
+		<vb:if condition="$show['readmore']">
+			<div class="continuereading"><a href="{vb:link entry, {vb:raw blog}}">{vb:rawphrase continue_reading}</a><img alt="{vb:rawphrase continue_reading}" src="{vb:stylevar imgdir_cms}/read_more-{vb:stylevar right}.png" title="{vb:rawphrase continue_reading}"/></div>
+		</vb:if>
+	</div>
+</li>]]></template>
+		<template name="blog_entry_editor" templatetype="template" date="1301408750" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<div id="pagetitle" class="pagetitle ui-bar-b">
+	<h1 class="pagetitle"><vb:if condition="$show['edit']">{vb:rawphrase edit_blog_entry}<vb:else />{vb:rawphrase create_blog}</vb:if></h1>
+	<p class="description"><vb:if condition="$show['delete']">{vb:rawphrase blog_entry}: <a href="{vb:link entry, {vb:raw bloginfo}}">{vb:raw title}</a></vb:if></p>
+</div>
+
+<div data-role="content">
+<vb:comment> Currently there's no way to undelete a blog entry in mobile style </vb:comment>
+<vb:if condition="$show['delete']">
+<form action="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?do=deleteblog&amp;b={vb:raw bloginfo.blogid}" method="post" class="block" data-ajax="false">
+	<h2 class="ui-bar ui-bar-e">{vb:rawphrase delete_blog_entry}</h2>
+	<div class="ui-body ui-body-e">
+		<fieldset data-role="controlgroup">
+		<legend>{vb:rawphrase delete_post_in_manner}...</legend>
+			<input type="radio" id="deltype_soft" class="dep_ctrl" name="deleteblog" value="soft" tabindex="1" />
+			<label for="deltype_soft">{vb:rawphrase delete_message}</label>
+			<input type="text" name="reason" class="textbox primary" value="" tabindex="1" />
+			<vb:if condition="$show['physicaldeleteoption'] AND $show['keepattachmentsoption']">
+				<input type="checkbox" name="keepattachments" value="1" id="cb_keepattachments" tabindex="1" />
+				<label for="cb_keepattachments">{vb:rawphrase keep_attachments}</label>
+			</vb:if>
+		</fieldset>
+		<input id="blog_deletebtn" type="submit" class="button" value="{vb:rawphrase delete}" tabindex="1" accesskey="d" />
+	</div>
+	
+	<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+	<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+	<input type="hidden" name="b" value="{vb:raw bloginfo.blogid}" />
+	<input type="hidden" name="url" value="{vb:raw url}" />
+	<input type="hidden" name="do" value="deleteblog" />
+</form>
+</vb:if>
+
+<vb:if condition="$show['drafts']">
+<form action="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?do=editblog" method="get" class="block" data-ajax="false">
+	<h2 class="ui-bar ui-bar-d">
+		{vb:rawphrase draft_blog_entries}
+	</h2>
+	<div class="ui-body ui-body-d" id="collapseobj_newentry_draft">
+		<p class="singledescription">{vb:rawphrase select_draft_title_to_load_previous_options}</p>
+		{vb:raw draft_options}
+		<input type="submit" class="button" value="{vb:rawphrase go_to_draft}" tabindex="1" accesskey="d" />
+	</div>
+	<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+	<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+	<input type="hidden" name="do" value="editblog" />
+</form>
+</vb:if>
+
+
+	<form class="vbform block" action="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?do=updateblog&amp;blogid={vb:raw bloginfo.blogid}" method="post" name="vbform" data-ajax="false">
+
+		{vb:raw postpreview}
+
+		<div data-role="fieldcontain">
+			<label for="title">{vb:rawphrase title}:</label>
+			<input type="text" class="primary full textbox" name="title" id="title" value="{vb:raw title}" maxlength="{vb:raw vboptions.titlemaxchars}" tabindex="1" />
+		</div>
+
+		{vb:raw messagearea}
+		
+		<vb:if condition="$show['tag_option']">
+		<div data-role="fieldcontain">
+			<label for="taglist">{vb:rawphrase tags}:</label>
+			<input type="text" class="primary full textbox popupctrl" name="taglist" id="taglist" value="{vb:raw taglist}" tabindex="1" />
+		</div>
+		</vb:if>
+		
+		<vb:if condition="!$show['edit']">
+			<button type="submit" name="sbutton" data-theme="a">{vb:rawphrase post_now}</button>
+			<fieldset class="ui-grid-a"> 
+				<div class="ui-block-a"><button type="submit" name="preview" data-theme="d">{vb:rawphrase preview}</button></div>
+				<div class="ui-block-b"><button type="submit" name="draft" data-theme="d">{vb:rawphrase save_draft}</button></div>
+			</fieldset>
+		<vb:else />
+			<fieldset class="ui-grid-a"> 
+				<div class="ui-block-a"><button type="submit" name="sbutton" data-theme="a">{vb:rawphrase save_changes}</button></div>
+				<div class="ui-block-b"><button type="submit" name="preview" data-theme="d">{vb:rawphrase preview}</button></div>
+			</fieldset>
+		</vb:if>
+
+		<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+		<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+		<input type="hidden" name="do" value="updateblog" />
+		<input type="hidden" name="b" value="{vb:raw bloginfo.blogid}" />
+		<input type="hidden" name="posthash" value="{vb:raw posthash}" />
+		<input type="hidden" name="poststarttime" value="{vb:raw poststarttime}" />
+		<input type="hidden" name="loggedinuser" value="{vb:raw bbuserinfo.userid}" />
+		<input type="hidden" name="u" value="{vb:raw userid}" />
+	</form>
+</div>]]></template>
+		<template name="blog_entry_editor_draft" templatetype="template" date="1297067516" username="vBulletin Solutions" version="4.1.2"><![CDATA[<input type="radio" name="b" id="rb_{vb:raw blog_draft.blogid}" value="{vb:raw blog_draft.blogid}" tabindex="1" {vb:raw radiochecked} />
+<label for="rb_{vb:raw blog_draft.blogid}"> {vb:raw blog_draft.title} ({vb:raw blog_draft.date_string} <span class="time">{vb:raw blog_draft.time_string}</span>)</label>]]></template>
+		<template name="blog_entry_editor_preview" templatetype="template" date="1314887840" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<vb:if condition="$show['notifysent']">
+<h2 class="ui-bar ui-bar-e">{vb:rawphrase blog_message}</h2>
+<vb:else />
+<h2 class="ui-bar ui-bar-d">{vb:rawphrase preview}</h2>
+</vb:if>
+
+<div class="ui-body ui-body-d">
+	<vb:if condition="$show['notifysent']">
+	<!--POSTERROR do not remove this comment-->
+	<blockquote class="blockrow postcontent restore preview postcontainer">
+		<p class="singledescription">{vb:rawphrase notification_sent_to_remote_server}</p>
+	</blockquote>
+	<!--/POSTERROR do not remove this comment-->
+	
+	<vb:else />
+
+	<vb:if condition="$blog['title']">
+	<!-- icon and title -->
+	<div class="blocksubhead">
+		{vb:raw blog.title}
+	</div>
+	<!-- / icon and title -->
+	</vb:if>
+	<blockquote class="blockrow postcontent restore preview postcontainer">
+		{vb:raw previewmessage}
+	</blockquote>
+
+	<vb:if condition="$show['attachments']">
+	<!-- attachments -->
+		<vb:if condition="$show['thumbnailattachment']">
+	<h3 class="blocksubhead">{vb:rawphrase attached_thumbnails}</h3>
+	<div class="blockrow">
+		{vb:raw blog.thumbnailattachments}
+	</div>
+		</vb:if>
+
+		<vb:if condition="$show['imageattachment']">
+	<h3 class="blocksubhead">{vb:rawphrase attached_images}</h3>
+	<div class="blockrow">
+		{vb:raw blog.imageattachments}
+	</div>
+		</vb:if>
+
+		<vb:if condition="$show['imageattachmentlink']">
+	<h3 class="blocksubhead">{vb:rawphrase attached_images}</h3>
+	<div class="blockrow">
+		{vb:raw blog.imageattachmentlinks}
+	</div>
+		</vb:if>
+
+		<vb:if condition="$show['otherattachment']">
+	<h3 class="blocksubhead">{vb:rawphrase attached_files}</h3>
+	<div class="blockrow">
+		{vb:raw blog.otherattachments}
+	</div>
+		</vb:if>
+
+		<vb:if condition="$show['moderatedattachment']">
+	<h3 class="blocksubhead">{vb:rawphrase attachments_pending_approval}</h3>
+	<div class="blockrow">
+		{vb:raw blog.moderatedattachments}
+	</div>
+		</vb:if>
+
+	<!-- / attachments -->
+	</vb:if>
+	</vb:if>
+
+</div>
+
+<div class="blockfoot actionbuttons"></div>]]></template>
+		<template name="blog_entry_featured" templatetype="template" date="1312294211" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<li class="postbit postbitim postcontainer featured" id="entry_{vb:raw blog.blogid}">
+	<div class="posthead ui-bar-e">
+		<a class="postuseravatarlink" href="{vb:link member, {vb:raw blog}}">
+			<p>
+			<vb:if condition="$show['profilepic']">
+				<img src="{vb:raw blog.profilepicurl}" width="{vb:stylevar vbblog_bloglist_avatar_width}" alt="{vb:rawphrase xs_profilepic, {vb:raw blog.postedby_username}}" />
+			<vb:elseif condition="$show['avatar']" />
+				<img src="{vb:raw blog.avatarurl}" width="{vb:stylevar vbblog_bloglist_avatar_width}" alt="{vb:rawphrase xs_avatar, {vb:raw blog.postedby_username}}" />
+			<vb:else />
+				<img src="{vb:stylevar imgdir_misc}/unknown.gif" width="{vb:stylevar vbblog_bloglist_avatar_width}" alt="" />
+			</vb:if>
+			</p>
+		</a>
+		<h3 class="entrytitle">{vb:rawphrase featured}: <a href="{vb:link entry, {vb:raw blog}}" rel="external">{vb:raw blog.title}</a></h3>
+        <span class="postdate">
+        	{vb:rawphrase posted_date_at_time_memberaction, {vb:raw memberaction_dropdown}, {vb:raw blog.date}, {vb:raw blog.time}} (<a href="{vb:link blog, {vb:raw blog}, '', userid, blogtitle}">{vb:raw blog.blogtitle}</a>)
+        </span>
+	</div>
+	
+	<div class="postbody">
+		<div class="postrow">
+			<div class="content">
+				<div id="post_message_{vb:raw post.postid}">
+					<blockquote class="postcontent restore">
+						<vb:if condition="$show['ignoreduser']">
+							{vb:rawphrase entry_is_hidden_x_y, {vb:raw blog.username}, {vb:raw session.sessionurl}}
+						<vb:else />
+							{vb:raw blog.message}
+						</vb:if>
+					</blockquote>
+				</div>
+			</div>
+		
+			<blockquote class="postcontent blogmeta">
+				<vb:if condition="$show['entryedited']">
+				<p class="lastedited">
+					{vb:rawphrase updated_date_at_time_by_user, {vb:raw blog.edit_date}, {vb:raw blog.edit_time}, {vb:link member, {vb:raw blog}, '', edit_userid, edit_username}, {vb:raw blog.edit_username}}
+					<vb:if condition="$blog['edit_reason']"><span class="shade">({vb:raw blog.edit_reason})</span></vb:if>
+				</p>
+				</vb:if>
+
+				<vb:if condition="$show['tags'] AND !$show['notags']">
+				<p>{vb:rawphrase tags}: {vb:raw blog.tag_list}</p>
+				</vb:if>
+			
+				<vb:if condition="$blog[categorybits]">
+				<p>{vb:rawphrase categories}: {vb:raw blog.categorybits}</p>
+				</vb:if>
+			</blockquote>
+
+			<vb:if condition="$show['attachments']">
+				<!-- attachments -->
+				<div class="blogattachments">
+					<img src="{vb:stylevar imgdir_misc}/paperclip.png" class="inlineimg" /> 
+					<vb:if condition="$show['thumbnailattachment']">
+						<fieldset class="blogcontent">
+							<legend>{vb:rawphrase attached_thumbnails}</legend>
+							{vb:raw blog.thumbnailattachments}
+						</fieldset>
+					</vb:if>
+					<vb:if condition="$show['imageattachment']">
+						<fieldset class="blogcontent">
+							<legend>{vb:rawphrase attached_images}</legend>
+							{vb:raw blog.imageattachments}
+						</fieldset>
+					</vb:if>
+					<vb:if condition="$show['imageattachmentlink']">
+						<fieldset class="blogcontent">
+							<legend>{vb:rawphrase attached_images}</legend>
+							<ul>
+							{vb:raw blog.imageattachmentlinks}
+							</ul>
+							</fieldset>
+					</vb:if>
+					<vb:if condition="$show['otherattachment']">
+						<fieldset class="fieldset">
+							<legend>{vb:rawphrase attached_files}</legend>
+							<ul>
+							{vb:raw blog.otherattachments}
+							</ul>
+						</fieldset>
+					</vb:if>
+				</div>
+				<!-- / attachments -->
+			</vb:if>
+		</div>
+	</div>
+	
+	<div class="blogfoot">
+		<div class="blog_comments_count">
+			<vb:if condition="$show['gotonewcomment'] AND $blog['comments_visible'] != '0'">
+				<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog.php?{vb:raw session.sessionurl}b={vb:raw blog.blogid}&amp;goto=newpost"><img class="inlineimg" src="{vb:stylevar imgdir_button}/firstnew-comment.png" alt="{vb:rawphrase go_to_first_new_comment}" /></a>
+			<vb:else />
+				<img border="0" alt="{vb:rawphrase comments}" src="{vb:stylevar imgdir_misc}/comment.png" title="{vb:rawphrase comments}"/>
+			</vb:if>
+			
+			<a href="{vb:link entry, {vb:raw blog}}&amp;comments" class="comments">{vb:raw blog.comments_visible} <vb:if condition="$blog['comments_visible'] == '1'">{vb:rawphrase comment}<vb:else />{vb:rawphrase comments}</vb:if></a>
+			
+			<vb:if condition="$show['comment_moderation']">
+				<img class="inlineimg" src="{vb:stylevar imgdir_misc}/moderated_small.png" alt="{vb:rawphrase moderated_comments} {vb:raw blog.hidden}" />
+			</vb:if>
+		</div>
+		
+		<vb:if condition="$show['readmore']">
+			<div class="continuereading"><a href="{vb:link entry, {vb:raw blog}}">{vb:rawphrase continue_reading}</a><img alt="{vb:rawphrase continue_reading}" src="{vb:stylevar imgdir_cms}/read_more-{vb:stylevar right}.png" title="{vb:rawphrase continue_reading}"/></div>
+		</vb:if>
+	</div>
+</li>]]></template>
+		<template name="blog_entry_ignore" templatetype="template" date="1314295048" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<li class="postbit postbitim postcontainer" id="entry_{vb:raw blog.blogid}">
+	<div class="posthead ui-bar-c">
+		<a class="postuseravatarlink" href="{vb:link member, {vb:raw blog}}">
+			<p>
+			<vb:if condition="$show['profilepic']">
+				<img src="{vb:raw blog.profilepicurl}" width="{vb:stylevar vbblog_bloglist_avatar_width}" alt="{vb:rawphrase xs_profilepic, {vb:raw blog.postedby_username}}" />
+			<vb:elseif condition="$show['avatar']" />
+				<img src="{vb:raw blog.avatarurl}" width="{vb:stylevar vbblog_bloglist_avatar_width}" alt="{vb:rawphrase xs_avatar, {vb:raw blog.postedby_username}}" />
+			<vb:else />
+				<img src="{vb:stylevar imgdir_misc}/unknown.gif" width="{vb:stylevar vbblog_bloglist_avatar_width}" alt="" />
+			</vb:if>
+			</p>
+		</a>
+		<h3 class="entrytitle"><a href="{vb:link entry, {vb:raw blog}}">{vb:raw blog.title}</a></h3>
+        <span class="postdate">
+        	{vb:rawphrase posted_date_at_time_memberaction, {vb:raw memberaction_dropdown}, {vb:raw blog.date}, {vb:raw blog.time}} <vb:if condition="$blog['blogtitle'] != $blog['username']">({vb:raw blog.blogtitle})</vb:if>
+        </span>
+	</div>
+	
+	<div class="postbody">
+		<div class="postrow">
+			<div class="content">
+				<div id="post_message_{vb:raw post.postid}">
+					<blockquote class="postcontent restore">
+						{vb:rawphrase entry_is_hidden_x_y, {vb:raw blog.username}, {vb:raw session.sessionurl}}
+					</blockquote>
+				</div>
+			</div>
+		
+			<blockquote class="postcontent blogmeta">
+				<vb:if condition="$show['entryedited']">
+				<p class="lastedited">
+					{vb:rawphrase updated_date_at_time_by_user, {vb:raw blog.edit_date}, {vb:raw blog.edit_time}, {vb:link member, {vb:raw blog}, '', edit_userid, edit_username}, {vb:raw blog.edit_username}}
+					<vb:if condition="$blog['edit_reason']"><span class="shade">({vb:raw blog.edit_reason})</span></vb:if>
+				</p>
+				</vb:if>
+
+				<vb:if condition="$show['tags'] AND !$show['notags']">
+				<p>{vb:rawphrase tags}: {vb:raw blog.tag_list}</p>
+				</vb:if>
+			
+				<vb:if condition="$blog[categorybits]">
+				<p>{vb:rawphrase categories}: {vb:raw blog.categorybits}</p>
+				</vb:if>
+			</blockquote>
+
+			<vb:if condition="$show['attachments']">
+				<!-- attachments -->
+				<div class="blogattachments">
+					<img src="{vb:stylevar imgdir_misc}/paperclip.png" class="inlineimg" /> 
+					<vb:if condition="$show['thumbnailattachment']">
+						<fieldset class="blogcontent">
+							<legend>{vb:rawphrase attached_thumbnails}</legend>
+							{vb:raw blog.thumbnailattachments}
+						</fieldset>
+					</vb:if>
+					<vb:if condition="$show['imageattachment']">
+						<fieldset class="blogcontent">
+							<legend>{vb:rawphrase attached_images}</legend>
+							{vb:raw blog.imageattachments}
+						</fieldset>
+					</vb:if>
+					<vb:if condition="$show['imageattachmentlink']">
+						<fieldset class="blogcontent">
+							<legend>{vb:rawphrase attached_images}</legend>
+							<ul>
+							{vb:raw blog.imageattachmentlinks}
+							</ul>
+							</fieldset>
+					</vb:if>
+					<vb:if condition="$show['otherattachment']">
+						<fieldset class="fieldset">
+							<legend>{vb:rawphrase attached_files}</legend>
+							<ul>
+							{vb:raw blog.otherattachments}
+							</ul>
+						</fieldset>
+					</vb:if>
+				</div>
+				<!-- / attachments -->
+			</vb:if>
+		</div>
+	</div>
+	
+	<div class="blogfoot">
+		<div class="blog_comments_count">
+			<vb:if condition="$show['gotonewcomment'] AND $blog['comments_visible'] != '0'">
+				<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog.php?{vb:raw session.sessionurl}b={vb:raw blog.blogid}&amp;goto=newpost"><img class="inlineimg" src="{vb:stylevar imgdir_button}/firstnew-comment.png" alt="{vb:rawphrase go_to_first_new_comment}" /></a>
+			<vb:else />
+				<img border="0" alt="{vb:rawphrase comments}" src="{vb:stylevar imgdir_misc}/comment.png" title="{vb:rawphrase comments}"/>
+			</vb:if>
+			
+			<a href="{vb:link entry, {vb:raw blog}}&amp;comments" class="comments">{vb:raw blog.comments_visible} <vb:if condition="$blog['comments_visible'] == '1'">{vb:rawphrase comment}<vb:else />{vb:rawphrase comments}</vb:if></a>
+			
+			<vb:if condition="$show['comment_moderation']">
+				<img class="inlineimg" src="{vb:stylevar imgdir_misc}/moderated_small.png" alt="{vb:rawphrase moderated_comments} {vb:raw blog.hidden}" />
+			</vb:if>
+			<vb:if condition="$show['edit']">
+				<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?{vb:raw session.sessionurl}do=editblog&amp;b={vb:raw blog.blogid}" class="edit_blog"><img src="{vb:stylevar imgdir_cms}/edit_small.png" alt="{vb:rawphrase edit_blog_entry}" class="inlineimg" id="entry_edit_{vb:raw blog.blogid}" />{vb:rawphrase edit}</a>
+			</vb:if>
+		</div>
+		
+		<vb:if condition="$show['readmore']">
+			<div class="continuereading"><a href="{vb:link entry, {vb:raw blog}}">{vb:rawphrase continue_reading}</a><img alt="{vb:rawphrase continue_reading}" src="{vb:stylevar imgdir_cms}/read_more-{vb:stylevar right}.png" title="{vb:rawphrase continue_reading}"/></div>
+		</vb:if>
+	</div>
+</li>]]></template>
+		<template name="blog_inlinemod_delete_comments" templatetype="template" date="1300288588" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<div id="pagetitle" class="pagetitle ui-bar-b">
+	<h1 class="pagetitle">{vb:rawphrase delete_comments}</h1>
+</div>
+
+<div data-role="content">
+	<form action="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_inlinemod.php?b={vb:raw bloginfo.blogid}&amp;blogtextids={vb:raw blogtextids}" method="post" name="vbform" class="block">
+		<h3 class="ui-bar ui-bar-d">{vb:rawphrase deletion_options}</h3>
+		<p class="singledescription">{vb:rawphrase deleting_x_comments_from_y_blog_entries, {vb:raw commentcount}, {vb:raw blogcount}}</p>
+
+		<vb:if condition="$show['deleteoption']">
+			<fieldset data-role="controlgroup">
+				<legend>{vb:rawphrase how_would_you_like_to_delete}...</legend>
+				<vb:if condition="$show['deletecomments']">
+					<input type="radio" name="deletetype" id="rb_soft_delete" value="1" {vb:raw checked.delete} tabindex="1" />
+					<label for="rb_soft_delete">{vb:rawphrase soft_delete_leave_deleted_message}</label>
+				</vb:if>
+				<vb:if condition="$show['removecomments']">
+					<input type="radio" name="deletetype" id="rb_hard_delete" value="2" {vb:raw checked.remove} tabindex="1" />
+					<label for="rb_hard_delete">{vb:rawphrase physically_remove}</label>
+				</vb:if>
+			</fieldset>
+		</vb:if>
+		
+		<vb:if condition="$show['deletecomments']">
+			<label for="input_deletereason">{vb:rawphrase reason_for_deletion}</label>
+			<input type="text" class="primary textbox" name="deletereason" id="input_deletereason" value="" size="50" maxlength="125" tabindex="1" />
+		</vb:if>
+		
+		<button type="submit" data-theme="e">{vb:rawphrase delete}</button>
+		
+		<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+		<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+		<input type="hidden" name="b" value="{vb:raw bloginfo.blogid}" />
+		<input type="hidden" name="bt" value="{vb:raw blogtextinfo.blogtextid}" />
+		<input type="hidden" name="blogtextids" value="{vb:raw blogtextids}" />
+		<input type="hidden" name="do" value="dodeletecomment" />
+		<input type="hidden" name="url" value="{vb:raw url}"  />
+	</form>
+</div>]]></template>
+		<template name="blog_inlinemod_delete_profile_comments" templatetype="template" date="1296464793" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[{vb:stylevar htmldoctype}
+<html xmlns="http://www.w3.org/1999/xhtml"<vb:if condition="$vboptions['enablefacebookconnect']"> xmlns:fb="http://www.facebook.com/2008/fbml"</vb:if> dir="{vb:stylevar textdirection}" lang="{vb:stylevar languagecode}" id="vbulletin_html">
+<head>
+	{vb:raw headinclude}
+	<title>{vb:raw vboptions.bbtitle}</title>
+	{vb:raw headinclude_bottom}
+</head>
+<body>
+
+{vb:raw header}
+
+{vb:raw navbar}
+
+<div id="pagetitle" class="pagetitle ui-bar-b">
+	<h1 class="pagetitle">{vb:rawphrase vbulletin_message}</h1>
+</div>
+
+<div data-role="content">	
+	<div class="ui-body ui-body-e">{vb:rawphrase content_not_supported_by_mobile_style, {vb:link forumhome}}</div>
+</div>
+
+{vb:raw footer}
+
+</body>
+</html>]]></template>
+		<template name="blog_list_entries" templatetype="template" date="1309785914" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<div id="pagetitle" class="pagetitle ui-bar-b">
+	<h1 class="pagetitle"><vb:if condition="$show['category_description']">{vb:rawphrase category}: {vb:raw categoryinfo.title}<vb:else /><vb:if condition="$show['bloghome']">{vb:rawphrase blog_posts}<vb:elseif condition="$blogheader['title']" />{vb:raw blogheader.title}<vb:elseif condition="$userinfo['username']" />{vb:rawphrase x_blog, {vb:raw userinfo.username}}<vb:elseif condition="$blogtype == 'best'" />{vb:rawphrase popular}<vb:else />{vb:rawphrase blog_posts}</vb:if></vb:if></h1>
+</div>
+
+<div data-role="content">
+	<vb:if condition="!$bbuserinfo['userid']">
+		<a href="register.php{vb:raw session.sessionurl_q}" rel="external" data-role="button" data-icon="plus" data-inline="true">{vb:rawphrase create_blog}</a>
+	<vb:elseif condition="$show['postblog'] OR $show['postgroupblog']" />
+		<vb:if condition="$show['postgroupblog']">
+			<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?{vb:raw session.sessionurl}do=newblog&amp;u={vb:raw userinfo.userid}" rel="external" data-role="button" data-icon="plus" data-inline="true">{vb:rawphrase create_blog}</a>
+		<vb:else />
+			<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?{vb:raw session.sessionurl}do=newblog" rel="external" data-role="button" data-icon="plus" data-inline="true">{vb:rawphrase create_blog}</a>
+		</vb:if>
+	</vb:if>
+
+	<a href="#" class="blogcategorylink" data-role="button" data-inline="true" data-theme="e">{vb:rawphrase cats}</a>
+
+	<div class="content_container">
+		<vb:if condition="!$userinfo['userid'] OR $bbuserinfo['userid'] == $userinfo['userid']">
+		<div id="blognav" data-role="navbar">
+			<ul>
+				<li><a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog.php{vb:raw session.sessionurl_q}"<vb:if condition="$show['bloghome'] OR $blogtype == 'recent' AND !$userinfo['username']"> class="ui-btn-active"</vb:if> data-theme="c" rel="external">{vb:rawphrase newest}</a></li>
+				<li><a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog.php?{vb:raw session.sessionurl}do=list&amp;blogtype=best"<vb:if condition="$blogtype == 'best'"> class="ui-btn-active"</vb:if> data-theme="c" rel="external">{vb:rawphrase popular}</a></li>
+				<vb:if condition="$show['member']">
+				<li><a href="{vb:link blog, {vb:raw bbuserinfo}, null, 'userid', 'blog_title'}"<vb:if condition="$userinfo['username']"> class="ui-btn-active"</vb:if> data-theme="c" rel="external">{vb:rawphrase your_blog}</a></li>
+				</vb:if>
+			</ul>
+		</div>
+		</vb:if>
+
+		<ol class="bloglist">
+			<vb:if condition="$show['featured']">
+				{vb:raw featured_blogbits}
+			</vb:if>
+			<vb:if condition="$blogbits">
+				{vb:raw blogbits}
+			</vb:if>
+		</ol>
+
+		{vb:raw pagenav}
+	</div>
+</div>]]></template>
+		<template name="blog_postbit_blog_this_post" templatetype="template" date="1291715261" username="vBulletin Solutions" version="4.1.0"><![CDATA[<a class="blog" href="blog_post.php?{vb:raw session.sessionurl}do=newblog&amp;p={vb:raw post.postid}">&nbsp;</a>]]></template>
+		<template name="blog_reportitem" templatetype="template" date="1300972253" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<div id="pagetitle" class="pagetitle ui-bar-b">
+	<h1 class="pagetitle">{vb:raw forminfo.reportphrase}</h1>
+	<p class="description">{vb:raw forminfo.reporttype}: <a href="{vb:raw forminfo.itemlink}">{vb:raw forminfo.itemname}</a></p>
+</div>
+
+<div data-role="content">
+	<form  class="block" action="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_report.php?do={vb:raw forminfo.action}" method="post" data-ajax="false">
+		{vb:raw usernamecode}
+		
+		<div data-role="fieldcontain">
+			<label for="message">{vb:rawphrase message}:</label>
+			<textarea name="reason" id="message" rows="6" cols="50" tabindex="1"></textarea>
+			<p class="description">{vb:raw forminfo.description}</p>
+		</div>
+		
+		<button type="submit" data-theme="a">{vb:rawphrase send_report}</button>
+		
+		{vb:raw forminfo.hiddenfields}
+		<input type="hidden" name="do" value="{vb:raw forminfo.action}" />
+		<input type="hidden" name="url" value="{vb:raw url}" />
+		<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+		<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+	</form>
+</div>]]></template>
+		<template name="blog_search_results_result" templatetype="template" date="1314895098" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<li class="threadbit threadinfo blogentry ui-li-has-icon" id="search_blog_{vb:raw blog.blogid}" title="{vb:raw blog.previewtext}">
+	<div class="ui-li-icon threadstatus"></div>
+	<h3><a href="{vb:link entry, {vb:raw blog}}" title="{vb:raw blog.previewtext}">{vb:raw blog.title}</a></h3>
+	<p>
+		{vb:rawphrase posted_by}
+		<a href="{vb:link member, {vb:raw blog}}" class="username">{vb:raw blog.postedby_username}</a>
+		{vb:date {vb:raw dateline}, {vb:raw dateformat}} <span class="time">{vb:date {vb:raw dateline}, {vb:raw timeformat}}</span>
+	</p>
+	<p>
+		{vb:rawphrase comments}: {vb:raw blog.comments_total}, {vb:rawphrase trackbacks}: {vb:raw blog.trackbacks_total}, {vb:rawphrase last_post_by}: {vb:rawphrase last_post}: {vb:raw blog.lastpostdate} <span class="time">{vb:raw blog.lastposttime}</span> {vb:rawphrase by_xlink_yguest, {vb:link member, {vb:raw blog}}, {vb:raw blog.lastcommenter}} &nbsp; <a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog.php?{vb:raw session.sessionurl}b={vb:raw blog.blogid}&amp;goto=newpost"><img src="{vb:stylevar imgdir_button}/lastpost-{vb:stylevar right}.png" alt="{vb:rawphrase go_to_last_post}" /></a>
+	</p>
+	<p>
+		{vb:rawphrase blog}: <a href="{vb:link blog, {vb:raw blog}, null, 'userid', 'blogtitle'}" title="{vb:raw blog.blogtitle}"><vb:if condition="$show['blogtitle']">{vb:raw blog.blogtitle}<vb:else />{vb:rawphrase x_blog, {vb:raw blog.postedby_username}}</vb:if></a>
+	</p>
+</li>]]></template>
+		<template name="blog_send_to_friend" templatetype="template" date="1301933531" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<div id="pagetitle" class="pagetitle ui-bar-b">
+	<h1 class="pagetitle">{vb:rawphrase send_page_to_a_friend}</h1>
+	<p class="description">{vb:rawphrase blog_entry} <a href="{vb:link entry, {vb:raw bloginfo}}" title="{vb:raw bloginfo.title}">{vb:raw bloginfo.title_trimmed}</a></p>
+</div>
+
+<div data-role="content">
+	<vb:if condition="$show['errors']">
+		<h4 class="ui-bar ui-bar-e">{vb:rawphrase errors_occured_when_submitted}</h4>
+		<div class="ui-body ui-body-e">
+			<ul class="blockrow">
+				{vb:raw errormessages}
+			</ul>
+		</div>
+	</vb:if>
+
+	<form action="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog.php?do=dosendtofriend&amp;b={vb:raw bloginfo.blogid}" method="post" class="block" data-ajax="false">
+		{vb:raw usernamecode}
+
+		<vb:if condition="$imagereg OR $human_verify">
+			{vb:raw human_verify}
+		</vb:if>
+		
+		<div data-role="fieldcontain">
+			<label for="sendtoname">{vb:rawphrase recipient_name}:</label>
+			<input type="text" id="sendtoname" name="sendtoname" size="50" maxlength="75" value="{vb:raw stf.name}" tabindex="1" />
+			<label for="sendtoemail">{vb:rawphrase recipient_email_address}:</label>
+			<input type="text" id="sendtoemail" name="sendtoemail" size="50" maxlength="100" value="{vb:raw stf.email}" tabindex="1" />
+		</div>
+		
+		<div data-role="fieldcontain">
+			<label for="emailsubject">{vb:rawphrase email_subject}:</label>
+			<input type="text" id="emailsubject" name="emailsubject" value="{vb:raw stf.title}" size="50" maxlength="100" tabindex="1" />
+			<label for="emailmessage">{vb:rawphrase message}:</label>
+			<textarea id="emailmessage" name="emailmessage" rows="10" cols="50" tabindex="1">{vb:raw stf.message}</textarea>
+		</div>
+		
+		<button type="submit" data-theme="a">{vb:rawphrase send_message}</button>
+		
+		<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+		<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+		<input type="hidden" name="do" value="dosendtofriend" />
+		<input type="hidden" name="b" value="{vb:raw bloginfo.blogid}" />
+		<input type="hidden" name="url" value="{vb:raw url}" />
+	</form>
+</div>]]></template>
+		<template name="blog_show_entry" templatetype="template" date="1322569362" username="vBulletin Solutions" version="4.1.9 Beta 1"><![CDATA[<div id="pagetitle" class="pagetitle ui-bar-b">
+	<h1 class="pagetitle">{vb:rawphrase blog_detail}</h1>
+</div>
+
+<div data-role="content">
+	<div id="memberinfoheader" class="memberinfoheader floatcontainer">
+		<div id="avatar" class="avatar blogavatar"></div>
+		<h3><vb:if condition="$bloginfo['blog_title']">{vb:raw bloginfo.blog_title}<vb:elseif condition="$bloginfo['username']" />{vb:rawphrase x_blog, {vb:raw bloginfo.username}}</vb:if></h3>
+		<div id="userinfo" class="userinfo"></div>
+	</div>
+	
+	<div class="blogentrybody ui-body ui-body-d">
+		<h3 class="blogentrytitle">
+			{vb:raw bloginfo.title}
+			<vb:if condition="$show['editentry']">
+				<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?{vb:raw session.sessionurl}do=editblog&amp;b={vb:raw bloginfo.blogid}" class="edit_blog"><img src="{vb:stylevar imgdir_cms}/edit_small.png" class="inlineimg" alt="{vb:rawphrase edit_blog_entry}" id="entry_edit_{vb:raw bloginfo.blogid}" /></a>
+			</vb:if>
+		</h3>
+		<div class="blogentrycomments">
+			<a href="{vb:link entry, {vb:raw blog}}&amp;comments" class="blogcommentslink"><img src="{vb:stylevar imgdir_button}/firstnew-comment.png"> {vb:raw blog.comments_visible} <vb:if condition="$blog['comments_visible'] == '1'">{vb:rawphrase comment}<vb:else />{vb:rawphrase comments}</vb:if></a>
+			<vb:if condition="$show['tags']">
+			<span class="tags" id="blogtagcontainer_{vb:raw blog.blogid}">
+				<strong>{vb:rawphrase tags}</strong>:
+				<span id="blogtaglist_{vb:raw blog.blogid}">
+					<vb:if condition="$show['notags']">
+					{vb:rawphrase none}
+					<vb:else />
+					{vb:raw blog.tag_list}
+					</vb:if>
+				</span>
+			</span>
+			</vb:if>
+		</div>
+		<div class="blogcontrols">
+			<vb:if condition="$show['fb_likebutton']">
+				{vb:raw fblikebutton}
+			</vb:if>
+		</div>
+		<div id="entry_text_{vb:raw blog.blogid}" class="blogentry">
+			<blockquote class="blogcontent restore floatcontainer">
+				{vb:raw blog.message}
+				<vb:if condition="$show['entryedited']">
+				<p class="lastedited">
+					{vb:rawphrase updated_date_at_time_by_user, {vb:raw blog.edit_date}, {vb:raw blog.edit_time}, {vb:link member, {vb:raw blog}, '', edit_userid, edit_username}, {vb:raw blog.edit_username}}
+					<vb:if condition="$blog['edit_reason']"><span class="shade">({vb:raw blog.edit_reason})</span></vb:if>
+				</p>
+				</vb:if>
+			</blockquote>
+		</div>
+		
+		<vb:if condition="$show['attachments']">
+		<div class="blogattachments">
+		<!-- attachments -->
+			<div id="attachmentlist">
+
+			<vb:if condition="$show['thumbnailattachment']">
+				<fieldset>
+					<legend><img src="{vb:stylevar imgdir_misc}/paperclip.png" class="inlineimg" alt="{vb:rawphrase attached_thumbnails}" /> {vb:rawphrase attached_thumbnails}</legend>
+					{vb:raw blog.thumbnailattachments}
+				</fieldset>
+			</vb:if>
+			<vb:if condition="$show['imageattachment']">
+				<fieldset>
+					<legend><img src="{vb:stylevar imgdir_misc}/paperclip.png" class="inlineimg" alt="{vb:rawphrase attached_thumbnails}" /> {vb:rawphrase attached_images}</legend>
+					{vb:raw blog.imageattachments}
+				</fieldset>
+			</vb:if>
+			<vb:if condition="$show['imageattachmentlink']">
+				<fieldset>
+					<legend><img src="{vb:stylevar imgdir_misc}/paperclip.png" class="inlineimg" alt="{vb:rawphrase attached_thumbnails}" /> {vb:rawphrase attached_images}</legend>
+					<ul>
+					{vb:raw blog.imageattachmentlinks}
+					</ul>
+				</fieldset>
+			</vb:if>
+			<vb:if condition="$show['otherattachment']">
+				<fieldset>
+					<legend><img src="{vb:stylevar imgdir_misc}/paperclip.png" class="inlineimg" alt="{vb:rawphrase attached_thumbnails}" /> {vb:rawphrase attached_files}</legend>
+					<ul>
+					{vb:raw blog.otherattachments}
+					</ul>
+				</fieldset>
+			</vb:if>
+			</div>
+		</div>
+		<!-- / attachments -->
+		</vb:if>
+		
+		<div class="blogfooter">
+			<vb:if condition="$show['member']">
+				<div>
+					<vb:if condition="$show['entrysubscribed']">
+						<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_subscription.php?{vb:raw session.sessionurl}do=unsubscribe&amp;b={vb:raw bloginfo.blogid}"><img src="{vb:stylevar imgdir_misc}/blog/newspaper_delete.png" class="inlineimg" alt="{vb:rawphrase unsubscribe_from_this_blog_entry}" /> {vb:rawphrase unsubscribe_from_this_blog_entry}</a>
+					<vb:else />
+						<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_subscription.php?{vb:raw session.sessionurl}do=subscribe&amp;b={vb:raw bloginfo.blogid}"><img src="{vb:stylevar imgdir_misc}/blog/newspaper_add.png" class="inlineimg" alt="{vb:rawphrase subscribe_to_blog_entry}" /> {vb:rawphrase subscribe_to_blog_entry}</a>
+					</vb:if>
+				</div>
+			</vb:if>
+			<vb:if condition="$show['reportlink'] OR $show['emailentry']">
+				<div>
+			</vb:if>
+				<vb:if condition="$show['reportlink']">
+					<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_report.php?{vb:raw session.sessionurl}b={vb:raw bloginfo.blogid}" rel="external"><img src="{vb:stylevar imgdir_misc}/blog/report.png" class="inlineimg" alt="{vb:rawphrase report_blog_entry}" /> {vb:rawphrase report_blog_entry}</a>
+				</vb:if>
+				<vb:if condition="$show['emailentry']">
+					<a href="{vb:link entry, {vb:raw bloginfo}, {vb:raw pageinfo_sf}}"><img src="{vb:stylevar imgdir_misc}/blog/email_go.png" class="inlineimg" alt="{vb:rawphrase email_blog_entry}" /> {vb:rawphrase email_blog_entry}</a>
+				</vb:if>
+			<vb:if condition="$show['reportlink'] OR $show['emailentry']">
+				</div>
+			</vb:if>
+		</div>
+	</div>
+	
+	<vb:if condition="!$show['entryonly']">
+		<div data-role="controlgroup" data-type="horizontal" class="modbuttongroup">
+			<vb:if condition="$show['postcomment']"><a href="#" class="blogpostcommentlink" data-role="button" data-icon="plus" data-inline="true">{vb:rawphrase post_a_comment}</a></vb:if>
+			<vb:if condition="$show['inlinemod']">
+				<button type="button" name="moderate" data-theme="c" data-icon="grid" data-iconpos="notext">Moderate</button>
+			</vb:if>
+		</div>
+		<div class="comments">
+			<vb:if condition="$responsebits">
+				<vb:if condition="$show['inlinemod']">
+				<form action="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_inlinemod.php?b={vb:raw bloginfo.blogid}" method="post" id="commentform" class="block" data-ajax="false">
+				</vb:if>
+				
+					<h3 class="ui-bar ui-bar-d">{vb:rawphrase comments}</h3>
+					{vb:raw pagenav}
+					<ol id="posts" class="posts">
+						{vb:raw responsebits}
+					</ol>
+					{vb:raw pagenav}
+					
+					<div data-role="controlgroup" data-type="horizontal" class="modbuttongroup">
+						<vb:if condition="$show['postcomment']"><a href="#" class="blogpostcommentlink" data-role="button" data-icon="plus" data-inline="true">{vb:rawphrase post_a_comment}</a></vb:if>
+						<vb:if condition="$show['inlinemod']">
+							<button type="button" name="moderate" data-theme="c" data-icon="grid" data-iconpos="notext">Moderate</button>
+						</vb:if>
+					</div>
+					
+					<vb:if condition="$show['inlinemod']">
+						<div class="inlinemodbuttons">
+							<vb:if condition="$show['delete']">
+								<button type="submit" class="inlinemod" name="deletecomment" data-theme="e">{vb:rawphrase delete_comments}&hellip;</button>
+							</vb:if>
+							<vb:if condition="$show['undelete']">
+								<button type="submit" class="inlinemod" name="undeletecomment" data-theme="e">{vb:rawphrase undelete_comments}</button>
+							</vb:if>
+							<vb:if condition="$show['approve']">
+								<button type="submit" class="inlinemod" name="approvecomment" data-theme="e">{vb:rawphrase approve_comments}</button>
+								<button type="submit" class="inlinemod" name="unapprovecomment" data-theme="e">{vb:rawphrase unapprove_comments}</button>
+							</vb:if>
+						</div>
+					</vb:if>
+					
+				<vb:if condition="$show['inlinemod']">
+					<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+					<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+					<input type="hidden" name="b" value="{vb:raw bloginfo.blogid}" />
+					<input type="hidden" name="bt" value="{vb:raw blogtextinfo.blogtextid}" />
+					<input type="hidden" name="url" value="{vb:raw url}" />
+					<input type="hidden" name="userid" value="{vb:raw bloginfo.userid}" />
+				</form>
+				</vb:if>
+			</vb:if>
+
+			<vb:if condition="$show['postcomment']">
+				<form action="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_post.php?{vb:raw session.sessionurl}do=postcomment" method="post" name="vbform" id="qc_form" data-ajax="false">
+					
+					<h3 class="ui-bar ui-bar-d">{vb:rawphrase post_a_comment}</h3>
+									
+					{vb:raw messagearea}
+					
+					<button type="submit" name="sbutton" data-theme="a">{vb:rawphrase post_now}</button>
+
+					<input type="hidden" name="fromquickcomment" value="1" />
+					<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+					<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+					<input type="hidden" name="do" value="postcomment" />
+					<input type="hidden" name="b" value="{vb:raw bloginfo.blogid}" />
+					<input type="hidden" name="loggedinuser" value="{vb:raw bbuserinfo.userid}" />
+					<input type="hidden" name="parseurl" value="1" />
+					<input type="hidden" name="allow_ajax_qc" value="{vb:raw allow_ajax_qc}" />
+					<input type="hidden" name="lastcomment" value="{vb:raw effective_lastcomment}" />
+				</form>
+
+				<script type="text/javascript">
+				<!--
+					$('[data-role=page]').live('pagecreate', function(event){
+						$('#message', this).textinput();
+					});
+				//-->
+				</script>
+			</vb:if>
+		</div>
+	</vb:if>
+</div>]]></template>
+		<template name="blog_sidebar_category_link" templatetype="template" date="1297255663" username="vBulletin Solutions" version="4.1.2"><![CDATA[<vb:if condition="$show['ul']">
+	<ul>
+</vb:if>
+<li>
+	<vb:if condition="$blog['userid']">
+		<a href="{vb:link blog, {vb:raw blog}, {vb:raw pageinfo}}" title="{vb:raw category.title}">{vb:raw category.title}</a>
+	<vb:else />
+		<a href="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog.php?{vb:raw session.sessionurl}blogcategoryid={vb:raw category.blogcategoryid}" title="{vb:raw category.title}">{vb:raw category.title}</a>
+	</vb:if>
+]]></template>
+		<template name="blog_sidebar_generic" templatetype="template" date="1296553625" username="vBulletin Solutions" version="4.1.2"><![CDATA[<vb:if condition="$sidebar['categorybits']">
+	<div class="categories">
+		<ul data-role="listview">
+			<li data-role="list-divider">{vb:rawphrase blog_categories}</li>
+			{vb:raw sidebar.categorybits}
+		</ul>
+		<button class="categoriesback">{vb:rawphrase back_to_bloglist}</button>
+	</div>
+</vb:if>]]></template>
+		<template name="blog_sidebar_user" templatetype="template" date="1297009931" username="vBulletin Solutions" version="4.1.2"><![CDATA[<div class="blogusername"><a class="username <vb:if condition="$userinfo['onlinestatus'] == 1">online<vb:elseif condition="$userinfo['onlinestatus'] == 2" />invisible<vb:else />offline</vb:if> username" href="{vb:link member, {vb:raw userinfo}}">{vb:raw userinfo.username}</a></div>
+<div class="bloguseravatar">
+	<vb:if condition="$show['profilepic']">
+	<a class="avatar" href="{vb:link member, {vb:raw userinfo}}" title="{vb:rawphrase xs_avatar, {vb:raw userinfo.username}}">
+		<span class="avatarcontainer"><img src="{vb:raw userinfo.profilepicurl}" alt="{vb:rawphrase xs_avatar, {vb:raw userinfo.username}}" /></span>
+	</a>
+	<vb:elseif condition="$show['avatar']" />
+	<a class="avatar" href="{vb:link member, {vb:raw userinfo}}" title="{vb:rawphrase xs_profilepic, {vb:raw userinfo.username}}">
+		<span class="avatarcontainer"><img src="{vb:raw userinfo.avatarurl}" alt="{vb:rawphrase xs_profilepic, {vb:raw userinfo.username}}" /></span>
+	</a>
+	<vb:else />
+	<a class="avatar" href="{vb:link member, {vb:raw userinfo}}" title="{vb:rawphrase xs_avatar, {vb:raw userinfo.username}}">
+		<span class="avatarcontainer"><img src="{vb:stylevar imgdir_misc}/unknown.gif" alt="{vb:rawphrase xs_avatar, {vb:raw userinfo.username}}" /></span>
+	</a>
+	</vb:if>
+</div>
+{vb:raw sidebar.user_customized_blocks}]]></template>
+		<template name="blog_sidebar_user_block_archive" templatetype="template" date="1297010093" username="vBulletin Solutions" version="4.1.2" />
+		<template name="blog_sidebar_user_block_category" templatetype="template" date="1297009636" username="vBulletin Solutions" version="4.1.2"><![CDATA[<vb:if condition="$sidebar['localcategorybits'] OR $sidebar['globalcategorybits']">
+	<div class="categories">
+		<ul data-role="listview">
+			<vb:if condition="$show['globalcats']">
+				<li data-role="list-divider">{vb:rawphrase global_categories}</li>
+				{vb:raw sidebar.globalcategorybits}
+			</vb:if>
+			<vb:if condition="$show['localcats']">
+				<li data-role="list-divider">{vb:rawphrase local_categories}</li>
+				{vb:raw sidebar.localcategorybits}
+			</vb:if>
+		</ul>
+		<button class="categoriesback">{vb:rawphrase back_to_bloglist}</button>
+	</div>
+</vb:if>]]></template>
+		<template name="blog_sidebar_user_block_comments" templatetype="template" date="1297010086" username="vBulletin Solutions" version="4.1.2" />
+		<template name="blog_sidebar_user_block_custom" templatetype="template" date="1297010079" username="vBulletin Solutions" version="4.1.2" />
+		<template name="blog_sidebar_user_block_entries" templatetype="template" date="1297010099" username="vBulletin Solutions" version="4.1.2" />
+		<template name="blog_sidebar_user_block_search" templatetype="template" date="1297010105" username="vBulletin Solutions" version="4.1.2" />
+		<template name="blog_sidebar_user_block_tagcloud" templatetype="template" date="1297010111" username="vBulletin Solutions" version="4.1.2" />
+		<template name="blog_sidebar_user_block_visitors" templatetype="template" date="1297010117" username="vBulletin Solutions" version="4.1.2" />
+		<template name="blog_subscribe_to_item" templatetype="template" date="1301666492" username="vBulletin Solutions" version="4.1.6 Beta 1"><![CDATA[<div id="pagetitle" class="pagetitle ui-bar-b">
+	<h1 class="pagetitle">
+		<vb:if condition="$bloginfo['blogid']">
+			{vb:rawphrase subscribe_to_blog_entry}
+		<vb:else />
+			{vb:rawphrase subscribe_to_this_blog}
+		</vb:if>
+	</h1>
+	<p class="description">
+		<vb:if condition="$bloginfo['blogid']">
+			{vb:rawphrase blog_entry}: <a href="{vb:link entry, {vb:raw bloginfo}}" title="{vb:raw bloginfo.title}">{vb:raw bloginfo.title_trimmed}</a>
+		<vb:else />
+			{vb:rawphrase blog}: <a class="normal" href="{vb:link blog, {vb:raw userinfo}, null, 'userid', 'blog_title'}">{vb:raw userinfo.blog_title}</a>
+		</vb:if>
+	</p>
+</div>
+
+<div data-role="content">
+	<form action="{vb:raw $vboptions.vbblog_url}{vb:if "$vboptions['vbblog_url']", '/', ''}blog_subscription.php?do=dosubscribe&amp;b={vb:raw bloginfo.blogid}" method="post" class="block" data-ajax="false">
+
+		<div data-role="fieldcontain">
+			<label for="type">{vb:rawphrase notification_type}</label>
+			<select name="emailupdate" tabindex="1">
+				<option value="usercp">{vb:rawphrase no_email_notification}</option>
+				<option value="email">{vb:rawphrase instant_notification_by_email}</option>
+			</select>
+		</div>
+		
+		<button type="submit" data-theme="a">{vb:rawphrase add_subscription}</button>
+		
+		<input type="hidden" name="s" value="{vb:raw session.sessionhash}" />
+		<input type="hidden" name="securitytoken" value="{vb:raw bbuserinfo.securitytoken}" />
+		<input type="hidden" name="do" value="dosubscribe" />
+		<input type="hidden" name="b" value="{vb:raw bloginfo.blogid}"  />
+		<input type="hidden" name="userid" value="{vb:raw userinfo.userid}"  />
+		<input type="hidden" name="url" value="{vb:raw url}"  />
+	</form>
+</div>]]></template>
+		<template name="blog_taglist" templatetype="template" date="1331142476" username="vBulletin Solutions" version="4.1.12 Alpha 1"><![CDATA[<vb:each from="tag_list" value="row">
+	<vb:if condition="$userinfo['userid']">
+		<a href="{vb:link blog, {vb:raw userinfo}, {vb:raw row.pageinfo}, 'userid', 'blog_title'}">{vb:raw row.tag}</a>{vb:raw row.comma}
+	<vb:else />
+		<a href="{vb:raw vbblog_url}blog.php?{vb:raw session.sessionurl}tag={vb:raw row.url}">{vb:raw row.tag}</a>{vb:raw row.comma}
+	</vb:if>
+</vb:each>]]></template>
+	</templategroup>
+	<templategroup name="Search">
+		<template name="search_input_blogcomment" templatetype="template" date="1299075589" username="vBulletin Solutions" version="4.1.2"><![CDATA[<form action="search.php?do=process" method="post" name="vbform" id="searchform">
+	<h3 class="ui-bar ui-bar-d">{vb:rawphrase search_for_blog_comments}</h3>
+	
+	<div data-role="fieldcontain">
+		<fieldset data-role="controlgroup">
+		<legend>{vb:rawphrase key_words}:</legend>
+		<input id="keyword" type="text" class="textbox" name="query" tabindex="1" value="{vb:raw query}" />
+		
+		<select id="titleonly" name="titleonly" tabindex="1">
+			<option value="0" {vb:raw titleonlyselected.0}>{vb:rawphrase search_description_title}</option>
+			<option value="1" {vb:raw titleonlyselected.1}>{vb:rawphrase search_titles_only}</option>
+		</select>
+		</fieldset>
+	</div>
+	
+	<div data-role="fieldcontain">
+		<fieldset data-role="controlgroup">
+		<legend>{vb:rawphrase username}:</legend>
+		<input type="text" class="textbox" name="searchuser" id="userfield_txt" tabindex="1" value="{vb:raw searchuser}" />
+		<select name="starteronly" tabindex="1">
+			<option value="0" {vb:raw starteronlyselected.0} >{vb:rawphrase comments_by}</option>
+			<option value="1" {vb:raw starteronlyselected.1} >{vb:rawphrase blogs_by}</option>
+		</select>
+		
+		<input type="checkbox" name="exactname" value="1" tabindex="1" id="cb_exactname" {vb:raw exactnamechecked} />
+		<label for="cb_exactname">{vb:rawphrase exact_name}</label>
+		</fieldset>
+	</div>
+	
+	<vb:if condition="$show['nocache']">
+		<input type="checkbox" name="nocache" value="1" id="cb_nocache" tabindex="1" {vb:raw nocachechecked}/>
+		<label for="cb_nocache" class="rightcol">{vb:rawphrase do_not_use_cached_results}</label>
+	</vb:if>
+	
+	<button type="submit" data-theme="a">{vb:rawphrase search_now}</button>
+
+	<h3 class="ui-bar ui-bar-d">{vb:rawphrase additional_options}</h3>
+	<div data-role="fieldcontain">
+		<fieldset data-role="controlgroup">
+		<legend>{vb:rawphrase search_from}:</legend>
+		<select id="searchdate" name="searchdate" tabindex="1">
+			<option value="0" {vb:raw searchdateselected.0}>{vb:rawphrase any_date}</option>
+			<option value="lastvisit" {vb:raw searchdateselected.lastvisit}>{vb:rawphrase your_last_visit}</option>
+			<option value="1" {vb:raw searchdateselected.1}>{vb:rawphrase yesterday}</option>
+			<option value="7" {vb:raw searchdateselected.7}>{vb:rawphrase a_week_ago}</option>
+			<option value="14" {vb:raw searchdateselected.14}>{vb:rawphrase x_weeks_ago, 2}</option>
+			<option value="30"{vb:raw searchdateselected.30}]> {vb:rawphrase a_month_ago}</option>
+			<option value="90" {vb:raw searchdateselected.90}>{vb:rawphrase x_months_ago, 3}</option>
+			<option value="180" {vb:raw searchdateselected.180}>{vb:rawphrase x_months_ago, 6}</option>
+			<option value="365" {vb:raw searchdateselected.365}>{vb:rawphrase a_year_ago}</option>
+		</select>
+		
+		<select name="beforeafter" tabindex="1">
+			<option value="after" {vb:raw beforeafterselected.0} >{vb:rawphrase and_newer}</option>
+			<option value="before" {vb:raw beforeafterselected.1} >{vb:rawphrase and_older}</option>
+		</select>
+		</fieldset>
+	</div>
+
+	<div data-role="fieldcontain">
+		<fieldset data-role="controlgroup">
+		<legend>{vb:rawphrase sort_results_by}:</legend>
+		<select id="sortby" name="sortby" tabindex="1">
+			<option value="title" {vb:raw sortbyselected.title}>{vb:rawphrase title}</option>
+			<option value="dateline" {vb:raw sortbyselected.dateline}>{vb:rawphrase date}</option>
+			<option value="user" {vb:raw sortbyselected.username}>{vb:rawphrase user_name}</option>
+			<option value="relevance" {vb:raw sortbyselected.relevance}>{vb:rawphrase relevance}</option>
+		</select>
+		
+		<select name="order" class="" tabindex="1">
+			<option value="descending" {vb:raw sortorderselected.descending}>{vb:rawphrase in_descending_order}</option>
+			<option value="ascending" {vb:raw sortorderselected.ascending}>{vb:rawphrase in_ascending_order}</option>
+		</select>
+		</fieldset>
+	</div>
+	
+	{vb:raw human_verify}
+
+	<button type="submit" data-theme="a">{vb:rawphrase search_now}</button>
+
+	<input type="hidden" name="s" value="{vb:raw sessionhash}" />
+	<input type="hidden" name="securitytoken" value="{vb:raw securitytoken}"/>
+	<input type="hidden" name="do" value="process" />
+	<input type="hidden" name="primaryid" value="{vb:raw primaryid}" />
+	<input type="hidden" name="search_type" value="1" />
+	<input type="hidden" name="searchthreadid" value="{vb:raw searchthreadid}" />
+	<input type="hidden" name="contenttypeid" value="{vb:raw contenttypeid}" />
+
+</form>]]></template>
+		<template name="search_input_blogentry" templatetype="template" date="1299076116" username="vBulletin Solutions" version="4.1.2"><![CDATA[<form action="search.php?do=process" method="post" name="vbform" id="searchform">
+	<h3 class="ui-bar ui-bar-d">{vb:rawphrase search_for_blog_entries}</h3>
+	
+	<div data-role="fieldcontain">
+		<fieldset data-role="controlgroup">
+		<legend>{vb:rawphrase key_words}:</legend>
+		<input id="keyword" type="text" class="textbox" name="query" tabindex="1" value="{vb:raw query}" />
+		
+		<select id="titleonly" name="titleonly" tabindex="1">
+			<option value="0" {vb:raw titleonlyselected.0}>{vb:rawphrase search_description_title}</option>
+			<option value="1" {vb:raw titleonlyselected.1}>{vb:rawphrase search_titles_only}</option>
+		</select>
+
+		<input type="checkbox" name="ignorecomments" id="cb_ignorecomments" value="1" tabindex="1" {vb:raw ignorecommentschecked}/>
+		<label for="cb_ignorecomments">{vb:rawphrase ignore_comments}</label>
+		</fieldset>
+	</div>
+	
+	<div data-role="fieldcontain">
+		<fieldset data-role="controlgroup">
+		<legend>{vb:rawphrase blog_posted_by}:</legend>
+		<input type="text" class="textbox" name="searchuser" id="userfield_txt" tabindex="1" value="{vb:raw searchuser}" />
+		
+		<input type="checkbox" name="exactname" value="1" tabindex="1" id="cb_exactname" {vb:raw exactnamechecked} />
+		<label for="cb_exactname">{vb:rawphrase exact_name}</label>
+		</fieldset>
+	</div>
+	
+	<div data-role="fieldcontain">
+		<label for="tag_add_input">{vb:rawphrase tag}:</label>
+		<input type="text" class="textbox primary" name="tag" id="tag_add_input" tabindex="1" value="{vb:raw tag}" autocomplete="off" />
+	</div>
+	
+	<vb:if condition="$show['nocache']">
+		<input type="checkbox" name="nocache" value="1" id="cb_nocache" tabindex="1" {vb:raw nocachechecked}/>
+		<label for="cb_nocache" class="rightcol">{vb:rawphrase do_not_use_cached_results}</label>
+	</vb:if>
+
+	<button type="submit" data-theme="a">{vb:rawphrase search_now}</button>
+
+	<h3 class="ui-bar ui-bar-d">{vb:rawphrase additional_options}</h3>
+	<div data-role="fieldcontain">
+		<fieldset data-role="controlgroup">
+		<legend>{vb:rawphrase search_from}:</legend>
+		<select id="dateline" name="dateline" tabindex="1">
+			<option value="0" {vb:raw searchdateselected.0}>{vb:rawphrase any_date}</option>
+			<option value="lastvisit" {vb:raw searchdateselected.lastvisit}>{vb:rawphrase your_last_visit}</option>
+			<option value="1" {vb:raw searchdateselected.1}>{vb:rawphrase yesterday}</option>
+			<option value="7" {vb:raw searchdateselected.7}>{vb:rawphrase a_week_ago}</option>
+			<option value="14" {vb:raw searchdateselected.14}>{vb:rawphrase x_weeks_ago, 2}</option>
+			<option value="30" {vb:raw searchdateselected.30}> {vb:rawphrase a_month_ago}</option>
+			<option value="90" {vb:raw searchdateselected.90}>{vb:rawphrase x_months_ago, 3}</option>
+			<option value="180" {vb:raw searchdateselected.180}>{vb:rawphrase x_months_ago, 6}</option>
+			<option value="365" {vb:raw searchdateselected.365}>{vb:rawphrase a_year_ago}</option>
+		</select>
+		
+		<select name="beforeafter" tabindex="1">
+			<option value="after" {vb:raw beforeafterselected.after}>{vb:rawphrase and_newer}</option>
+			<option value="before" {vb:raw beforeafterselected.before}>{vb:rawphrase and_older}</option>
+		</select>
+		</fieldset>
+	</div>
+	
+	<div data-role="fieldcontain">
+		<fieldset data-role="controlgroup">
+		<legend>{vb:rawphrase sort_results_by}:</legend>
+		<select id="sortby" name="sortby" tabindex="1">
+			<option value="dateline" {vb:raw sortbyselected.dateline}>{vb:rawphrase blog_entry_post_date_time}</option>
+			<option value="bglastcomment" {vb:raw sortbyselected.bglastcomment}>{vb:rawphrase last_comment}</option>
+			<option value="relevance" {vb:raw sortbyselected.relevance}>{vb:rawphrase relevance}</option>
+		</select>
+		
+		<select name="order" class="" tabindex="1">
+			<option value="desc" {vb:raw sortorderselected.desc}>{vb:rawphrase in_descending_order}</option>
+			<option value="asc" {vb:raw sortorderselected.asc}>{vb:rawphrase in_ascending_order}</option>
+		</select>
+		</fieldset>
+	</div>
+
+	{vb:raw human_verify}
+
+	<button type="submit" data-theme="a">{vb:rawphrase search_now}</button>
+
+	<input type="hidden" name="s" value="{vb:raw sessionhash}" />
+	<input type="hidden" name="securitytoken" value="{vb:raw securitytoken}"/>
+	<input type="hidden" name="do" value="process" />
+	<input type="hidden" name="contenttypeid" value="{vb:raw contenttypeid}"/>
+	<input type="hidden" name="search_type" value="1"/>
+	<input type="hidden" name="showposts" value="0"/>
+	<input type="hidden" name="starteronly" value="1"/>
+
+</form>]]></template>
+	</templategroup>
+	<stylevardfns>
+	</stylevardfns>
+	<stylevars>
+	</stylevars>
+</style>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<hooks>
+	<hooktype type="vbcms">
+		<hook>vbcms_article_defaultcontent_end</hook>
+		<hook>vbcms_article_defaultcontent_start</hook>
+		<hook>vbcms_article_populate_start</hook>
+		<hook>vbcms_article_populate_end</hook>
+		<hook>vbcms_article_querydata</hook>
+		<hook>vbcms_article_save_start</hook>
+		<hook>vbcms_article_save_end</hook>
+		<hook>vbcms_articleblog_presave</hook>
+		<hook>vbcms_articlepost_presave</hook>
+		<hook>vbcms_collection_article_querydata</hook>
+		<hook>vbcms_collection_content_querydata</hook>
+		<hook>vbcms_collection_layout_querydata</hook>
+		<hook>vbcms_collection_section_querydata</hook>
+		<hook>vbcms_collection_widget_querydata</hook>
+		<hook>vbcms_content_populate_end</hook>
+		<hook>vbcms_content_populate_start</hook>
+		<hook>vbcms_content_populate_end</hook>
+		<hook>vbcms_content_querydata</hook>
+		<hook>vbcms_content_publish_editor</hook>
+		<hook>vbcms_layout_querydata</hook>
+		<hook>vbcms_phpeval_defaultcontent_end</hook>
+		<hook>vbcms_phpeval_defaultcontent_start</hook>
+		<hook>vbcms_phpeval_populate_end</hook>
+		<hook>vbcms_phpeval_populate_start</hook>
+		<hook>vbcms_phpeval_save_end</hook>
+		<hook>vbcms_phpeval_save_start</hook>
+		<hook>vbcms_rate_querydata</hook>
+		<hook>vbcms_section_defaultcontent_end</hook>
+		<hook>vbcms_section_defaultcontent_start</hook>
+		<hook>vbcms_section_populate_end</hook>
+		<hook>vbcms_section_populate_start</hook>
+		<hook>vbcms_section_save_end</hook>
+		<hook>vbcms_section_save_start</hook>
+		<hook>vbcms_staticpage_defaultcontent_end</hook>
+		<hook>vbcms_staticpage_defaultcontent_start</hook>
+		<hook>vbcms_staticpage_populate_end</hook>
+		<hook>vbcms_staticpage_populate_start</hook>
+		<hook>vbcms_staticpage_save_end</hook>
+		<hook>vbcms_staticpage_save_start</hook>
+		<hook>vbcms_content_querydata</hook>
+		<hook>vbcms_layout_querydata</hook>
+		<hook>vbcms_article_querydata</hook>
+		<hook>vbcms_rate_querydata</hook>
+		<hook>vbcms_widget_querydata</hook>
+		<hook>vbcms_widgetdm_start</hook>
+		<hook>vbcms_widgetdm_presave</hook>
+		<hook>vbcms_widgetdm_postsave</hook>
+		<hook>vbcms_widgetdm_postdelete</hook>
+		<hook>vbcms_widget_querydata</hook>
+		<hook>vbcms_nodeview_start</hook>
+		<hook>vbcms_nodeview_complete</hook>
+		<hook>vbcms_widgets_start</hook>
+		<hook>vbcms_widgets_complete</hook>
+		<hook>vbcms_process_widget_start</hook>
+		<hook>vbcms_process_widget_complete</hook>
+		<hook>vbcms_article_query_commentcount</hook>
+	</hooktype>
+</hooks>
+
+<!-- CVS: $RCSfile$ - $Revision: 29616 $ -->

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?> 
+<navgroups product="postrelease">
+	<navgroup phrase="advertising" permissions="canadminads" displayorder="19">	
+		<navoption displayorder="70">
+			<phrase>postrelease_global_options</phrase>
+			<link>postrelease.php</link>
+		</navoption>
+	</navgroup>
+</navgroups>

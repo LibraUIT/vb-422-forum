@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<navgroups>
+	<navgroup phrase="advertising" permissions="canadminads" displayorder="19">
+	
+		<navoption displayorder="10">
+			<phrase>google_adsense</phrase>
+			<link>deployads.php</link>
+		</navoption>
+			
+	</navgroup>
+</navgroups>

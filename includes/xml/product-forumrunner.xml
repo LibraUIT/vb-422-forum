@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<product productid="forumrunner" active="0">
+	<title>Forum Runner</title>
+	<description>Adds push notification for your users using Forum Runner on the iPhone/iPod/iPad.  Also takes care of notifying users that your forum supports Forum Runner if they are viewing from a supported device.</description>
+	<version>4.2.2</version>
+	<url>http://www.forumrunner.com</url>
+	<versioncheckurl />
+	<dependencies>
+		<dependency dependencytype="vbulletin" minversion="4.2.2" maxversion="4.3.0 Alpha 1" />
+	</dependencies>
+	<codes>
+		<code version="*">
+			<installcode><![CDATA[echo '<p>The Forum Runner installation must be executed via the install system.</p>
+<p>To continue to the Forum Runner installation, click <a href="../install/upgrade.php?version=forumrunner&amp;only=1">here</a>.';
+die();]]></installcode>
+			<uninstallcode><![CDATA[$db->query("DROP TABLE IF EXISTS " . TABLE_PREFIX . "forumrunner_push_data");
+$db->query("DROP TABLE IF EXISTS " . TABLE_PREFIX . "forumrunner_push_users");]]></uninstallcode>
+		</code>
+	</codes>
+	<templates>
+		<template name="fr_redirect" templatetype="template" date="1271089062" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[<!-- Forum Runner Begin -->
+<script type="text/javascript" src="$vboptions[bburl]/forumrunner/detect.js"></script>
+<!-- Forum Runner End -->]]></template>
+	</templates>
+	<stylevardfns>
+	</stylevardfns>
+	<stylevars>
+	</stylevars>
+	<plugins>
+		<plugin active="1" executionorder="1">
+			<title>Forum Runner: Admin Options: Print CMS Categories</title>
+			<hookname>admin_options_print</hookname>
+			<phpcode><![CDATA[if ($setting['optioncode'] == 'fr:cms') {
+  if (file_exists(DIR . '/includes/adminfunctions_cms.php')) {
+    require_once(DIR . '/includes/adminfunctions_cms.php');
+    require_once(DIR . '/includes/functions_cms_layout.php');
+    require_once(DIR . '/packages/vbcms/contentmanager.php');
+
+    if (!isset($vbulletin->userinfo['permissions']['cms'])) {
+      vBCMS_Permissions::getUserPerms();
+    }
+
+    if (vB_Types::instance()->getContentTypeID("vBCms_Section")) {
+      $publishlist = implode(', ', vB::$vbulletin->userinfo['permissions']['cms']['canpublish']);
+      $viewlist = implode(', ', vB::$vbulletin->userinfo['permissions']['cms']['allview']);
+
+      $result = $vbulletin->db->query_read("
+        SELECT node.nodeid, node.parentnode, node.url, node.permissionsfrom, node.setpublish, node.publishdate, node.noderight, info.title
+        FROM " . TABLE_PREFIX . "cms_node AS node
+        INNER JOIN " . TABLE_PREFIX . "cms_nodeinfo AS info ON info.nodeid = node.nodeid
+        WHERE node.contenttypeid = " . vB_Types::instance()->getContentTypeID("vBCms_Section") . "
+            AND ((node.permissionsfrom IN ($viewlist)  AND node.hidden = 0) OR (node.permissionsfrom IN ($publishlist)))
+            ORDER BY node.nodeleft"
+      );
+
+      $sections = array();
+      while ($section = $vbulletin->db->fetch_array($result)) {
+        $sections[$section['nodeid']] = $section['title'];
+      }
+
+      print_select_row($description, $name, $sections, $setting['value']);
+    } else {
+      print_select_row($description, $name, array('-1' => 'CMS Not Installed'), -1);
+    }
+  }
+  $handled = true;
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="1">
+			<title>Forum Runner: Admin Options Override</title>
+			<hookname>admin_options_print</hookname>
+			<phpcode><![CDATA[
+switch ($setting['optioncode']) {
+case 'forumrunner:exclude':
+  $exclude = array();
+  if (isset($vbulletin->options['forumrunner_exclude'])) {
+    $exclude = @explode(',', $vbulletin->options['forumrunner_exclude']);
+  }
+  print_forum_chooser($settingphrase['setting_forumrunner_exclude_desc'], 'forumrunner_exclude[]', $exclude, $settingphrase['forumrunner_exclude_no_forums'], false, true);
+  $handled = true;
+  break;
+case 'forumrunner:colorpicker':
+  @require_once(DIR . '/includes/adminfunctions_template.php');
+  global $numcolors, $colorPickerWidth, $colorPickerType;
+  if (!isset($numcolors)) {
+    $numcolors = 0;
+  }
+  $frcolorpicker = construct_color_picker(11);
+  $frbburl = $vbulletin->options['bburl'];
+  $frcpstylefolder = $vbulletin->options['cpstylefolder'];
+  $frwidth = intval($colorPickerWidth);
+  $frtype = intval($colorPickerType);
+  $frhtml = <<<EOF
+    <table cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td><input type="text" class="col-c" name="{$setting['varname']}" id="color_{$numcolors}" value="{$setting['value']}" tabindex="1" size="22" onchange="preview_color($numcolors)" dir="ltr" />&nbsp;</td>
+        <td><div id="preview_{$numcolors}" class="colorpreview" onclick="open_color_picker($numcolors, event)"></div></td>
+      </tr>
+    </table>
+EOF;
+
+  $numcolors++;
+
+  if ($setting['varname'] == 'forumrunner_branding_navbar_bg') {
+    // Last one
+    $frhtml .= <<<EOF
+    <script type="text/javascript" src="../clientscript/vbulletin_cpcolorpicker.js"></script>
+      $frcolorpicker
+      <script type="text/javascript">
+        <!--
+          var bburl = "{$frbburl}/";
+          var cpstylefolder = "{$frcpstylefolder}";
+          var numColors = $numcolors;
+          var colorPickerWidth = {$frwidth};
+          var colorPickerType = {$frtype};
+          init_color_preview();
+        //-->
+      </script>
+EOF;
+  }
+
+  print_label_row($settingphrase["setting_{$setting['varname']}_desc"], $frhtml);
+
+  $handled = true;
+  break;
+}
+]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="1">
+			<title>Forum Runner: Admin Options Processing</title>
+			<hookname>admin_options_processing</hookname>
+			<phpcode><![CDATA[
+if ($oldsetting['varname'] == 'forumrunner_redirect_onoff') {
+  $vbulletin->input->clean_array_gpc('p', array(
+    'forumrunner_exclude'  => TYPE_ARRAY,
+    'forumrunner_branding_navbar_bg' => TYPE_STR,
+  ));
+
+  $exclude = '';
+  if (is_array($vbulletin->GPC['forumrunner_exclude'])) {
+    $exclude = @join(',', $vbulletin->GPC['forumrunner_exclude']);
+  }
+  $vbulletin->db->query_write("
+    UPDATE " . TABLE_PREFIX . "setting
+    SET value = '" . $vbulletin->db->escape_string($exclude) . "'
+    WHERE varname = 'forumrunner_exclude'
+  ");
+
+  function
+  update_color ($color, $value) {
+    global $vbulletin;
+    $value = trim($value);
+    if ($value == 'transparent') {
+      $value = '';
+    }
+    if (preg_match('/rgb\(([\s\d]+),([\s\d]+),([\s\d]+)\)/', $value, $matches)) {
+      $value = '#' .
+        str_pad(dechex($matches[1]), 2, '0', STR_PAD_LEFT) .
+        str_pad(dechex($matches[2]), 2, '0', STR_PAD_LEFT) .
+        str_pad(dechex($matches[3]), 2, '0', STR_PAD_LEFT);
+    }
+    $vbulletin->db->query_write("
+      UPDATE " . TABLE_PREFIX . "setting
+      SET value = '" . $vbulletin->db->escape_string($value) . "'
+      WHERE varname = '$color'
+    ");
+  }
+
+  update_color('forumrunner_branding_navbar_bg', $vbulletin->GPC['forumrunner_branding_navbar_bg']);
+}
+]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Forum Runner: Cache Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[$cache[] = 'fr_redirect';]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="1">
+			<title>Forum Runner: Override standard_error()</title>
+			<hookname>error_generic</hookname>
+			<phpcode><![CDATA[if (defined('IN_FRNR') && defined('FR_UTILS_INCLUDED')) {
+  fr_standard_error($error);
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="1">
+			<title>Forum Runner: Disable Incompatible Addons</title>
+			<hookname>global_bootstrap_init_complete</hookname>
+			<phpcode><![CDATA[// Force Users to Read A Thread
+if (isset($vbulletin->options['forcereadthread_disable_file'])) {
+  $vbulletin->options['forcereadthread_disable_file'] .= "\r\nrequest.php";
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="1">
+			<title>Forum Runner: Location Display</title>
+			<hookname>online_location_unknown</hookname>
+			<phpcode><![CDATA[if (strpos($userinfo['location'], 'forumrunner/request.php') !== false) {
+  if (false) {
+    $userinfo['action'] = 'Browsing via mobile browser';
+  } else {
+    $userinfo['action'] = 'Browsing via <a target="_new" href="http://www.forumrunner.com">Forum Runner</a>';
+  }
+  $handled = true;
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="1">
+			<title>Forum Runner: Append Detect Code</title>
+			<hookname>parse_templates</hookname>
+			<phpcode><![CDATA[if ($vbulletin->options['forumrunner_redirect_onoff'] == 1)
+{
+    $fr_tpl = vB_Template::create('fr_redirect');
+    $vbulletin->templatecache['headinclude'] .= ' $final_rendered .= \'' . $fr_tpl->render() .  '\';';
+} 
+]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="Scheduled Tasks" fieldname="cron">
+			<phrase name="task_forumrunnerpush_desc" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[This runs every 10 minutes and queues up private message and thread subscription notifications to send to the Forum Runner server to be distributed to your users running Forum Runner.  It sends no personal or identifying information.]]></phrase>
+			<phrase name="task_forumrunnerpush_title" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Forum Runner Push Notification]]></phrase>
+			<phrase name="task_forumrunnercheckstatus_desc" date="1365151162" username="ForumRunner" version="4.2.1 Alpha 1"><![CDATA[This task runs once a day to make sure your forum is published in the main directory.  If it is unpublished, it will disable the prompt for your users to download the Forum Runner app.]]></phrase>
+			<phrase name="task_forumrunnercheckstatus_title" date="1365151162" username="ForumRunner" version="4.2.1 Alpha 1"><![CDATA[Forum Runner Check Status]]></phrase>
+			<phrase name="task_forumrunnercheckstatus_log" date="1365151162" username="ForumRunner" version="4.2.1 Alpha 1" />
+		</phrasetype>
+		<phrasetype name="Error Messages" fieldname="error">
+			<phrase name="fr_no_permission_current" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[You do not have permission to view current threads in any forums.]]></phrase>
+		</phrasetype>
+		<phrasetype name="GLOBAL" fieldname="global">
+			<phrase name="fr_thanked_by" date="1324503838" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Thanked by]]></phrase>
+		</phrasetype>
+		<phrasetype name="Register" fieldname="register">
+			<phrase name="fr_register_forum_rules" date="1303268090" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[<p><strong>Forum Rules</strong></p>
+
+<p>Registration to this forum is free! We do insist that you abide by the rules and policies detailed below. If you have read over and agree to the terms, please check the appropriate box in the app.</p>
+
+<p>Although the administrators and moderators of this forum will attempt to keep all objectionable messages off this forum, it is impossible for us to review all messages. All messages express the views of the author, and the owners of the forum will not be held responsible for the content of any message.</p>
+
+<p>By agreeing to these rules, you warrant that you will not post any messages that are obscene, vulgar, sexually-oriented, hateful, threatening, or otherwise violative of any laws.</p>
+
+<p>The owners of the forum reserve the right to remove, edit, move or close any thread for any reason.</p>
+
+<p>By creating an account on this forum, you are also stating that you are at least 13 years of age.</p>]]></phrase>
+		</phrasetype>
+		<phrasetype name="Control Panel Options" fieldname="cpoption">
+			<phrase name="forumrunner_exclude_no_forums" date="1288667090" username="ForumRunner" version="4.2.1 Alpha 1"><![CDATA[Exclude No Forums]]></phrase>
+		</phrasetype>
+		<phrasetype name="vBulletin Settings" fieldname="vbsettings">
+			<phrase name="setting_forumrunner_admob_publisherid_android_desc" date="1335178987" username="ForumRunner" version="4.2.1 Alpha 1"><![CDATA[Enter the AdMob Publisher ID for Android that you have set up.  See <a target="_new" href="http://www.forumrunner.com/forum/showthread.php?t=511">this post</a> for full instructions on setting up AdMob.]]></phrase>
+			<phrase name="setting_forumrunner_admob_publisherid_android_title" date="1299107717" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[AdMob Publisher ID for Android]]></phrase>
+			<phrase name="setting_forumrunner_admob_publisherid_iphone_desc" date="1335178999" username="ForumRunner" version="4.2.1 Alpha 1"><![CDATA[Enter the AdMob Publisher ID for iPhone that you have set up.  See <a target="_new" href="http://www.forumrunner.com/forum/showthread.php?t=511">this post</a> for full instructions on setting up AdMob.]]></phrase>
+			<phrase name="setting_forumrunner_admob_publisherid_iphone_title" date="1299107717" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[AdMob Publisher ID for iPhone]]></phrase>
+			<phrase name="setting_forumrunner_branding_navbar_bg_desc" date="1292948149" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Choose a color for the background of the headers when your users browse into your app.  Leave empty (or transparent) for the default color. This *MUST* be in the format "#rrggbb" OR "rgb(r, g, b)".]]></phrase>
+			<phrase name="setting_forumrunner_branding_navbar_bg_title" date="1292948149" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Background Color of Mobile App's Header]]></phrase>
+			<phrase name="setting_forumrunner_cms_onoff_desc" date="1281104613" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Select Yes if you would like users browsing your forum via Forum Runner to have a "News" menu which will list items from vBulletin's built in CMS system and allow your users to read your CMS postings as well as respond to them.]]></phrase>
+			<phrase name="setting_forumrunner_cms_onoff_title" date="1281104613" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Enable In-App CMS Support?]]></phrase>
+			<phrase name="setting_forumrunner_cms_section_desc" date="1281104613" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Select which CMS section you would like to be shown to your users when they tap on the "News" menu by default.  They will be able to change sections by tapping "Sections".]]></phrase>
+			<phrase name="setting_forumrunner_cms_section_title" date="1281104613" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Default CMS Section to display]]></phrase>
+			<phrase name="setting_forumrunner_enable_registration_desc" date="1303923709" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Enable this setting if you wish to allow in-app registration from your mobile devices.  If disabled, when a user taps the "Register" button, they will simply be forwarded to your existing registration page.]]></phrase>
+			<phrase name="setting_forumrunner_enable_registration_title" date="1303923709" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Allow In-App Registration?]]></phrase>
+			<phrase name="setting_forumrunner_exclude_desc" date="1335177893" username="ForumRunner" version="4.2.1 Alpha 1"><![CDATA[Choose which forums you would like to exclude from being listed through Forum Runner to your mobile users.  You can use Control-Click to select multiple forums.  If you want to list all forums, choose "Exclude No Forums".]]></phrase>
+			<phrase name="setting_forumrunner_exclude_title" date="1288667090" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Exclude Forums From Forum Runner]]></phrase>
+			<phrase name="setting_forumrunner_google_analytics_id_desc" date="1299107717" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Enter the Google Analytics Account ID you wish to use for tracking analytic data.  See <a href="http://www.forumrunner.com/forum/showthread.php?t=519" target="_new">this post</a> on how to set up Google Analytics for Forum Runner.  Leave blank if you do not wish to use this feature.]]></phrase>
+			<phrase name="setting_forumrunner_google_analytics_id_title" date="1299107717" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Google Analytics Account ID]]></phrase>
+			<phrase name="setting_forumrunner_googleads_bottomthread_desc" date="1335179008" username="ForumRunner" version="4.2.1 Alpha 1"><![CDATA[Select Yes if you would like Forum Runner to embed a Google AdSense or AdMob ad at the bottom of the thread page (above the thread summary).]]></phrase>
+			<phrase name="setting_forumrunner_googleads_bottomthread_title" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Place Google or AdMob Ad At Bottom Of Thread?]]></phrase>
+			<phrase name="setting_forumrunner_googleads_exclude_usergroups_desc" date="1335179014" username="ForumRunner" version="4.2.1 Alpha 1"><![CDATA[Comma separated list of Usergroup ID numbers to EXCLUDE from sending Google AdSense or AdMob ads to.  You can get the ID #s from the "Usergroup Manager".  This will override the include setting above (for example, if you want to exclude a secondary usergroup from AdSense/AdMob ads.]]></phrase>
+			<phrase name="setting_forumrunner_googleads_exclude_usergroups_title" date="1291398556" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Usergroups to EXCLUDE sending Google or AdMob Ads To]]></phrase>
+			<phrase name="setting_forumrunner_googleads_javascript_desc" date="1335179022" username="ForumRunner" version="4.2.1 Alpha 1"><![CDATA[Please note that if you are using AdMob, fill in the field above.  This field is only for Google AdSense.  Enter Google AdSense Mobile Javascript Code here.  See <a target="_new" href="http://www.forumrunner.com/forum/showthread.php?t=29">this post</a> for full instructions on setting up Google AdSense.]]></phrase>
+			<phrase name="setting_forumrunner_googleads_javascript_title" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Google AdSense Mobile Javascript]]></phrase>
+			<phrase name="setting_forumrunner_googleads_onoff_desc" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Select Yes if you would like Forum Runner to embed Google AdSense or AdMob ads into threads on your user's mobile devices running the app.  You will need to <a target="_new" href="http://www.forumrunner.com/forum/showthread.php?t=29">follow these instructions</a> and fill in the following options to get this running.]]></phrase>
+			<phrase name="setting_forumrunner_googleads_onoff_title" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Enable Google AdSense or AdMob Integration?]]></phrase>
+			<phrase name="setting_forumrunner_googleads_threadlist_desc" date="1335179029" username="ForumRunner" version="4.2.1 Alpha 1"><![CDATA[Select Yes if you would like Forum Runner to embed a Google AdSense or AdMob ad in the thread list (above the "Load More Threads" button).]]></phrase>
+			<phrase name="setting_forumrunner_googleads_threadlist_title" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Place Google or AdMob Ad In Thread List?]]></phrase>
+			<phrase name="setting_forumrunner_googleads_topthread_desc" date="1335179036" username="ForumRunner" version="4.2.1 Alpha 1"><![CDATA[Select Yes if you would like Forum Runner to embed a Google AdSense or AdMob ad at the top of the thread page (below the first post).]]></phrase>
+			<phrase name="setting_forumrunner_googleads_topthread_title" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Place Google or AdMob Ad At Top Of Thread?]]></phrase>
+			<phrase name="setting_forumrunner_googleads_usergroups_desc" date="1335179044" username="ForumRunner" version="4.2.1 Alpha 1"><![CDATA[Comma separated list of Usergroup ID numbers to send Google AdSense or AdMob ads to.  You can get the ID #s from the "Usergroup Manager".]]></phrase>
+			<phrase name="setting_forumrunner_googleads_usergroups_title" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Usergroups to send Google or AdMob Ads To]]></phrase>
+			<phrase name="setting_forumrunner_redirect_onoff_desc" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Select Yes if you would like Forum Runner to send your users browsing through their mobile browsers on supported devices a one-time message notifying them about Forum Runner support, or No to disable this.  If enabled and the user cancels the prompt, they will not be prompted again.]]></phrase>
+			<phrase name="setting_forumrunner_redirect_onoff_title" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Enable Forum Runner Prompt?]]></phrase>
+			<phrase name="setting_forumrunner_signature_desc" date="1292948149" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Allow "Posted from my <device> using Forum Runner" to be appended to posts from your users who post from Forum Runner?]]></phrase>
+			<phrase name="setting_forumrunner_signature_title" date="1292948149" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Allow Forum Runner Signatures?]]></phrase>
+			<phrase name="settinggroup_forumrunner" date="1268799452" username="ForumRunner" version="4.1.12 Alpha 1"><![CDATA[Forum Runner Settings]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+		<settinggroup name="forumrunner" displayorder="6690">
+			<setting varname="forumrunner_redirect_onoff" displayorder="10">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="forumrunner_cms_onoff" displayorder="11">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="forumrunner_cms_section" displayorder="12">
+				<datatype>number</datatype>
+				<optioncode>fr:cms</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="forumrunner_exclude" displayorder="13">
+				<datatype>free</datatype>
+				<optioncode>forumrunner:exclude</optioncode>
+			</setting>
+			<setting varname="forumrunner_branding_navbar_bg" displayorder="14">
+				<datatype>free</datatype>
+				<optioncode>forumrunner:colorpicker</optioncode>
+			</setting>
+			<setting varname="forumrunner_signature" displayorder="15">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="forumrunner_enable_registration" displayorder="16">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>1</defaultvalue>
+			</setting>
+			<setting varname="forumrunner_google_analytics_id" displayorder="19">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="forumrunner_googleads_onoff" displayorder="20">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="forumrunner_googleads_threadlist" displayorder="21">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="forumrunner_googleads_topthread" displayorder="22">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="forumrunner_googleads_bottomthread" displayorder="23">
+				<datatype>boolean</datatype>
+				<optioncode>yesno</optioncode>
+				<defaultvalue>0</defaultvalue>
+			</setting>
+			<setting varname="forumrunner_googleads_usergroups" displayorder="30">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="forumrunner_googleads_exclude_usergroups" displayorder="31">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="forumrunner_admob_publisherid_iphone" displayorder="35">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="forumrunner_admob_publisherid_android" displayorder="36">
+				<datatype>free</datatype>
+			</setting>
+			<setting varname="forumrunner_googleads_javascript" displayorder="40">
+				<datatype>free</datatype>
+				<optioncode>textarea</optioncode>
+			</setting>
+		</settinggroup>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+		<cron varname="forumrunnerpush" active="1" loglevel="0">
+			<filename>./forumrunner/push.php</filename>
+			<scheduling weekday="-1" day="-1" hour="-1" minute="0,10,20,30,40,50" />
+		</cron>
+		<cron varname="forumrunnercheckstatus" active="1" loglevel="0">
+			<filename>./forumrunner/checkstatus.php</filename>
+			<scheduling weekday="-1" day="-1" hour="5" minute="0" />
+		</cron>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+	<navigation>
+	</navigation>
+</product>
